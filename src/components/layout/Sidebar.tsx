@@ -14,6 +14,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -51,29 +52,44 @@ const NavItem = ({ icon, label, active, badge, onClick }: NavItemProps) => (
 );
 
 interface SidebarProps {
-  activeSection: string;
-  onSectionChange: (section: string) => void;
+  activeSection?: string;
+  onSectionChange?: (section: string) => void;
 }
 
 export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const navItems = [
-    { id: "dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
-    { id: "leads", icon: <Users className="w-5 h-5" />, label: "Leads", badge: 12 },
-    { id: "agenda", icon: <Calendar className="w-5 h-5" />, label: "Agenda" },
-    { id: "whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp", badge: 5 },
-    { id: "followup", icon: <RefreshCw className="w-5 h-5" />, label: "Follow-up" },
-    { id: "pos-procedimento", icon: <Heart className="w-5 h-5" />, label: "Pós-Procedimento" },
-    { id: "relatorios", icon: <BarChart3 className="w-5 h-5" />, label: "Relatórios" },
-    { id: "financeiro", icon: <DollarSign className="w-5 h-5" />, label: "Financeiro" },
-    { id: "equipe", icon: <UserCog className="w-5 h-5" />, label: "Equipe" },
-    { id: "automacoes", icon: <Zap className="w-5 h-5" />, label: "Automações" },
+    { id: "dashboard", path: "/", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
+    { id: "leads", path: "/leads", icon: <Users className="w-5 h-5" />, label: "Leads", badge: 12 },
+    { id: "agenda", path: "/agenda", icon: <Calendar className="w-5 h-5" />, label: "Agenda" },
+    { id: "whatsapp", path: "/whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp", badge: 5 },
+    { id: "followup", path: "/followup", icon: <RefreshCw className="w-5 h-5" />, label: "Follow-up" },
+    { id: "pos-procedimento", path: "/pos-procedimento", icon: <Heart className="w-5 h-5" />, label: "Pós-Procedimento" },
+    { id: "relatorios", path: "/relatorios", icon: <BarChart3 className="w-5 h-5" />, label: "Relatórios" },
+    { id: "financeiro", path: "/financeiro", icon: <DollarSign className="w-5 h-5" />, label: "Financeiro" },
+    { id: "equipe", path: "/equipe", icon: <UserCog className="w-5 h-5" />, label: "Equipe" },
+    { id: "automacoes", path: "/automacoes", icon: <Zap className="w-5 h-5" />, label: "Automações" },
   ];
+
+  const handleNavClick = (item: typeof navItems[0]) => {
+    navigate(item.path);
+    onSectionChange?.(item.id);
+  };
+
+  const isActive = (item: typeof navItems[0]) => {
+    if (item.path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(item.path);
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sidebar-primary to-teal-400 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
@@ -91,9 +107,9 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
             key={item.id}
             icon={item.icon}
             label={item.label}
-            active={activeSection === item.id}
+            active={isActive(item)}
             badge={item.badge}
-            onClick={() => onSectionChange(item.id)}
+            onClick={() => handleNavClick(item)}
           />
         ))}
       </nav>
@@ -103,7 +119,7 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
         <NavItem
           icon={<Settings className="w-5 h-5" />}
           label="Configurações"
-          onClick={() => onSectionChange("settings")}
+          onClick={() => navigate("/configuracoes")}
         />
         
         {/* User Profile */}
