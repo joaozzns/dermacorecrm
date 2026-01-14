@@ -116,13 +116,14 @@
 @layer components {
   /* Premium Card Styles */
   .card-premium {
-    @apply bg-card rounded-xl border border-border/50 shadow-md transition-all duration-300;
+    @apply bg-card rounded-xl shadow-md transition-all duration-300;
+    border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-md);
   }
   
   .card-premium:hover {
     box-shadow: var(--shadow-lg);
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   /* Revenue Status Cards */
@@ -131,23 +132,23 @@
   }
   
   .revenue-confirmed {
-    background: linear-gradient(135deg, hsl(var(--revenue-confirmed-bg)), hsl(160 60% 92%));
-    @apply border border-[hsl(var(--revenue-confirmed))]/20;
+    background: linear-gradient(135deg, hsl(160 60% 95%), hsl(160 60% 92%));
+    border: 1px solid hsl(160 60% 40% / 0.2);
   }
   
   .revenue-at-risk {
-    background: linear-gradient(135deg, hsl(var(--revenue-at-risk-bg)), hsl(35 90% 92%));
-    @apply border border-[hsl(var(--revenue-at-risk))]/20;
+    background: linear-gradient(135deg, hsl(35 90% 95%), hsl(35 90% 92%));
+    border: 1px solid hsl(35 90% 50% / 0.2);
   }
   
   .revenue-paused {
-    background: linear-gradient(135deg, hsl(var(--revenue-paused-bg)), hsl(200 20% 92%));
-    @apply border border-[hsl(var(--revenue-paused))]/20;
+    background: linear-gradient(135deg, hsl(200 20% 95%), hsl(200 20% 92%));
+    border: 1px solid hsl(200 20% 55% / 0.2);
   }
   
   .revenue-recoverable {
-    background: linear-gradient(135deg, hsl(var(--revenue-recoverable-bg)), hsl(172 66% 92%));
-    @apply border border-[hsl(var(--revenue-recoverable))]/20;
+    background: linear-gradient(135deg, hsl(172 66% 95%), hsl(172 66% 92%));
+    border: 1px solid hsl(172 66% 35% / 0.2);
   }
   
   /* Metric Display */
@@ -182,15 +183,21 @@
   
   /* Alert Cards */
   .alert-critical {
-    @apply bg-[hsl(var(--revenue-lost-bg))] border-l-4 border-[hsl(var(--revenue-lost))] rounded-r-lg p-4;
+    background: hsl(0 70% 95%);
+    border-left: 4px solid hsl(0 70% 55%);
+    @apply rounded-r-lg p-4;
   }
   
   .alert-warning {
-    @apply bg-[hsl(var(--revenue-at-risk-bg))] border-l-4 border-[hsl(var(--revenue-at-risk))] rounded-r-lg p-4;
+    background: hsl(35 90% 95%);
+    border-left: 4px solid hsl(35 90% 50%);
+    @apply rounded-r-lg p-4;
   }
   
   .alert-success {
-    @apply bg-[hsl(var(--revenue-confirmed-bg))] border-l-4 border-[hsl(var(--revenue-confirmed))] rounded-r-lg p-4;
+    background: hsl(160 60% 95%);
+    border-left: 4px solid hsl(160 60% 40%);
+    @apply rounded-r-lg p-4;
   }
   
   /* Premium Button Variants */
