@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Agenda from "./pages/Agenda";
 import Leads from "./pages/Leads";
+import Followup from "./pages/Followup";
+import WhatsApp from "./pages/WhatsApp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/leads" element={<Leads />} />
+          <Route path="/followup" element={<Followup />} />
+          <Route path="/whatsapp" element={<WhatsApp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
