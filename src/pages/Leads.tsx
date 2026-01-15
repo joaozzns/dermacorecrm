@@ -1,26 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { 
   Users, 
   Plus, 
   Search, 
-  Filter, 
-  MoreHorizontal,
   Clock,
   DollarSign,
   MessageCircle,
   Phone,
   Mail,
-  Calendar,
-  Star,
   TrendingUp,
   Instagram,
   Globe,
   Share2,
   User,
-  ChevronDown,
-  ArrowRight,
-  Sparkles
+  Sparkles,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,25 +36,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface Lead {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  procedimento: string;
-  valorPotencial: number;
-  origem: 'instagram' | 'facebook' | 'google' | 'indicacao' | 'whatsapp' | 'site';
-  etapa: string;
-  tempoParado: string;
-  score: number;
-  ultimoContato?: string;
-  responsavel?: string;
-  observacoes?: string;
-}
+import { useAuth } from "@/hooks/useAuth";
+import { useLeads, Lead, LeadStatus } from "@/hooks/useLeads";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface EtapaPipeline {
-  id: string;
+  id: LeadStatus;
   nome: string;
   cor: string;
   bgCor: string;
@@ -66,34 +51,12 @@ interface EtapaPipeline {
 
 const etapas: EtapaPipeline[] = [
   { id: "novo", nome: "Novo Lead", cor: "bg-blue-500", bgCor: "bg-blue-50" },
-  { id: "contato", nome: "Contato Feito", cor: "bg-purple-500", bgCor: "bg-purple-50" },
-  { id: "avaliacao", nome: "Avaliação Agendada", cor: "bg-amber-500", bgCor: "bg-amber-50" },
-  { id: "vendido", nome: "Procedimento Vendido", cor: "bg-emerald-500", bgCor: "bg-emerald-50" },
-  { id: "realizado", nome: "Procedimento Realizado", cor: "bg-teal-600", bgCor: "bg-teal-50" },
-  { id: "pos", nome: "Pós Procedimento", cor: "bg-cyan-500", bgCor: "bg-cyan-50" },
+  { id: "contatado", nome: "Contato Feito", cor: "bg-purple-500", bgCor: "bg-purple-50" },
+  { id: "qualificado", nome: "Qualificado", cor: "bg-amber-500", bgCor: "bg-amber-50" },
+  { id: "agendado", nome: "Agendado", cor: "bg-emerald-500", bgCor: "bg-emerald-50" },
+  { id: "convertido", nome: "Convertido", cor: "bg-teal-600", bgCor: "bg-teal-50" },
+  { id: "perdido", nome: "Perdido", cor: "bg-red-500", bgCor: "bg-red-50" },
 ];
-
-const leadsData: Lead[] = [
-  { id: "1", nome: "Ana Carolina Silva", email: "ana@email.com", telefone: "(11) 99999-1234", procedimento: "Harmonização Facial", valorPotencial: 8500, origem: "instagram", etapa: "novo", tempoParado: "2h", score: 92 },
-  { id: "2", nome: "Carla Santos Oliveira", email: "carla@email.com", telefone: "(11) 98888-5678", procedimento: "Botox", valorPotencial: 2500, origem: "whatsapp", etapa: "novo", tempoParado: "5h", score: 78 },
-  { id: "3", nome: "Juliana Costa", email: "juliana@email.com", telefone: "(11) 97777-9012", procedimento: "Preenchimento Labial", valorPotencial: 3500, origem: "google", etapa: "novo", tempoParado: "1d", score: 65 },
-  { id: "4", nome: "Maria Oliveira", email: "maria@email.com", telefone: "(11) 96666-3456", procedimento: "Skinbooster", valorPotencial: 1800, origem: "facebook", etapa: "contato", tempoParado: "3h", score: 85 },
-  { id: "5", nome: "Patricia Mendes", email: "patricia@email.com", telefone: "(11) 95555-7890", procedimento: "Bioestimulador", valorPotencial: 4200, origem: "indicacao", etapa: "contato", tempoParado: "1d", score: 88 },
-  { id: "6", nome: "Fernanda Lima", email: "fernanda@email.com", telefone: "(11) 94444-1234", procedimento: "Lipoaspiração", valorPotencial: 15000, origem: "instagram", etapa: "avaliacao", tempoParado: "2d", score: 95 },
-  { id: "7", nome: "Beatriz Rocha", email: "beatriz@email.com", telefone: "(11) 93333-5678", procedimento: "Rinoplastia", valorPotencial: 12000, origem: "google", etapa: "avaliacao", tempoParado: "1d", score: 72 },
-  { id: "8", nome: "Luciana Ferreira", email: "luciana@email.com", telefone: "(11) 92222-9012", procedimento: "Harmonização Facial", valorPotencial: 9500, origem: "instagram", etapa: "vendido", tempoParado: "4h", score: 98 },
-  { id: "9", nome: "Amanda Costa", email: "amanda@email.com", telefone: "(11) 91111-3456", procedimento: "Botox + Preenchimento", valorPotencial: 5500, origem: "indicacao", etapa: "vendido", tempoParado: "2d", score: 90 },
-  { id: "10", nome: "Gabriela Santos", email: "gabriela@email.com", telefone: "(11) 90000-7890", procedimento: "Peeling", valorPotencial: 1200, origem: "site", etapa: "realizado", tempoParado: "5d", score: 100 },
-  { id: "11", nome: "Isabela Martins", email: "isabela@email.com", telefone: "(11) 89999-1234", procedimento: "Limpeza de Pele", valorPotencial: 350, origem: "whatsapp", etapa: "pos", tempoParado: "7d", score: 100 },
-];
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 0,
-  }).format(value);
-};
 
 const origemIcons: Record<string, React.ReactNode> = {
   instagram: <Instagram className="w-4 h-4 text-pink-500" />,
@@ -114,32 +77,64 @@ const origemLabels: Record<string, string> = {
 };
 
 const Leads = () => {
+  const navigate = useNavigate();
+  const { user, profile, loading: authLoading } = useAuth();
+  const { leads, isLoading, createLead, updateLead } = useLeads();
+  
   const [activeSection, setActiveSection] = useState("leads");
   const [filtroOrigem, setFiltroOrigem] = useState<string>("todos");
-  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
-  const [leads, setLeads] = useState(leadsData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Form state
+  const [formName, setFormName] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formInterest, setFormInterest] = useState("");
+  const [formSource, setFormSource] = useState("");
 
-  const getLeadsByEtapa = (etapaId: string) => {
+  // Redirect to auth if not logged in
+  if (!authLoading && !user) {
+    navigate("/auth");
+    return null;
+  }
+
+  // Show message if user doesn't have a clinic
+  if (!authLoading && user && !profile?.clinic_id) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <div className="flex-1 ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <Sparkles className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Configure sua clínica</h2>
+            <p className="text-muted-foreground mb-4">
+              Você precisa estar vinculado a uma clínica para gerenciar leads.
+            </p>
+            <Button onClick={() => navigate("/configuracoes")}>
+              Ir para Configurações
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const getLeadsByEtapa = (etapaId: LeadStatus) => {
     return leads.filter(lead => {
-      const matchEtapa = lead.etapa === etapaId;
-      const matchOrigem = filtroOrigem === "todos" || lead.origem === filtroOrigem;
-      const matchSearch = lead.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          lead.procedimento.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchEtapa = lead.status === etapaId;
+      const matchOrigem = filtroOrigem === "todos" || lead.source === filtroOrigem;
+      const matchSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (lead.interest?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
       return matchEtapa && matchOrigem && matchSearch;
     });
   };
 
-  const getValorTotalEtapa = (etapaId: string) => {
-    return getLeadsByEtapa(etapaId).reduce((acc, lead) => acc + lead.valorPotencial, 0);
-  };
-
   const totalLeads = leads.length;
-  const valorTotal = leads.reduce((acc, lead) => acc + lead.valorPotencial, 0);
-  const leadsNovos = leads.filter(l => l.etapa === "novo").length;
-  const taxaConversao = Math.round((leads.filter(l => l.etapa === "vendido" || l.etapa === "realizado" || l.etapa === "pos").length / totalLeads) * 100);
+  const leadsNovos = leads.filter(l => l.status === "novo").length;
+  const leadsConvertidos = leads.filter(l => l.status === "convertido").length;
+  const taxaConversao = totalLeads > 0 ? Math.round((leadsConvertidos / totalLeads) * 100) : 0;
 
   const handleDragStart = (lead: Lead) => {
     setDraggedLead(lead);
@@ -149,14 +144,46 @@ const Leads = () => {
     e.preventDefault();
   };
 
-  const handleDrop = (etapaId: string) => {
-    if (draggedLead) {
-      setLeads(prev => prev.map(lead => 
-        lead.id === draggedLead.id ? { ...lead, etapa: etapaId } : lead
-      ));
+  const handleDrop = (etapaId: LeadStatus) => {
+    if (draggedLead && draggedLead.status !== etapaId) {
+      updateLead.mutate({ id: draggedLead.id, status: etapaId });
       setDraggedLead(null);
     }
   };
+
+  const handleCreateLead = async () => {
+    if (!formName || !formPhone) {
+      toast.error("Nome e telefone são obrigatórios");
+      return;
+    }
+    
+    await createLead.mutateAsync({
+      name: formName,
+      phone: formPhone,
+      email: formEmail || undefined,
+      interest: formInterest || undefined,
+      source: formSource || undefined,
+    });
+    
+    // Reset form
+    setFormName("");
+    setFormPhone("");
+    setFormEmail("");
+    setFormInterest("");
+    setFormSource("");
+    setIsDialogOpen(false);
+  };
+
+  if (isLoading || authLoading) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <div className="flex-1 ml-64 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -216,47 +243,73 @@ const Leads = () => {
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nome">Nome Completo</Label>
-                      <Input id="nome" placeholder="Nome do lead" />
+                      <Label htmlFor="nome">Nome Completo *</Label>
+                      <Input 
+                        id="nome" 
+                        placeholder="Nome do lead" 
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="telefone">Telefone</Label>
-                        <Input id="telefone" placeholder="(11) 99999-9999" />
+                        <Label htmlFor="telefone">Telefone *</Label>
+                        <Input 
+                          id="telefone" 
+                          placeholder="(11) 99999-9999" 
+                          value={formPhone}
+                          onChange={(e) => setFormPhone(e.target.value)}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="email@exemplo.com" />
+                        <Input 
+                          id="email" 
+                          type="email" 
+                          placeholder="email@exemplo.com" 
+                          value={formEmail}
+                          onChange={(e) => setFormEmail(e.target.value)}
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="procedimento">Procedimento de Interesse</Label>
-                      <Input id="procedimento" placeholder="Ex: Harmonização Facial" />
+                      <Input 
+                        id="procedimento" 
+                        placeholder="Ex: Harmonização Facial" 
+                        value={formInterest}
+                        onChange={(e) => setFormInterest(e.target.value)}
+                      />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="valor">Valor Potencial</Label>
-                        <Input id="valor" type="number" placeholder="R$ 0,00" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="origem">Origem</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="google">Google</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="indicacao">Indicação</SelectItem>
-                            <SelectItem value="site">Site</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="origem">Origem</Label>
+                      <Select value={formSource} onValueChange={setFormSource}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="instagram">Instagram</SelectItem>
+                          <SelectItem value="facebook">Facebook</SelectItem>
+                          <SelectItem value="google">Google</SelectItem>
+                          <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          <SelectItem value="indicacao">Indicação</SelectItem>
+                          <SelectItem value="site">Site</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Button className="w-full btn-premium text-white">
-                      Cadastrar Lead
+                    <Button 
+                      className="w-full btn-premium text-white" 
+                      onClick={handleCreateLead}
+                      disabled={createLead.isPending}
+                    >
+                      {createLead.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Cadastrando...
+                        </>
+                      ) : (
+                        "Cadastrar Lead"
+                      )}
                     </Button>
                   </div>
                 </DialogContent>
@@ -274,24 +327,25 @@ const Leads = () => {
                 <Users className="w-5 h-5 text-primary" />
               </div>
               <div className="text-2xl font-bold text-foreground">{totalLeads}</div>
-              <div className="text-xs text-revenue-confirmed mt-1">+12 esta semana</div>
             </div>
             
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Valor Potencial Total</span>
-                <DollarSign className="w-5 h-5 text-accent" />
-              </div>
-              <div className="text-2xl font-bold text-gradient-gold">{formatCurrency(valorTotal)}</div>
-            </div>
-            
-            <div className="card-premium p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Leads Novos (48h)</span>
+                <span className="text-sm text-muted-foreground">Leads Novos</span>
                 <Sparkles className="w-5 h-5 text-blue-500" />
               </div>
               <div className="text-2xl font-bold text-blue-600">{leadsNovos}</div>
-              <div className="text-xs text-revenue-at-risk mt-1">Ação necessária</div>
+              {leadsNovos > 0 && (
+                <div className="text-xs text-revenue-at-risk mt-1">Ação necessária</div>
+              )}
+            </div>
+            
+            <div className="card-premium p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Convertidos</span>
+                <DollarSign className="w-5 h-5 text-accent" />
+              </div>
+              <div className="text-2xl font-bold text-revenue-confirmed">{leadsConvertidos}</div>
             </div>
             
             <div className="card-premium p-4">
@@ -324,9 +378,6 @@ const Leads = () => {
                       <span className="text-xs font-medium text-muted-foreground bg-white/80 px-2 py-0.5 rounded-full">
                         {getLeadsByEtapa(etapa.id).length}
                       </span>
-                    </div>
-                    <div className="text-lg font-bold text-foreground">
-                      {formatCurrency(getValorTotalEtapa(etapa.id))}
                     </div>
                   </div>
 
@@ -362,8 +413,9 @@ interface LeadCardProps {
 }
 
 const LeadCard = ({ lead, onDragStart }: LeadCardProps) => {
-  const scoreColor = lead.score >= 80 ? "text-revenue-confirmed" : lead.score >= 60 ? "text-revenue-at-risk" : "text-revenue-paused";
-  const scoreBg = lead.score >= 80 ? "bg-revenue-confirmed-bg" : lead.score >= 60 ? "bg-revenue-at-risk-bg" : "bg-revenue-paused-bg";
+  const tempoParado = lead.updated_at 
+    ? formatDistanceToNow(new Date(lead.updated_at), { addSuffix: false, locale: ptBR })
+    : "recente";
 
   return (
     <div 
@@ -374,45 +426,41 @@ const LeadCard = ({ lead, onDragStart }: LeadCardProps) => {
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-            {lead.nome}
+            {lead.name}
           </h4>
-          <p className="text-sm text-muted-foreground truncate">{lead.procedimento}</p>
-        </div>
-        <div className={cn("px-2 py-1 rounded-lg text-xs font-bold", scoreBg, scoreColor)}>
-          {lead.score}
+          {lead.interest && (
+            <p className="text-sm text-muted-foreground truncate">{lead.interest}</p>
+          )}
         </div>
       </div>
       
       <div className="flex items-center gap-3 mb-3">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          {origemIcons[lead.origem]}
-          <span>{origemLabels[lead.origem]}</span>
-        </div>
+        {lead.source && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {origemIcons[lead.source] || <Globe className="w-4 h-4" />}
+            <span>{origemLabels[lead.source] || lead.source}</span>
+          </div>
+        )}
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Clock className="w-3 h-3" />
-          <span>{lead.tempoParado}</span>
+          <span>{tempoParado}</span>
         </div>
       </div>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 font-semibold text-primary">
-          <DollarSign className="w-4 h-4" />
-          <span>{formatCurrency(lead.valorPotencial)}</span>
-        </div>
-        
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-between pt-2 border-t border-border">
+        <span className="text-xs text-muted-foreground">{lead.phone}</span>
+        <div className="flex items-center gap-1">
           <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="WhatsApp">
             <MessageCircle className="w-4 h-4 text-green-600" />
           </button>
           <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Ligar">
             <Phone className="w-4 h-4 text-blue-600" />
           </button>
-          <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Email">
-            <Mail className="w-4 h-4 text-gray-600" />
-          </button>
-          <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Agendar">
-            <Calendar className="w-4 h-4 text-purple-600" />
-          </button>
+          {lead.email && (
+            <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Email">
+              <Mail className="w-4 h-4 text-purple-600" />
+            </button>
+          )}
         </div>
       </div>
     </div>
