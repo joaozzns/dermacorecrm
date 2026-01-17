@@ -95,6 +95,21 @@
     --popover-foreground: 200 10% 95%;
     --border: 200 30% 15%;
     --input: 200 30% 15%;
+    
+    /* Revenue Status Colors - Dark Mode */
+    --revenue-confirmed: 160 60% 50%;
+    --revenue-confirmed-bg: 160 40% 12%;
+    --revenue-at-risk: 35 90% 55%;
+    --revenue-at-risk-bg: 35 50% 12%;
+    --revenue-paused: 200 20% 60%;
+    --revenue-paused-bg: 200 25% 12%;
+    --revenue-recoverable: 172 66% 45%;
+    --revenue-recoverable-bg: 172 40% 12%;
+    --revenue-lost: 0 70% 55%;
+    --revenue-lost-bg: 0 40% 12%;
+    
+    /* Accent adjustment */
+    --accent: 38 92% 55%;
   }
 }
 
@@ -132,23 +147,23 @@
   }
   
   .revenue-confirmed {
-    background: linear-gradient(135deg, hsl(160 60% 95%), hsl(160 60% 92%));
-    border: 1px solid hsl(160 60% 40% / 0.2);
+    background: hsl(var(--revenue-confirmed-bg));
+    border: 1px solid hsl(var(--revenue-confirmed) / 0.3);
   }
   
   .revenue-at-risk {
-    background: linear-gradient(135deg, hsl(35 90% 95%), hsl(35 90% 92%));
-    border: 1px solid hsl(35 90% 50% / 0.2);
+    background: hsl(var(--revenue-at-risk-bg));
+    border: 1px solid hsl(var(--revenue-at-risk) / 0.3);
   }
   
   .revenue-paused {
-    background: linear-gradient(135deg, hsl(200 20% 95%), hsl(200 20% 92%));
-    border: 1px solid hsl(200 20% 55% / 0.2);
+    background: hsl(var(--revenue-paused-bg));
+    border: 1px solid hsl(var(--revenue-paused) / 0.3);
   }
   
   .revenue-recoverable {
-    background: linear-gradient(135deg, hsl(172 66% 95%), hsl(172 66% 92%));
-    border: 1px solid hsl(172 66% 35% / 0.2);
+    background: hsl(var(--revenue-recoverable-bg));
+    border: 1px solid hsl(var(--revenue-recoverable) / 0.3);
   }
   
   /* Metric Display */
@@ -183,21 +198,21 @@
   
   /* Alert Cards */
   .alert-critical {
-    background: hsl(0 70% 95%);
-    border-left: 4px solid hsl(0 70% 55%);
     @apply rounded-r-lg p-4;
+    background: hsl(var(--revenue-lost-bg));
+    border-left: 4px solid hsl(var(--revenue-lost));
   }
   
   .alert-warning {
-    background: hsl(35 90% 95%);
-    border-left: 4px solid hsl(35 90% 50%);
     @apply rounded-r-lg p-4;
+    background: hsl(var(--revenue-at-risk-bg));
+    border-left: 4px solid hsl(var(--revenue-at-risk));
   }
   
   .alert-success {
-    background: hsl(160 60% 95%);
-    border-left: 4px solid hsl(160 60% 40%);
     @apply rounded-r-lg p-4;
+    background: hsl(var(--revenue-confirmed-bg));
+    border-left: 4px solid hsl(var(--revenue-confirmed));
   }
   
   /* Premium Button Variants */
