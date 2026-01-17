@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +74,7 @@ const integracoes = [
 ];
 
 export default function Configuracoes() {
+  const { theme, setTheme } = useTheme();
   const [activeSection, setActiveSection] = useState("configuracoes");
   const [showApiKey, setShowApiKey] = useState(false);
   
@@ -347,7 +349,7 @@ export default function Configuracoes() {
 
                   <div className="space-y-4">
                     <Label>Tema</Label>
-                    <Select defaultValue="dark">
+                    <Select value={theme} onValueChange={setTheme}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
