@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Agenda from "./pages/Agenda";
@@ -21,32 +22,34 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/agenda" element={<Agenda />} />
-            <Route path="/leads" element={<Leads />} />
-            <Route path="/followup" element={<Followup />} />
-            <Route path="/whatsapp" element={<WhatsApp />} />
-            <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="/financeiro" element={<Financeiro />} />
-            <Route path="/pos-procedimento" element={<PosProcedimento />} />
-            <Route path="/equipe" element={<Equipe />} />
-            <Route path="/automacoes" element={<Automacoes />} />
-            <Route path="/configuracoes" element={<Configuracoes />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/agenda" element={<Agenda />} />
+              <Route path="/leads" element={<Leads />} />
+              <Route path="/followup" element={<Followup />} />
+              <Route path="/whatsapp" element={<WhatsApp />} />
+              <Route path="/relatorios" element={<Relatorios />} />
+              <Route path="/financeiro" element={<Financeiro />} />
+              <Route path="/pos-procedimento" element={<PosProcedimento />} />
+              <Route path="/equipe" element={<Equipe />} />
+              <Route path="/automacoes" element={<Automacoes />} />
+              <Route path="/configuracoes" element={<Configuracoes />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
