@@ -1,0 +1,178 @@
+import { ScrollReveal } from "./ScrollReveal";
+import { Button } from "@/components/ui/button";
+import { Check, Star, Sparkles, Crown, Zap } from "lucide-react";
+import { motion } from "framer-motion";
+
+const plans = [
+  {
+    name: "Essencial",
+    description: "Ideal para clínicas iniciantes",
+    price: "197",
+    period: "/mês",
+    icon: Zap,
+    popular: false,
+    features: [
+      "Até 2 profissionais",
+      "Agenda online ilimitada",
+      "Gestão de pacientes",
+      "Lembretes WhatsApp",
+      "Relatórios básicos",
+      "Suporte por email"
+    ],
+    cta: "Começar Agora",
+    gradient: "from-slate-500 to-slate-600"
+  },
+  {
+    name: "Profissional",
+    description: "Mais popular para clínicas em crescimento",
+    price: "397",
+    period: "/mês",
+    icon: Star,
+    popular: true,
+    features: [
+      "Até 5 profissionais",
+      "Tudo do Essencial +",
+      "IA para conversão de leads",
+      "Automações WhatsApp",
+      "Controle financeiro completo",
+      "Fotos antes/depois",
+      "Relatórios avançados",
+      "Suporte prioritário"
+    ],
+    cta: "Escolher Profissional",
+    gradient: "from-primary to-primary"
+  },
+  {
+    name: "Enterprise",
+    description: "Para redes de clínicas",
+    price: "797",
+    period: "/mês",
+    icon: Crown,
+    popular: false,
+    features: [
+      "Profissionais ilimitados",
+      "Tudo do Profissional +",
+      "Multi-unidades",
+      "API personalizada",
+      "Integrações customizadas",
+      "Gerente de conta dedicado",
+      "Treinamento presencial",
+      "SLA garantido"
+    ],
+    cta: "Falar com Vendas",
+    gradient: "from-amber-500 to-orange-500"
+  }
+];
+
+export const PricingSection = () => {
+  return (
+    <section className="py-24 px-6 bg-background relative overflow-hidden">
+      {/* Background Decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Section Header */}
+        <ScrollReveal className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-sm font-medium text-accent">Preços Transparentes</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Escolha o plano ideal
+            <br />
+            <span className="text-gradient-gold">para sua clínica</span>
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Sem taxas ocultas. Cancele quando quiser. 7 dias grátis para testar.
+          </p>
+        </ScrollReveal>
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-8 items-stretch">
+          {plans.map((plan, index) => (
+            <ScrollReveal key={plan.name} delay={index * 0.15}>
+              <motion.div 
+                whileHover={{ y: -8 }}
+                transition={{ duration: 0.3 }}
+                className={`relative h-full rounded-2xl p-8 ${
+                  plan.popular 
+                    ? 'bg-gradient-to-b from-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20' 
+                    : 'bg-card border border-border hover:border-primary/30'
+                } transition-all duration-300`}
+              >
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shadow-lg">
+                      Mais Popular
+                    </div>
+                  </div>
+                )}
+
+                {/* Plan Header */}
+                <div className="mb-8">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-4`}>
+                    <plan.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                  <p className="text-muted-foreground">{plan.description}</p>
+                </div>
+
+                {/* Price */}
+                <div className="mb-8">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-lg text-muted-foreground">R$</span>
+                    <span className={`text-5xl font-bold ${plan.popular ? 'text-gradient-primary' : ''}`}>
+                      {plan.price}
+                    </span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-4 mb-8">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        plan.popular ? 'bg-primary' : 'bg-primary/20'
+                      }`}>
+                        <Check className={`w-3 h-3 ${plan.popular ? 'text-white' : 'text-primary'}`} />
+                      </div>
+                      <span className="text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA Button */}
+                <Button 
+                  className={`w-full py-6 text-lg ${
+                    plan.popular 
+                      ? 'btn-premium' 
+                      : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'
+                  }`}
+                >
+                  {plan.cta}
+                </Button>
+              </motion.div>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        {/* Money Back Guarantee */}
+        <ScrollReveal delay={0.5} className="mt-12">
+          <div className="text-center p-6 rounded-2xl bg-secondary/30 border border-border max-w-2xl mx-auto">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                <Check className="w-5 h-5 text-green-500" />
+              </div>
+              <span className="text-xl font-semibold">Garantia de 30 dias</span>
+            </div>
+            <p className="text-muted-foreground">
+              Se não estiver satisfeito, devolvemos 100% do seu investimento. Sem perguntas.
+            </p>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+};
