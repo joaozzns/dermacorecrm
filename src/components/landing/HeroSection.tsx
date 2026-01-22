@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Play } from "lucide-react";
+import dashboardPreview from "@/assets/dashboard-preview.png";
 
 export const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30">
+    <section className="relative min-h-screen flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30 pt-24">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -32,10 +33,6 @@ export const HeroSection = () => {
         <motion.div
           key={i}
           className="absolute w-2 h-2 bg-primary/40 rounded-full"
-          initial={{ 
-            x: Math.random() * window.innerWidth, 
-            y: Math.random() * window.innerHeight 
-          }}
           animate={{ 
             y: [0, -30, 0],
             opacity: [0.3, 0.8, 0.3]
@@ -52,7 +49,7 @@ export const HeroSection = () => {
         />
       ))}
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 text-center">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -96,7 +93,7 @@ export const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
           <Button 
             size="lg" 
@@ -115,23 +112,83 @@ export const HeroSection = () => {
           </Button>
         </motion.div>
 
+        {/* Dashboard Preview Image */}
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="relative mx-auto max-w-6xl"
+        >
+          {/* Glow effect behind the image */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-2xl blur-3xl transform scale-95" />
+          
+          {/* Image container with border and shadow */}
+          <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-2xl shadow-primary/10">
+            <img 
+              src={dashboardPreview} 
+              alt="Dashboard ClinicPro - Gestão completa para clínicas estéticas"
+              className="w-full h-auto"
+            />
+            
+            {/* Overlay gradient at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+          </div>
+          
+          {/* Floating badges around the image */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="absolute -left-4 top-1/4 hidden lg:block"
+          >
+            <div className="px-4 py-2 rounded-lg bg-card border border-border shadow-lg">
+              <div className="text-sm font-medium text-primary">+40%</div>
+              <div className="text-xs text-muted-foreground">Receita</div>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+            className="absolute -right-4 top-1/3 hidden lg:block"
+          >
+            <div className="px-4 py-2 rounded-lg bg-card border border-border shadow-lg">
+              <div className="text-sm font-medium text-green-500">-75%</div>
+              <div className="text-xs text-muted-foreground">No-shows</div>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.6 }}
+            className="absolute -bottom-4 left-1/2 -translate-x-1/2 hidden lg:block"
+          >
+            <div className="px-4 py-2 rounded-lg bg-card border border-border shadow-lg flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="text-xs text-muted-foreground">500+ clínicas ativas</div>
+            </div>
+          </motion.div>
+        </motion.div>
+
         {/* Trust Indicators */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 1 }}
+          transition={{ duration: 0.7, delay: 1.8 }}
           className="mt-16 flex flex-col items-center"
         >
           <p className="text-sm text-muted-foreground mb-4">
             Mais de 500+ clínicas já confiam na nossa plataforma
           </p>
-          <div className="flex items-center gap-8 opacity-60">
+          <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
             {["Clínica Beleza Pura", "Estética Premium", "Beauty Center", "Spa Vida"].map((name, i) => (
               <motion.span
                 key={name}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 + i * 0.1 }}
+                transition={{ delay: 2 + i * 0.1 }}
                 className="text-lg font-semibold text-muted-foreground"
               >
                 {name}
@@ -140,26 +197,6 @@ export const HeroSection = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center"
-        >
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-3 bg-primary rounded-full mt-2"
-          />
-        </motion.div>
-      </motion.div>
     </section>
   );
 };
