@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -13,83 +14,7 @@ interface Message {
   timestamp: Date;
 }
 
-const attendantResponses = [
-  {
-    triggers: ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "hey", "eai", "e ai"],
-    responses: [
-      "Oi! 😊 Que bom falar com você! Como posso te ajudar hoje?",
-      "Olá! Fico feliz em te atender. Em que posso ajudar?",
-      "Oi! Tudo bem? Estou aqui para esclarecer qualquer dúvida sobre o ClinicPro!"
-    ]
-  },
-  {
-    triggers: ["preço", "preco", "valor", "quanto custa", "plano", "planos", "mensalidade"],
-    responses: [
-      "Temos planos a partir de R$197/mês! O legal é que você pode testar 7 dias grátis antes de decidir. Quer que eu te explique as diferenças entre eles?",
-      "Nossos planos são bem flexíveis! O Essencial começa em R$197, o Profissional em R$397 e temos o Enterprise personalizado. Qual te interessa mais?",
-      "Sobre valores: temos opções pra todos os tamanhos de clínica! Posso te mandar mais detalhes por email se preferir 😊"
-    ]
-  },
-  {
-    triggers: ["funciona", "como funciona", "funcionalidade", "recurso", "recursos", "o que faz"],
-    responses: [
-      "O ClinicPro é completo! Você gerencia agenda, pacientes, finanças, WhatsApp integrado e ainda tem IA que ajuda a aumentar seus agendamentos. Quer saber mais sobre alguma função específica?",
-      "A gente cuida de tudo: agendamentos automáticos, lembretes por WhatsApp, controle financeiro, relatórios... Basicamente você foca nos pacientes e a gente cuida do resto! 💜",
-      "É uma plataforma all-in-one! Agenda inteligente, CRM de pacientes, financeiro, marketing automatizado... O que mais te interessa?"
-    ]
-  },
-  {
-    triggers: ["teste", "testar", "trial", "experimentar", "gratis", "grátis", "gratuito"],
-    responses: [
-      "Claro! São 7 dias completamente grátis, sem precisar de cartão. É só criar a conta e começar a usar! Quer o link?",
-      "O teste é bem tranquilo: 7 dias com acesso total, sem compromisso. Se não gostar, sem problema nenhum! 😊",
-      "Pode testar à vontade! 7 dias grátis pra você explorar tudo. Posso te ajudar a configurar se quiser!"
-    ]
-  },
-  {
-    triggers: ["whatsapp", "zap", "mensagem", "automação", "automatico", "automático"],
-    responses: [
-      "A integração com WhatsApp é demais! Você envia lembretes automáticos, confirma consultas, faz follow-up... tudo sem esforço. Seus pacientes adoram!",
-      "O WhatsApp fica integrado direto na plataforma! Dá pra ver todo histórico do paciente enquanto conversa, usar templates prontos, automatizar lembretes... 🚀",
-      "A automação do WhatsApp reduziu os no-shows das clínicas em até 75%! É tipo ter uma secretária 24h trabalhando pra você."
-    ]
-  },
-  {
-    triggers: ["suporte", "ajuda", "dúvida", "duvida", "problema"],
-    responses: [
-      "Nosso suporte é super dedicado! Respondemos rápido e te acompanhamos na implantação. Não vai ficar perdido, prometo! 💜",
-      "Pode contar com a gente! Temos suporte por chat, email e até calls se precisar. O importante é você ter sucesso com a plataforma.",
-      "A gente não te abandona depois da venda não! Suporte humanizado e treinamento inclusos em todos os planos 😊"
-    ]
-  },
-  {
-    triggers: ["migração", "migracao", "dados", "importar", "trocar", "mudar"],
-    responses: [
-      "Fazemos a migração dos seus dados sem custo! Nossa equipe cuida de tudo pra você não perder nada. Super tranquilo!",
-      "Não precisa se preocupar com isso! A gente importa sua base de pacientes e histórico. É tudo por nossa conta 😊",
-      "A transição é suave! Ajudamos a trazer seus dados e ainda treinamos sua equipe. Zero dor de cabeça!"
-    ]
-  }
-];
-
-const defaultResponses = [
-  "Hmm, deixa eu entender melhor... Você quer saber sobre nossos planos, funcionalidades ou como funciona o teste grátis?",
-  "Boa pergunta! Posso te ajudar com informações sobre preços, recursos da plataforma ou agendar uma demonstração. O que prefere?",
-  "Estou aqui pra ajudar! Me conta mais sobre o que você precisa - gestão de agenda, WhatsApp, financeiro...?",
-  "Entendi! Se quiser, posso te explicar como o ClinicPro pode ajudar sua clínica. Ou prefere fazer o teste grátis direto?"
-];
-
-const getResponse = (message: string): string => {
-  const lowerMessage = message.toLowerCase();
-  
-  for (const category of attendantResponses) {
-    if (category.triggers.some(trigger => lowerMessage.includes(trigger))) {
-      return category.responses[Math.floor(Math.random() * category.responses.length)];
-    }
-  }
-  
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-};
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-atendente`;
 
 export const ChatAtendente = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -111,8 +36,78 @@ export const ChatAtendente = () => {
     }
   }, [messages]);
 
+  const streamChat = async (userMessages: { role: string; content: string }[]) => {
+    const resp = await fetch(CHAT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages: userMessages }),
+    });
+
+    if (!resp.ok) {
+      const errorData = await resp.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Falha ao conectar');
+    }
+
+    if (!resp.body) throw new Error('No response body');
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = '';
+    let assistantText = '';
+    const messageId = (Date.now() + 1).toString();
+
+    // Add initial empty assistant message
+    setMessages(prev => [...prev, {
+      id: messageId,
+      text: '',
+      sender: 'attendant',
+      timestamp: new Date()
+    }]);
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith('\r')) line = line.slice(0, -1);
+        if (line.startsWith(':') || line.trim() === '') continue;
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) {
+            assistantText += content;
+            setMessages(prev => prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, text: assistantText }
+                : msg
+            ));
+          }
+        } catch {
+          textBuffer = line + '\n' + textBuffer;
+          break;
+        }
+      }
+    }
+
+    return assistantText;
+  };
+
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -122,23 +117,30 @@ export const ChatAtendente = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userInput = inputValue;
     setInputValue("");
     setIsTyping(true);
 
-    // Simula tempo de digitação natural (1.5-3s)
-    const typingTime = 1500 + Math.random() * 1500;
-    
-    setTimeout(() => {
-      const response = getResponse(userMessage.text);
-      const attendantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response,
-        sender: "attendant",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, attendantMessage]);
+    try {
+      // Build conversation history for AI
+      const conversationHistory = messages
+        .filter(m => m.id !== "1") // Skip initial greeting
+        .map(m => ({
+          role: m.sender === "user" ? "user" : "assistant",
+          content: m.text
+        }));
+      
+      conversationHistory.push({ role: "user", content: userInput });
+
+      await streamChat(conversationHistory);
+    } catch (error) {
+      console.error('Chat error:', error);
+      toast.error("Ops! Não consegui responder. Tente novamente.");
+      // Remove the empty assistant message if there was an error
+      setMessages(prev => prev.filter(m => m.text !== ''));
+    } finally {
       setIsTyping(false);
-    }, typingTime);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -187,7 +189,7 @@ export const ChatAtendente = () => {
                       : "bg-secondary text-secondary-foreground rounded-bl-md"
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{message.text}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
                   <p className={`text-[10px] mt-1 ${
                     message.sender === "user" ? "text-primary-foreground/70" : "text-muted-foreground"
                   }`}>
@@ -199,7 +201,7 @@ export const ChatAtendente = () => {
           </AnimatePresence>
 
           {/* Typing indicator */}
-          {isTyping && (
+          {isTyping && messages[messages.length - 1]?.text === '' && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -239,6 +241,7 @@ export const ChatAtendente = () => {
             onKeyPress={handleKeyPress}
             placeholder="Digite sua mensagem..."
             className="flex-1 rounded-full bg-secondary border-0 focus-visible:ring-primary"
+            disabled={isTyping}
           />
           <Button
             onClick={handleSend}
