@@ -94,7 +94,7 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">ClínicaPro</h1>
+            <h1 className="text-lg font-bold text-white">DermaCore</h1>
             <p className="text-xs text-sidebar-foreground">Gestão Premium</p>
           </div>
         </div>
