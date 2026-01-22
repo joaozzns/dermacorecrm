@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 import dashboardPreview from "@/assets/dashboard-preview.png";
 
 export const HeroSection = () => {
@@ -95,13 +96,15 @@ export const HeroSection = () => {
           transition={{ duration: 0.7, delay: 0.6 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
-          <Button 
-            size="lg" 
-            className="btn-premium text-lg px-8 py-6 group"
-          >
-            Testar 7 dias Grátis
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link to="/auth">
+            <Button 
+              size="lg" 
+              className="btn-premium text-lg px-8 py-6 group"
+            >
+              Testar 7 dias Grátis
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
           <Button 
             variant="outline" 
             size="lg" 
