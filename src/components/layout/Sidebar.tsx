@@ -11,10 +11,12 @@ import {
   Zap,
   Settings,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -59,9 +61,10 @@ interface SidebarProps {
 export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { profile, signOut } = useAuth();
   
   const navItems = [
-    { id: "dashboard", path: "/", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
+    { id: "dashboard", path: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
     { id: "leads", path: "/leads", icon: <Users className="w-5 h-5" />, label: "Leads", badge: 12 },
     { id: "agenda", path: "/agenda", icon: <Calendar className="w-5 h-5" />, label: "Agenda" },
     { id: "whatsapp", path: "/whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp", badge: 5 },
@@ -79,17 +82,22 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   };
 
   const isActive = (item: typeof navItems[0]) => {
-    if (item.path === "/") {
-      return location.pathname === "/";
+    if (item.path === "/dashboard") {
+      return location.pathname === "/dashboard";
     }
     return location.pathname.startsWith(item.path);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sidebar-primary to-teal-400 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
@@ -122,15 +130,21 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
           onClick={() => navigate("/configuracoes")}
         />
         
+        <NavItem
+          icon={<LogOut className="w-5 h-5" />}
+          label="Sair"
+          onClick={handleSignOut}
+        />
+        
         {/* User Profile */}
         <div className="mt-4 p-3 rounded-lg bg-sidebar-accent">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sidebar-primary to-teal-400 flex items-center justify-center text-white font-semibold text-sm">
-              DR
+              {profile?.full_name?.substring(0, 2).toUpperCase() || "US"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">Dra. Renata</p>
-              <p className="text-xs text-sidebar-foreground truncate">Clínica Estética Plus</p>
+              <p className="text-sm font-medium text-white truncate">{profile?.full_name || "Usuário"}</p>
+              <p className="text-xs text-sidebar-foreground truncate capitalize">{profile?.role || "staff"}</p>
             </div>
           </div>
         </div>
