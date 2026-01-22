@@ -129,7 +129,7 @@ export const HeroSection = () => {
           <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-2xl shadow-primary/10">
             <img 
               src={dashboardPreview} 
-              alt="Dashboard ClinicPro - Gestão completa para clínicas estéticas"
+              alt="Dashboard DermaCore - Gestão completa para clínicas estéticas"
               className="w-full h-auto"
             />
             

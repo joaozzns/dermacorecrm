@@ -13,7 +13,7 @@ export const FooterSection = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">ClinicPro</span>
+              <span className="text-xl font-bold text-white">DermaCore</span>
             </div>
             <p className="text-sidebar-foreground/70 text-sm leading-relaxed">
               A plataforma completa para clínicas estéticas que querem crescer de forma inteligente.
@@ -55,7 +55,7 @@ export const FooterSection = () => {
         {/* Bottom */}
         <div className="pt-8 border-t border-sidebar-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-sidebar-foreground/50">
-            © {currentYear} ClinicPro. Todos os direitos reservados.
+            © {currentYear} DermaCore. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-sidebar-foreground/50">
             <a href="#" className="hover:text-primary transition-colors">Privacidade</a>

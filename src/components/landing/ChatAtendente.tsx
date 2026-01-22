@@ -20,7 +20,7 @@ export const ChatAtendente = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "Oi! Sou a Bia, consultora do ClinicPro 💜 Como posso te ajudar hoje?",
+      text: "Oi! Sou a Bia, consultora do DermaCore 💜 Como posso te ajudar hoje?",
       sender: "attendant",
       timestamp: new Date()
     }
