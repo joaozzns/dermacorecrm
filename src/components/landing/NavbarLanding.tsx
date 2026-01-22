@@ -1,12 +1,25 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X } from "lucide-react";
+import { Sparkles, Menu, X, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ChatAtendente } from "./ChatAtendente";
 
 export const NavbarLanding = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +35,38 @@ export const NavbarLanding = () => {
     { label: "Depoimentos", href: "#depoimentos" },
     { label: "Contato", href: "#contato" }
   ];
+
+  const ChatButton = ({ className = "" }: { className?: string }) => {
+    if (isMobile) {
+      return (
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button className={`btn-premium ${className}`}>
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Fale com nossa equipe
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <ChatAtendente />
+          </DrawerContent>
+        </Drawer>
+      );
+    }
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button className={`btn-premium ${className}`}>
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Fale com nossa equipe
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden">
+          <ChatAtendente />
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <motion.nav
@@ -64,11 +109,7 @@ export const NavbarLanding = () => {
                 Entrar
               </Button>
             </Link>
-            <Link to="/auth">
-              <Button className="btn-premium">
-                Começar Grátis
-              </Button>
-            </Link>
+            <ChatButton />
           </div>
 
           {/* Mobile Menu Button */}
@@ -109,11 +150,7 @@ export const NavbarLanding = () => {
                     Entrar
                   </Button>
                 </Link>
-                <Link to="/auth">
-                  <Button className="w-full btn-premium">
-                    Começar Grátis
-                  </Button>
-                </Link>
+                <ChatButton className="w-full" />
               </div>
             </div>
           </motion.div>

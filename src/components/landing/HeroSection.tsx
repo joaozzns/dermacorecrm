@@ -99,7 +99,7 @@ export const HeroSection = () => {
             size="lg" 
             className="btn-premium text-lg px-8 py-6 group"
           >
-            Começar Grátis
+            Testar 7 dias Grátis
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
           <Button 
