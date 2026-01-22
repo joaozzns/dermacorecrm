@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "next-themes";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
@@ -31,20 +32,25 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Landing />} />
-              <Route path="/dashboard" element={<Index />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/agenda" element={<Agenda />} />
-              <Route path="/leads" element={<Leads />} />
-              <Route path="/followup" element={<Followup />} />
-              <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/relatorios" element={<Relatorios />} />
-              <Route path="/financeiro" element={<Financeiro />} />
-              <Route path="/pos-procedimento" element={<PosProcedimento />} />
-              <Route path="/equipe" element={<Equipe />} />
-              <Route path="/automacoes" element={<Automacoes />} />
-              <Route path="/configuracoes" element={<Configuracoes />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              
+              {/* Protected routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
+              <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+              <Route path="/followup" element={<ProtectedRoute><Followup /></ProtectedRoute>} />
+              <Route path="/whatsapp" element={<ProtectedRoute><WhatsApp /></ProtectedRoute>} />
+              <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+              <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />
+              <Route path="/pos-procedimento" element={<ProtectedRoute><PosProcedimento /></ProtectedRoute>} />
+              <Route path="/equipe" element={<ProtectedRoute><Equipe /></ProtectedRoute>} />
+              <Route path="/automacoes" element={<ProtectedRoute><Automacoes /></ProtectedRoute>} />
+              <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+              
+              {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
