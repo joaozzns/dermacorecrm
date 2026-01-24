@@ -133,8 +133,7 @@ export const ChatAtendente = () => {
       conversationHistory.push({ role: "user", content: userInput });
 
       await streamChat(conversationHistory);
-    } catch (error) {
-      console.error('Chat error:', error);
+    } catch {
       toast.error("Ops! Não consegui responder. Tente novamente.");
       // Remove the empty assistant message if there was an error
       setMessages(prev => prev.filter(m => m.text !== ''));
