@@ -1,10 +1,64 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, Play } from "lucide-react";
+import { Sparkles, ArrowRight, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ContactForm } from "./ContactForm";
 import dashboardPreview from "@/assets/dashboard-preview.png";
 
 export const HeroSection = () => {
+  const isMobile = useIsMobile();
+
+  const ContactButton = () => {
+    if (isMobile) {
+      return (
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="text-lg px-8 py-6 border-2 hover:bg-secondary/50"
+            >
+              <MessageSquare className="mr-2 w-5 h-5" />
+              Fale com Especialista
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="max-h-[90vh]">
+            <ContactForm />
+          </DrawerContent>
+        </Drawer>
+      );
+    }
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="text-lg px-8 py-6 border-2 hover:bg-secondary/50"
+          >
+            <MessageSquare className="mr-2 w-5 h-5" />
+            Fale com Especialista
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+          <ContactForm />
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30 pt-24">
       {/* Animated Background Elements */}
@@ -105,14 +159,7 @@ export const HeroSection = () => {
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="text-lg px-8 py-6 border-2 hover:bg-secondary/50"
-          >
-            <Play className="mr-2 w-5 h-5" />
-            Ver Demonstração
-          </Button>
+          <ContactButton />
         </motion.div>
 
         {/* Dashboard Preview Image */}
