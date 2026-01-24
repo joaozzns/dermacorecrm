@@ -20,6 +20,7 @@ import Equipe from "./pages/Equipe";
 import Automacoes from "./pages/Automacoes";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
+import Planos from "./pages/Planos";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
               {/* Public routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/landing" element={<Landing />} />
+              <Route path="/planos" element={<Planos />} />
               <Route path="/auth" element={<Auth />} />
               
               {/* Protected routes */}
