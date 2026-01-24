@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { usePlanLimits } from './usePlanLimits';
 import { toast } from 'sonner';
 
 export interface Patient {
@@ -45,6 +46,7 @@ export interface UpdatePatientInput {
 
 export function usePatients() {
   const { profile } = useAuth();
+  const { isAtLimit } = usePlanLimits();
   const queryClient = useQueryClient();
 
   const { data: patients = [], isLoading, error } = useQuery({
@@ -67,6 +69,10 @@ export function usePatients() {
   const createPatient = useMutation({
     mutationFn: async (input: CreatePatientInput) => {
       if (!profile?.clinic_id) throw new Error('Usuário não está vinculado a uma clínica');
+      
+      if (isAtLimit('patients')) {
+        throw new Error('Limite de pacientes atingido. Faça upgrade do seu plano para continuar.');
+      }
       
       const { data, error } = await supabase
         .from('patients')

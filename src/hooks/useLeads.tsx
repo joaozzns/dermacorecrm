@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { usePlanLimits } from './usePlanLimits';
 import { toast } from 'sonner';
 
 export type LeadStatus = 'novo' | 'contatado' | 'qualificado' | 'agendado' | 'convertido' | 'perdido';
@@ -45,6 +46,7 @@ export interface UpdateLeadInput {
 
 export function useLeads() {
   const { profile } = useAuth();
+  const { isAtLimit } = usePlanLimits();
   const queryClient = useQueryClient();
 
   const { data: leads = [], isLoading, error } = useQuery({
@@ -67,6 +69,10 @@ export function useLeads() {
   const createLead = useMutation({
     mutationFn: async (input: CreateLeadInput) => {
       if (!profile?.clinic_id) throw new Error('Usuário não está vinculado a uma clínica');
+      
+      if (isAtLimit('leads')) {
+        throw new Error('Limite de leads do mês atingido. Faça upgrade do seu plano para continuar.');
+      }
       
       const { data, error } = await supabase
         .from('leads')
