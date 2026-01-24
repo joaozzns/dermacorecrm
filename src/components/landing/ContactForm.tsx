@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Send, CheckCircle, Sparkles, User, Mail, Phone, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo"),
@@ -55,16 +56,29 @@ export const ContactForm = () => {
   const onSubmit = async (data: ContactFormData) => {
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsLoading(false);
-    setIsSubmitted(true);
-    
-    toast({
-      title: "Mensagem enviada!",
-      description: "Nossa equipe entrará em contato em breve.",
-    });
+    try {
+      const { data: response, error } = await supabase.functions.invoke("submit-contact-form", {
+        body: data,
+      });
+
+      if (error) {
+        throw new Error(error.message || "Erro ao enviar mensagem");
+      }
+
+      setIsSubmitted(true);
+      toast({
+        title: "Mensagem enviada!",
+        description: "Nossa equipe entrará em contato em breve.",
+      });
+    } catch {
+      toast({
+        title: "Erro ao enviar",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
