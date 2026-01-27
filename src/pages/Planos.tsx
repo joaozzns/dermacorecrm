@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { NavbarLanding } from "@/components/landing/NavbarLanding";
 import { FooterSection } from "@/components/landing/FooterSection";
+import { PlansComparisonTable } from "@/components/landing/PlansComparisonTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -222,6 +223,11 @@ const Planos = () => {
                 />
               ))}
             </div>
+          )}
+
+          {/* Comparison Table */}
+          {!isLoading && plans.length > 0 && (
+            <PlansComparisonTable plans={plans} />
           )}
 
           {/* FAQ/Trust Section */}
