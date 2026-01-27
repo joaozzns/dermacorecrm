@@ -158,6 +158,17 @@ export default function Relatorios() {
   const taxaConversao = 34.5;
   const totalPerdaNoShow = 13500;
 
+  const handleExport = () => {
+    const data = { totalFaturamento, ticketMedio, taxaConversao, totalPerdaNoShow, periodo, date: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-${periodo}-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
@@ -182,7 +193,7 @@ export default function Relatorios() {
                 <SelectItem value="ano">Este Ano</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={handleExport}>
               <Download className="w-4 h-4" />
               Exportar
             </Button>
