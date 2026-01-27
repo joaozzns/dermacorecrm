@@ -4,19 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { NavbarLanding } from "@/components/landing/NavbarLanding";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { PlansComparisonTable } from "@/components/landing/PlansComparisonTable";
-import { Button } from "@/components/ui/button";
+import { PlanCard } from "@/components/landing/PlanCard";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { 
-  Check, 
-  Sparkles, 
-  Crown, 
-  Building2, 
-  ArrowRight,
-  Users,
-  UserCheck,
-  Target
-} from "lucide-react";
+import { Check } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 interface Plan {
   id: string;
@@ -31,144 +25,10 @@ interface Plan {
   sort_order: number;
 }
 
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 0,
-  }).format(value);
-};
-
-const getPlanIcon = (slug: string) => {
-  switch (slug) {
-    case "enterprise":
-      return <Building2 className="w-6 h-6" />;
-    case "profissional":
-      return <Crown className="w-6 h-6" />;
-    default:
-      return <Sparkles className="w-6 h-6" />;
-  }
-};
-
-const getPlanColors = (slug: string) => {
-  switch (slug) {
-    case "enterprise":
-      return {
-        gradient: "from-amber-500 to-orange-600",
-        bg: "bg-amber-500/10",
-        border: "border-amber-500/30",
-        text: "text-amber-500",
-        button: "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700",
-      };
-    case "profissional":
-      return {
-        gradient: "from-primary to-accent",
-        bg: "bg-primary/10",
-        border: "border-primary/30",
-        text: "text-primary",
-        button: "btn-premium",
-      };
-    default:
-      return {
-        gradient: "from-muted-foreground to-muted-foreground",
-        bg: "bg-muted/50",
-        border: "border-border",
-        text: "text-muted-foreground",
-        button: "",
-      };
-  }
-};
-
-const PlanCard = ({ plan, isPopular }: { plan: Plan; isPopular: boolean }) => {
-  const colors = getPlanColors(plan.slug);
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className={`relative rounded-2xl border ${colors.border} ${colors.bg} p-8 flex flex-col h-full ${
-        isPopular ? "ring-2 ring-primary shadow-xl shadow-primary/20 scale-105" : ""
-      }`}
-    >
-      {isPopular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
-          Mais Popular
-        </Badge>
-      )}
-
-      {/* Plan Header */}
-      <div className="text-center mb-6">
-        <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${colors.gradient} text-white mb-4`}>
-          {getPlanIcon(plan.slug)}
-        </div>
-        <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-        {plan.description && (
-          <p className="text-muted-foreground text-sm">{plan.description}</p>
-        )}
-      </div>
-
-      {/* Price */}
-      <div className="text-center mb-6">
-        <div className="flex items-baseline justify-center gap-1">
-          <span className={`text-4xl font-bold ${colors.text}`}>
-            {formatCurrency(plan.price_monthly)}
-          </span>
-          <span className="text-muted-foreground">/mês</span>
-        </div>
-      </div>
-
-      {/* Limits */}
-      <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-xl bg-background/50">
-        <div className="text-center">
-          <Users className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-semibold">
-            {plan.max_professionals === null ? "∞" : plan.max_professionals}
-          </p>
-          <p className="text-xs text-muted-foreground">Profissionais</p>
-        </div>
-        <div className="text-center">
-          <UserCheck className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-semibold">
-            {plan.max_patients === null ? "∞" : plan.max_patients.toLocaleString("pt-BR")}
-          </p>
-          <p className="text-xs text-muted-foreground">Pacientes</p>
-        </div>
-        <div className="text-center">
-          <Target className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-semibold">
-            {plan.max_leads_per_month === null ? "∞" : plan.max_leads_per_month}
-          </p>
-          <p className="text-xs text-muted-foreground">Leads/mês</p>
-        </div>
-      </div>
-
-      {/* Features */}
-      <ul className="space-y-3 mb-8 flex-1">
-        {plan.features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <Check className={`w-5 h-5 ${colors.text} shrink-0 mt-0.5`} />
-            <span className="text-sm text-foreground">{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* CTA Button */}
-      <Link to="/auth" className="w-full">
-        <Button 
-          className={`w-full ${colors.button}`}
-          variant={isPopular ? "default" : "outline"}
-        >
-          {plan.slug === "enterprise" ? "Falar com Vendas" : "Começar Agora"}
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
-      </Link>
-    </motion.div>
-  );
-};
-
 const Planos = () => {
+  const [searchParams] = useSearchParams();
+  const { planSlug: currentPlanSlug } = useSubscription();
+
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
@@ -182,6 +42,17 @@ const Planos = () => {
       return data as Plan[];
     },
   });
+
+  // Handle checkout result
+  useEffect(() => {
+    const checkoutResult = searchParams.get('checkout');
+    if (checkoutResult === 'cancelled') {
+      toast({
+        title: "Checkout cancelado",
+        description: "Você pode tentar novamente quando quiser.",
+      });
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -219,7 +90,8 @@ const Planos = () => {
                 <PlanCard 
                   key={plan.id} 
                   plan={plan} 
-                  isPopular={plan.slug === "profissional"} 
+                  isPopular={plan.slug === "profissional"}
+                  currentPlanSlug={currentPlanSlug}
                 />
               ))}
             </div>
