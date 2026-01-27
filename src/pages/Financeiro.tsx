@@ -142,6 +142,32 @@ export default function Financeiro() {
   const saldoAtual = 84500;
   const inadimplenciaTotal = 4500;
 
+  const handleExport = () => {
+    const data = { receitaTotal, despesasTotal, saldoAtual, inadimplenciaTotal, date: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `financeiro-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleNewTransaction = () => {
+    // This would open a modal in a full implementation
+    alert('Funcionalidade de nova transação em desenvolvimento. Em breve você poderá adicionar transações diretamente aqui.');
+  };
+
+  const handleSendReminder = (paciente: string) => {
+    const phone = "5511999999999"; // Would come from data
+    const message = encodeURIComponent(`Olá ${paciente}! Este é um lembrete sobre o pagamento pendente. Entre em contato conosco.`);
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+  };
+
+  const handleCall = (paciente: string) => {
+    window.open('tel:+5511999999999', '_self');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
@@ -154,11 +180,11 @@ export default function Financeiro() {
             <p className="text-muted-foreground">Controle financeiro da clínica</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={handleExport}>
               <Download className="w-4 h-4" />
               Exportar
             </Button>
-            <Button className="gap-2 bg-primary hover:bg-primary/90">
+            <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={handleNewTransaction}>
               <Plus className="w-4 h-4" />
               Nova Transação
             </Button>
@@ -446,10 +472,10 @@ export default function Financeiro() {
                           Último contato: {inad.ultimoContato}
                         </p>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => handleSendReminder(inad.paciente)}>
                             Enviar Lembrete
                           </Button>
-                          <Button size="sm" variant="default">
+                          <Button size="sm" variant="default" onClick={() => handleCall(inad.paciente)}>
                             Ligar
                           </Button>
                         </div>

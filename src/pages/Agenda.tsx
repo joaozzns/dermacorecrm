@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { 
   Calendar, 
@@ -15,7 +16,8 @@ import {
   Phone,
   MoreHorizontal,
   Bell,
-  Search
+  Search,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface Profissional {
   id: string;
@@ -55,7 +75,7 @@ const profissionais: Profissional[] = [
   { id: "3", nome: "Dr. Ricardo Mendes", especialidade: "Cirurgia Plástica", cor: "bg-blue-500", avatar: "RM" },
 ];
 
-const agendamentos: Agendamento[] = [
+const initialAgendamentos: Agendamento[] = [
   { id: "1", horario: "08:00", duracao: 60, paciente: "Maria Fernanda", telefone: "(11) 99999-1234", procedimento: "Botox Glabela", profissionalId: "1", valor: 1800, status: "confirmado" },
   { id: "2", horario: "09:00", duracao: 90, paciente: "Carolina Alves", telefone: "(11) 98888-5678", procedimento: "Preenchimento Labial", profissionalId: "1", valor: 2500, status: "confirmado" },
   { id: "3", horario: "08:30", duracao: 45, paciente: "Juliana Costa", telefone: "(11) 97777-9012", procedimento: "Limpeza de Pele", profissionalId: "2", valor: 450, status: "pendente" },
@@ -87,18 +107,119 @@ const getSlotIndex = (horario: string) => horarios.indexOf(horario);
 const getSlotSpan = (duracao: number) => Math.ceil(duracao / 30);
 
 const Agenda = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("agenda");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'dia' | 'semana'>('dia');
+  const [agendamentos, setAgendamentos] = useState(initialAgendamentos);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false);
+  const [selectedProfissional, setSelectedProfissional] = useState<string>("todos");
+  const [selectedStatus, setSelectedStatus] = useState<string>("todos");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // New appointment form state
+  const [newAppointment, setNewAppointment] = useState({
+    paciente: "",
+    telefone: "",
+    procedimento: "",
+    profissionalId: "1",
+    horario: "09:00",
+    duracao: "60",
+    valor: "",
+  });
 
-  const valorConfirmado = agendamentos.filter(a => a.status === 'confirmado').reduce((acc, a) => acc + a.valor, 0);
-  const valorEmRisco = agendamentos.filter(a => a.status === 'risco').reduce((acc, a) => acc + a.valor, 0);
-  const valorPendente = agendamentos.filter(a => a.status === 'pendente').reduce((acc, a) => acc + a.valor, 0);
-  const totalAgendamentos = agendamentos.length;
+  const filteredAgendamentos = agendamentos.filter(a => {
+    if (selectedProfissional !== "todos" && a.profissionalId !== selectedProfissional) return false;
+    if (selectedStatus !== "todos" && a.status !== selectedStatus) return false;
+    if (searchQuery && !a.paciente.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  const valorConfirmado = filteredAgendamentos.filter(a => a.status === 'confirmado').reduce((acc, a) => acc + a.valor, 0);
+  const valorEmRisco = filteredAgendamentos.filter(a => a.status === 'risco').reduce((acc, a) => acc + a.valor, 0);
+  const valorPendente = filteredAgendamentos.filter(a => a.status === 'pendente').reduce((acc, a) => acc + a.valor, 0);
+  const totalAgendamentos = filteredAgendamentos.length;
   const ocupacao = Math.round((totalAgendamentos / (horarios.length * profissionais.length)) * 100);
 
   const getAgendamentosPorProfissional = (profissionalId: string) => {
-    return agendamentos.filter(a => a.profissionalId === profissionalId);
+    return filteredAgendamentos.filter(a => a.profissionalId === profissionalId);
+  };
+
+  const handlePrevDay = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() - 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleNextDay = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleToday = () => {
+    setSelectedDate(new Date());
+  };
+
+  const formatDisplayDate = (date: Date) => {
+    return date.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const handleCreateAppointment = () => {
+    if (!newAppointment.paciente || !newAppointment.telefone || !newAppointment.procedimento) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    const newId = String(agendamentos.length + 1);
+    const appointment: Agendamento = {
+      id: newId,
+      paciente: newAppointment.paciente,
+      telefone: newAppointment.telefone,
+      procedimento: newAppointment.procedimento,
+      profissionalId: newAppointment.profissionalId,
+      horario: newAppointment.horario,
+      duracao: parseInt(newAppointment.duracao),
+      valor: parseFloat(newAppointment.valor) || 0,
+      status: "pendente",
+    };
+
+    setAgendamentos([...agendamentos, appointment]);
+    setIsNewAppointmentOpen(false);
+    setNewAppointment({
+      paciente: "",
+      telefone: "",
+      procedimento: "",
+      profissionalId: "1",
+      horario: "09:00",
+      duracao: "60",
+      valor: "",
+    });
+    toast.success("Agendamento criado com sucesso!");
+  };
+
+  const handleWhatsApp = (telefone: string, paciente: string) => {
+    const phone = telefone.replace(/\D/g, '');
+    const message = encodeURIComponent(`Olá ${paciente}! Este é um contato da Clínica DermaCore.`);
+    window.open(`https://wa.me/55${phone}?text=${message}`, '_blank');
+  };
+
+  const handleCall = (telefone: string) => {
+    const phone = telefone.replace(/\D/g, '');
+    window.open(`tel:+55${phone}`, '_self');
+  };
+
+  const handleConfirm = (agendamentoId: string) => {
+    setAgendamentos(agendamentos.map(a => 
+      a.id === agendamentoId ? { ...a, status: 'confirmado' as const } : a
+    ));
+    toast.success("Agendamento confirmado!");
   };
 
   return (
@@ -125,16 +246,24 @@ const Agenda = () => {
                 <input
                   type="text"
                   placeholder="Buscar paciente..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
               
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setIsFilterOpen(true)}>
                 <Filter className="w-4 h-4" />
                 Filtros
+                {(selectedProfissional !== "todos" || selectedStatus !== "todos") && (
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                )}
               </Button>
               
-              <button className="btn-premium flex items-center gap-2 text-white text-sm py-2">
+              <button 
+                className="btn-premium flex items-center gap-2 text-white text-sm py-2"
+                onClick={() => setIsNewAppointmentOpen(true)}
+              >
                 <Plus className="w-4 h-4" />
                 Novo Agendamento
               </button>
@@ -185,18 +314,18 @@ const Agenda = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9" onClick={handlePrevDay}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <div className="px-4 py-2 bg-muted rounded-lg font-medium">
-                  Terça-feira, 14 de Janeiro de 2025
+                <div className="px-4 py-2 bg-muted rounded-lg font-medium capitalize">
+                  {formatDisplayDate(selectedDate)}
                 </div>
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleNextDay}>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
               
-              <Button variant="outline" size="sm">Hoje</Button>
+              <Button variant="outline" size="sm" onClick={handleToday}>Hoje</Button>
             </div>
 
             <div className="flex items-center gap-2">
@@ -242,7 +371,14 @@ const Agenda = () => {
                     
                     if (agendamento) {
                       return (
-                        <AgendamentoSlot key={`slot-${prof.id}-${horario}`} agendamento={agendamento} profissional={prof} />
+                        <AgendamentoSlot 
+                          key={`slot-${prof.id}-${horario}`} 
+                          agendamento={agendamento} 
+                          profissional={prof}
+                          onWhatsApp={handleWhatsApp}
+                          onCall={handleCall}
+                          onConfirm={handleConfirm}
+                        />
                       );
                     }
                     
@@ -261,6 +397,14 @@ const Agenda = () => {
                       <div 
                         key={`empty-${prof.id}-${horario}`} 
                         className="p-2 border-r border-b border-border min-h-[60px] hover:bg-muted/30 transition-colors cursor-pointer group"
+                        onClick={() => {
+                          setNewAppointment({
+                            ...newAppointment,
+                            profissionalId: prof.id,
+                            horario: horario,
+                          });
+                          setIsNewAppointmentOpen(true);
+                        }}
                       >
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center h-full">
                           <Plus className="w-5 h-5 text-muted-foreground" />
@@ -274,6 +418,185 @@ const Agenda = () => {
           </div>
         </main>
       </div>
+
+      {/* Filter Sheet */}
+      <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Filtros</SheetTitle>
+            <SheetDescription>
+              Filtre os agendamentos por profissional ou status
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-6 mt-6">
+            <div className="space-y-2">
+              <Label>Profissional</Label>
+              <Select value={selectedProfissional} onValueChange={setSelectedProfissional}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {profissionais.map(prof => (
+                    <SelectItem key={prof.id} value={prof.id}>{prof.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="confirmado">Confirmado</SelectItem>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="risco">Em Risco</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setSelectedProfissional("todos");
+                  setSelectedStatus("todos");
+                }}
+              >
+                Limpar Filtros
+              </Button>
+              <Button className="flex-1" onClick={() => setIsFilterOpen(false)}>
+                Aplicar
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* New Appointment Dialog */}
+      <Dialog open={isNewAppointmentOpen} onOpenChange={setIsNewAppointmentOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Novo Agendamento</DialogTitle>
+            <DialogDescription>
+              Preencha os dados para criar um novo agendamento
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="paciente">Nome do Paciente *</Label>
+                <Input
+                  id="paciente"
+                  value={newAppointment.paciente}
+                  onChange={(e) => setNewAppointment({...newAppointment, paciente: e.target.value})}
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telefone">Telefone *</Label>
+                <Input
+                  id="telefone"
+                  value={newAppointment.telefone}
+                  onChange={(e) => setNewAppointment({...newAppointment, telefone: e.target.value})}
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="procedimento">Procedimento *</Label>
+              <Input
+                id="procedimento"
+                value={newAppointment.procedimento}
+                onChange={(e) => setNewAppointment({...newAppointment, procedimento: e.target.value})}
+                placeholder="Ex: Botox, Preenchimento..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Profissional</Label>
+                <Select 
+                  value={newAppointment.profissionalId} 
+                  onValueChange={(v) => setNewAppointment({...newAppointment, profissionalId: v})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profissionais.map(prof => (
+                      <SelectItem key={prof.id} value={prof.id}>{prof.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Horário</Label>
+                <Select 
+                  value={newAppointment.horario} 
+                  onValueChange={(v) => setNewAppointment({...newAppointment, horario: v})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {horarios.map(h => (
+                      <SelectItem key={h} value={h}>{h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Duração (minutos)</Label>
+                <Select 
+                  value={newAppointment.duracao} 
+                  onValueChange={(v) => setNewAppointment({...newAppointment, duracao: v})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">30 min</SelectItem>
+                    <SelectItem value="45">45 min</SelectItem>
+                    <SelectItem value="60">1 hora</SelectItem>
+                    <SelectItem value="90">1h 30min</SelectItem>
+                    <SelectItem value="120">2 horas</SelectItem>
+                    <SelectItem value="180">3 horas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="valor">Valor (R$)</Label>
+                <Input
+                  id="valor"
+                  type="number"
+                  value={newAppointment.valor}
+                  onChange={(e) => setNewAppointment({...newAppointment, valor: e.target.value})}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewAppointmentOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCreateAppointment}>
+              Criar Agendamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -281,9 +604,12 @@ const Agenda = () => {
 interface AgendamentoSlotProps {
   agendamento: Agendamento;
   profissional: Profissional;
+  onWhatsApp: (telefone: string, paciente: string) => void;
+  onCall: (telefone: string) => void;
+  onConfirm: (agendamentoId: string) => void;
 }
 
-const AgendamentoSlot = ({ agendamento, profissional }: AgendamentoSlotProps) => {
+const AgendamentoSlot = ({ agendamento, profissional, onWhatsApp, onCall, onConfirm }: AgendamentoSlotProps) => {
   const slotSpan = getSlotSpan(agendamento.duracao);
   
   const statusConfig = {
@@ -350,13 +676,34 @@ const AgendamentoSlot = ({ agendamento, profissional }: AgendamentoSlotProps) =>
         </div>
         
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" title="WhatsApp">
+          <button 
+            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
+            title="WhatsApp"
+            onClick={(e) => {
+              e.stopPropagation();
+              onWhatsApp(agendamento.telefone, agendamento.paciente);
+            }}
+          >
             <MessageCircle className="w-4 h-4 text-green-600" />
           </button>
-          <button className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" title="Ligar">
+          <button 
+            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
+            title="Ligar"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCall(agendamento.telefone);
+            }}
+          >
             <Phone className="w-4 h-4 text-blue-600" />
           </button>
-          <button className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" title="Confirmar">
+          <button 
+            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
+            title="Confirmar"
+            onClick={(e) => {
+              e.stopPropagation();
+              onConfirm(agendamento.id);
+            }}
+          >
             <Bell className="w-4 h-4 text-amber-600" />
           </button>
         </div>

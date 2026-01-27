@@ -1,7 +1,15 @@
 import { Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const FooterSection = () => {
   const currentYear = new Date().getFullYear();
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <footer className="py-12 px-6 bg-sidebar-background text-sidebar-foreground">
@@ -9,45 +17,131 @@ export const FooterSection = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
+            <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-white">DermaCore</span>
-            </div>
+            </Link>
             <p className="text-sidebar-foreground/70 text-sm leading-relaxed">
               A plataforma completa para clínicas estéticas que querem crescer de forma inteligente.
             </p>
           </div>
 
-          {/* Links */}
+          {/* Links - Produto */}
           <div>
             <h4 className="font-semibold text-white mb-4">Produto</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li><a href="#" className="hover:text-primary transition-colors">Recursos</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Preços</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Integrações</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Atualizações</a></li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('features')} 
+                  className="hover:text-primary transition-colors"
+                >
+                  Recursos
+                </button>
+              </li>
+              <li>
+                <Link to="/planos" className="hover:text-primary transition-colors">
+                  Planos
+                </Link>
+              </li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('features')} 
+                  className="hover:text-primary transition-colors"
+                >
+                  Integrações
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('features')} 
+                  className="hover:text-primary transition-colors"
+                >
+                  Atualizações
+                </button>
+              </li>
             </ul>
           </div>
 
+          {/* Links - Empresa */}
           <div>
             <h4 className="font-semibold text-white mb-4">Empresa</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li><a href="#" className="hover:text-primary transition-colors">Sobre nós</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Carreiras</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contato</a></li>
+              <li>
+                <button 
+                  onClick={() => scrollToSection('testimonials')} 
+                  className="hover:text-primary transition-colors"
+                >
+                  Sobre nós
+                </button>
+              </li>
+              <li>
+                <a 
+                  href="https://blog.dermacore.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="mailto:carreiras@dermacore.com" 
+                  className="hover:text-primary transition-colors"
+                >
+                  Carreiras
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="mailto:contato@dermacore.com" 
+                  className="hover:text-primary transition-colors"
+                >
+                  Contato
+                </a>
+              </li>
             </ul>
           </div>
 
+          {/* Links - Suporte */}
           <div>
             <h4 className="font-semibold text-white mb-4">Suporte</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li><a href="#" className="hover:text-primary transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Documentação</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Status</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Termos de Uso</a></li>
+              <li>
+                <a 
+                  href="mailto:suporte@dermacore.com" 
+                  className="hover:text-primary transition-colors"
+                >
+                  Central de Ajuda
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="https://docs.dermacore.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Documentação
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="https://status.dermacore.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Status
+                </a>
+              </li>
+              <li>
+                <Link to="/termos" className="hover:text-primary transition-colors">
+                  Termos de Uso
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -58,9 +152,21 @@ export const FooterSection = () => {
             © {currentYear} DermaCore. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-sidebar-foreground/50">
-            <a href="#" className="hover:text-primary transition-colors">Privacidade</a>
-            <a href="#" className="hover:text-primary transition-colors">Termos</a>
-            <a href="#" className="hover:text-primary transition-colors">Cookies</a>
+            <Link to="/privacidade" className="hover:text-primary transition-colors">
+              Privacidade
+            </Link>
+            <Link to="/termos" className="hover:text-primary transition-colors">
+              Termos
+            </Link>
+            <button 
+              onClick={() => {
+                // Simple cookie consent acknowledgment
+                localStorage.setItem('cookieConsent', 'acknowledged');
+              }}
+              className="hover:text-primary transition-colors"
+            >
+              Cookies
+            </button>
           </div>
         </div>
       </div>
