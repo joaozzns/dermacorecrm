@@ -30,7 +30,7 @@ export default function Auth() {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -56,7 +56,7 @@ export default function Auth() {
       }
     } else {
       toast.success("Login realizado com sucesso!");
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
@@ -90,7 +90,7 @@ export default function Auth() {
       }
     } else {
       toast.success("Conta criada com sucesso! Você já pode fazer login.");
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
