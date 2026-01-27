@@ -1,11 +1,17 @@
 import { ScrollReveal } from "./ScrollReveal";
 import { Button } from "@/components/ui/button";
-import { Check, Star, Sparkles, Crown, Zap } from "lucide-react";
+import { Check, Star, Sparkles, Crown, Zap, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { toast } from "@/hooks/use-toast";
 
 const plans = [
   {
     name: "Essencial",
+    slug: "essencial",
     description: "Ideal para clínicas iniciantes",
     price: "197",
     period: "/mês",
@@ -24,6 +30,7 @@ const plans = [
   },
   {
     name: "Profissional",
+    slug: "profissional",
     description: "Mais popular para clínicas em crescimento",
     price: "397",
     period: "/mês",
@@ -44,6 +51,7 @@ const plans = [
   },
   {
     name: "Enterprise",
+    slug: "enterprise",
     description: "Para redes de clínicas",
     price: "797",
     period: "/mês",
@@ -59,12 +67,42 @@ const plans = [
       "Treinamento presencial",
       "SLA garantido"
     ],
-    cta: "Falar com Vendas",
+    cta: "Escolher Enterprise",
     gradient: "from-amber-500 to-orange-500"
   }
 ];
 
 export const PricingSection = () => {
+  const { user } = useAuth();
+  const { planSlug, createCheckout } = useSubscription();
+  const navigate = useNavigate();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const handleSelectPlan = async (slug: string) => {
+    if (!user) {
+      navigate('/auth', { state: { redirectTo: '/planos', planSlug: slug } });
+      return;
+    }
+
+    setLoadingPlan(slug);
+    try {
+      await createCheckout(slug);
+    } catch (error) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const getButtonText = (plan: typeof plans[0]) => {
+    if (planSlug === plan.slug) return "Seu Plano Atual";
+    return plan.cta;
+  };
+
   return (
     <section className="py-24 px-6 bg-background relative overflow-hidden">
       {/* Background Decoration */}
@@ -89,73 +127,96 @@ export const PricingSection = () => {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan, index) => (
-            <ScrollReveal key={plan.name} delay={index * 0.15}>
-              <motion.div 
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
-                className={`relative h-full rounded-2xl p-8 ${
-                  plan.popular 
-                    ? 'bg-gradient-to-b from-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20' 
-                    : 'bg-card border border-border hover:border-primary/30'
-                } transition-all duration-300`}
-              >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shadow-lg">
-                      Mais Popular
+          {plans.map((plan, index) => {
+            const isCurrentPlan = planSlug === plan.slug;
+            const isLoading = loadingPlan === plan.slug;
+            
+            return (
+              <ScrollReveal key={plan.name} delay={index * 0.15}>
+                <motion.div 
+                  whileHover={{ y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className={`relative h-full rounded-2xl p-8 ${
+                    plan.popular 
+                      ? 'bg-gradient-to-b from-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20' 
+                      : 'bg-card border border-border hover:border-primary/30'
+                  } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''} transition-all duration-300`}
+                >
+                  {/* Popular Badge */}
+                  {plan.popular && !isCurrentPlan && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shadow-lg">
+                        Mais Popular
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Current Plan Badge */}
+                  {isCurrentPlan && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <div className="px-4 py-1.5 rounded-full bg-green-500 text-white text-sm font-medium shadow-lg">
+                        Seu Plano
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Plan Header */}
+                  <div className="mb-8">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-4`}>
+                      <plan.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <p className="text-muted-foreground">{plan.description}</p>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-8">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg text-muted-foreground">R$</span>
+                      <span className={`text-5xl font-bold ${plan.popular ? 'text-gradient-primary' : ''}`}>
+                        {plan.price}
+                      </span>
+                      <span className="text-muted-foreground">{plan.period}</span>
                     </div>
                   </div>
-                )}
 
-                {/* Plan Header */}
-                <div className="mb-8">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-4`}>
-                    <plan.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <p className="text-muted-foreground">{plan.description}</p>
-                </div>
+                  {/* Features */}
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                          plan.popular ? 'bg-primary' : 'bg-primary/20'
+                        }`}>
+                          <Check className={`w-3 h-3 ${plan.popular ? 'text-white' : 'text-primary'}`} />
+                        </div>
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                {/* Price */}
-                <div className="mb-8">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-lg text-muted-foreground">R$</span>
-                    <span className={`text-5xl font-bold ${plan.popular ? 'text-gradient-primary' : ''}`}>
-                      {plan.price}
-                    </span>
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  </div>
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                        plan.popular ? 'bg-primary' : 'bg-primary/20'
-                      }`}>
-                        <Check className={`w-3 h-3 ${plan.popular ? 'text-white' : 'text-primary'}`} />
-                      </div>
-                      <span className="text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA Button */}
-                <Button 
-                  className={`w-full py-6 text-lg ${
-                    plan.popular 
-                      ? 'btn-premium' 
-                      : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'
-                  }`}
-                >
-                  {plan.cta}
-                </Button>
-              </motion.div>
-            </ScrollReveal>
-          ))}
+                  {/* CTA Button */}
+                  <Button 
+                    className={`w-full py-6 text-lg ${
+                      plan.popular 
+                        ? 'btn-premium' 
+                        : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'
+                    }`}
+                    onClick={() => handleSelectPlan(plan.slug)}
+                    disabled={isLoading || isCurrentPlan}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      getButtonText(plan)
+                    )}
+                  </Button>
+                </motion.div>
+              </ScrollReveal>
+            );
+          })}
         </div>
 
         {/* Money Back Guarantee */}
