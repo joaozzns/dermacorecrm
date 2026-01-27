@@ -4,6 +4,7 @@ import { PipelineLeads } from "./PipelineLeads";
 import { AgendaHoje } from "./AgendaHoje";
 import { InsightsIA } from "./InsightsIA";
 import { PlanUsageCard } from "./PlanUsageCard";
+import { TrialBanner } from "./TrialBanner";
 import { Bell, Search, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -62,6 +63,9 @@ export const Dashboard = () => {
 
       {/* Content */}
       <main className="p-8 space-y-6">
+        {/* Trial Banner */}
+        <TrialBanner />
+
         {/* Métrica Central */}
         <MetricaReceita
           total={185000}
