@@ -205,13 +205,16 @@ const PacienteCard = ({ paciente }: PacienteCardProps) => {
             <span>{paciente.dataProcedimento}</span>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => {
+              const msg = encodeURIComponent(`Olá ${paciente.nome}! Como está se sentindo após o ${paciente.procedimento}?`);
+              window.open(`https://wa.me/?text=${msg}`, "_blank");
+            }}>
               <MessageCircle className="w-4 h-4" />
             </Button>
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => window.open("tel:+5511999990000", "_self")}>
               <Phone className="w-4 h-4" />
             </Button>
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => alert(`Visualizando detalhes de ${paciente.nome}`)}>
               <Eye className="w-4 h-4" />
             </Button>
           </div>
@@ -247,7 +250,7 @@ export default function PosProcedimento() {
             <h1 className="text-2xl font-bold text-foreground">Pós-Procedimento</h1>
             <p className="text-muted-foreground">Acompanhamento e satisfação de pacientes</p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90">
+          <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => alert("Funcionalidade de nova orientação em desenvolvimento!")}>
             <Plus className="w-4 h-4" />
             Nova Orientação
           </Button>
@@ -328,7 +331,7 @@ export default function PosProcedimento() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => alert("Filtros em desenvolvimento!")}>
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -350,7 +353,7 @@ export default function PosProcedimento() {
                       <FileText className="w-5 h-5 text-primary" />
                       {grupo.procedimento}
                     </CardTitle>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" onClick={() => alert(`Adicionar orientação para ${grupo.procedimento}`)}>
                       <Plus className="w-4 h-4" />
                       Adicionar
                     </Button>

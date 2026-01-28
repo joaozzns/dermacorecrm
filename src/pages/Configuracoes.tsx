@@ -377,7 +377,7 @@ export default function Configuracoes() {
                     </CardTitle>
                     <CardDescription>Personalize as mensagens automáticas do WhatsApp</CardDescription>
                   </div>
-                  <Button className="gap-2">
+                  <Button className="gap-2" onClick={() => alert("Criação de novo template em desenvolvimento!")}>
                     <Plus className="w-4 h-4" />
                     Novo Template
                   </Button>
@@ -399,10 +399,13 @@ export default function Configuracoes() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Switch checked={template.ativo} />
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" onClick={() => alert(`Editando template: ${template.nome}`)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            navigator.clipboard.writeText(template.mensagem);
+                            toast.success("Template copiado!");
+                          }}>
                             <Copy className="w-4 h-4" />
                           </Button>
                         </div>
@@ -436,7 +439,7 @@ export default function Configuracoes() {
                     </CardTitle>
                     <CardDescription>Modelos para comunicações por e-mail</CardDescription>
                   </div>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2" onClick={() => alert("Criação de novo template de email em desenvolvimento!")}>
                     <Plus className="w-4 h-4" />
                     Novo Template
                   </Button>
@@ -448,7 +451,7 @@ export default function Configuracoes() {
                     <div key={nome} className="p-4 bg-muted/30 rounded-xl border border-border hover:border-primary/50 cursor-pointer transition-colors">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-foreground">{nome}</h4>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => alert(`Editando template: ${nome}`)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
@@ -498,17 +501,17 @@ export default function Configuracoes() {
                         <div className="flex gap-2 mt-4">
                           {integracao.status === "conectado" ? (
                             <>
-                              <Button variant="outline" size="sm" className="gap-2">
+                              <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success(`${integracao.nome} reconectado com sucesso!`)}>
                                 <RefreshCw className="w-4 h-4" />
                                 Reconectar
                               </Button>
-                              <Button variant="ghost" size="sm" className="gap-2 text-destructive">
+                              <Button variant="ghost" size="sm" className="gap-2 text-destructive" onClick={() => toast.info(`${integracao.nome} desconectado.`)}>
                                 <X className="w-4 h-4" />
                                 Desconectar
                               </Button>
                             </>
                           ) : (
-                            <Button size="sm" className="gap-2">
+                            <Button size="sm" className="gap-2" onClick={() => toast.success(`Conectando ${integracao.nome}...`)}>
                               <Link2 className="w-4 h-4" />
                               Conectar
                             </Button>
@@ -532,7 +535,7 @@ export default function Configuracoes() {
                     </CardTitle>
                     <CardDescription>Configure endpoints para receber eventos</CardDescription>
                   </div>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2" onClick={() => alert("Criação de webhook em desenvolvimento!")}>
                     <Plus className="w-4 h-4" />
                     Novo Webhook
                   </Button>

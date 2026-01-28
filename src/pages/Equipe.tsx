@@ -166,9 +166,9 @@ const ProfissionalCard = ({ profissional }: ProfissionalCardProps) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem><Edit className="w-4 h-4 mr-2" /> Editar</DropdownMenuItem>
-              <DropdownMenuItem><Calendar className="w-4 h-4 mr-2" /> Ver Agenda</DropdownMenuItem>
-              <DropdownMenuItem><Target className="w-4 h-4 mr-2" /> Definir Metas</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => alert(`Editando: ${profissional.nome}`)}><Edit className="w-4 h-4 mr-2" /> Editar</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => window.location.href = "/agenda"}><Calendar className="w-4 h-4 mr-2" /> Ver Agenda</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => alert(`Definindo metas para: ${profissional.nome}`)}><Target className="w-4 h-4 mr-2" /> Definir Metas</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -232,7 +232,7 @@ export default function Equipe() {
             <h1 className="text-2xl font-bold text-foreground">Equipe</h1>
             <p className="text-muted-foreground">Gestão de profissionais e escalas</p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90">
+          <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => alert("Funcionalidade de novo profissional em desenvolvimento!")}>
             <Plus className="w-4 h-4" />
             Novo Profissional
           </Button>
@@ -330,7 +330,7 @@ export default function Equipe() {
                     <Calendar className="w-5 h-5 text-primary" />
                     Escala da Semana
                   </CardTitle>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => alert("Editor de escala em desenvolvimento!")}>
                     <Edit className="w-4 h-4" />
                     Editar Escala
                   </Button>
@@ -370,7 +370,7 @@ export default function Equipe() {
                     <Target className="w-5 h-5 text-primary" />
                     Metas Individuais - Janeiro 2025
                   </CardTitle>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => alert("Definição de metas em desenvolvimento!")}>
                     <Plus className="w-4 h-4" />
                     Definir Metas
                   </Button>

@@ -187,9 +187,9 @@ const FluxoCard = ({ fluxo }: FluxoCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem><Edit className="w-4 h-4 mr-2" /> Editar</DropdownMenuItem>
-                <DropdownMenuItem><Copy className="w-4 h-4 mr-2" /> Duplicar</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive"><Trash2 className="w-4 h-4 mr-2" /> Excluir</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => alert(`Editando: ${fluxo.nome}`)}><Edit className="w-4 h-4 mr-2" /> Editar</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => alert(`Duplicando: ${fluxo.nome}`)}><Copy className="w-4 h-4 mr-2" /> Duplicar</DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive" onClick={() => alert(`Excluindo: ${fluxo.nome}`)}><Trash2 className="w-4 h-4 mr-2" /> Excluir</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -220,7 +220,7 @@ const FluxoCard = ({ fluxo }: FluxoCardProps) => {
           </div>
         </div>
 
-        <Button variant="ghost" className="w-full mt-4 gap-2">
+        <Button variant="ghost" className="w-full mt-4 gap-2" onClick={() => alert(`Configurando fluxo: ${fluxo.nome}`)}>
           <Settings className="w-4 h-4" />
           Configurar Fluxo
           <ChevronRight className="w-4 h-4 ml-auto" />
@@ -248,7 +248,7 @@ export default function Automacoes() {
             <h1 className="text-2xl font-bold text-foreground">Automações</h1>
             <p className="text-muted-foreground">Fluxos automáticos de comunicação</p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90">
+          <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => alert("Criação de nova automação em desenvolvimento!")}>
             <Plus className="w-4 h-4" />
             Nova Automação
           </Button>
@@ -407,7 +407,7 @@ export default function Automacoes() {
                       ))}
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full mt-6 gap-2">
+                  <Button variant="outline" className="w-full mt-6 gap-2" onClick={() => alert(`Adicionando conteúdo à regra: ${regra.nome}`)}>
                     <Plus className="w-4 h-4" />
                     Adicionar Conteúdo
                   </Button>
