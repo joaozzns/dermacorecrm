@@ -450,14 +450,32 @@ const LeadCard = ({ lead, onDragStart }: LeadCardProps) => {
       <div className="flex items-center justify-between pt-2 border-t border-border">
         <span className="text-xs text-muted-foreground">{lead.phone}</span>
         <div className="flex items-center gap-1">
-          <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="WhatsApp">
+          <button 
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors" 
+            title="WhatsApp"
+            onClick={() => {
+              const msg = encodeURIComponent(`Olá ${lead.name}! Tudo bem?`);
+              window.open(`https://wa.me/${lead.phone.replace(/\D/g, "")}?text=${msg}`, "_blank");
+            }}
+          >
             <MessageCircle className="w-4 h-4 text-green-600" />
           </button>
-          <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Ligar">
+          <button 
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors" 
+            title="Ligar"
+            onClick={() => window.open(`tel:${lead.phone}`, "_self")}
+          >
             <Phone className="w-4 h-4 text-blue-600" />
           </button>
           {lead.email && (
-            <button className="p-1.5 hover:bg-muted rounded-lg transition-colors" title="Email">
+            <button 
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors" 
+              title="Email"
+              onClick={() => {
+                const subject = encodeURIComponent(`Contato - ${lead.interest || "Procedimento"}`);
+                window.open(`mailto:${lead.email}?subject=${subject}`, "_self");
+              }}
+            >
               <Mail className="w-4 h-4 text-purple-600" />
             </button>
           )}

@@ -90,11 +90,41 @@ const formatCurrency = (value: number) => {
 const Followup = () => {
   const [activeSection, setActiveSection] = useState("followup");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const receitaEmRisco = leadsEsfriando.reduce((acc, lead) => acc + lead.valorPotencial, 0);
   const receitaRecuperada = sequencias.reduce((acc, seq) => acc + seq.receitaRecuperada, 0);
   const totalLeadsAtivos = sequencias.reduce((acc, seq) => acc + seq.leadsAtivos, 0);
   const taxaMediaResposta = Math.round(sequencias.reduce((acc, seq) => acc + seq.taxaResposta, 0) / sequencias.length);
+
+  const handleNewSequence = () => {
+    alert("Funcionalidade de nova sequência em desenvolvimento. Em breve disponível!");
+  };
+
+  const handleLeadWhatsApp = (lead: LeadEsfriando) => {
+    const message = encodeURIComponent(`Olá ${lead.nome}! Tudo bem? Passando para verificar se tem alguma dúvida sobre ${lead.procedimento}.`);
+    window.open(`https://wa.me/?text=${message}`, "_blank");
+  };
+
+  const handleLeadCall = (lead: LeadEsfriando) => {
+    window.open(`tel:+5511999990000`, "_self");
+  };
+
+  const handleLeadEmail = (lead: LeadEsfriando) => {
+    const subject = encodeURIComponent(`Sobre seu interesse em ${lead.procedimento}`);
+    const body = encodeURIComponent(`Olá ${lead.nome},\n\nEsperamos que esteja bem!\n\nGostaríamos de conversar sobre ${lead.procedimento}.\n\nAtenciosamente,\nEquipe da Clínica`);
+    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+  };
+
+  const filteredLeads = leadsEsfriando.filter(lead => {
+    const matchSearch = lead.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        lead.procedimento.toLowerCase().includes(searchTerm.toLowerCase());
+    if (filtroStatus === "todos") return matchSearch;
+    if (filtroStatus === "critico") return matchSearch && lead.diasParado > 7;
+    if (filtroStatus === "atencao") return matchSearch && lead.diasParado > 3 && lead.diasParado <= 7;
+    if (filtroStatus === "novo") return matchSearch && lead.diasParado <= 3;
+    return matchSearch;
+  });
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -120,11 +150,13 @@ const Followup = () => {
                 <input
                   type="text"
                   placeholder="Buscar lead..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
               
-              <button className="btn-premium flex items-center gap-2 text-white text-sm py-2">
+              <button className="btn-premium flex items-center gap-2 text-white text-sm py-2" onClick={handleNewSequence}>
                 <Plus className="w-4 h-4" />
                 Nova Sequência
               </button>
@@ -217,8 +249,8 @@ const Followup = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {leadsEsfriando.map((lead) => (
-                    <LeadEsfriandoCard key={lead.id} lead={lead} />
+                  {filteredLeads.map((lead) => (
+                    <LeadEsfriandoCard key={lead.id} lead={lead} onWhatsApp={handleLeadWhatsApp} onCall={handleLeadCall} onEmail={handleLeadEmail} />
                   ))}
                 </div>
               </div>
@@ -255,9 +287,12 @@ const Followup = () => {
 
 interface LeadEsfriandoCardProps {
   lead: LeadEsfriando;
+  onWhatsApp: (lead: LeadEsfriando) => void;
+  onCall: (lead: LeadEsfriando) => void;
+  onEmail: (lead: LeadEsfriando) => void;
 }
 
-const LeadEsfriandoCard = ({ lead }: LeadEsfriandoCardProps) => {
+const LeadEsfriandoCard = ({ lead, onWhatsApp, onCall, onEmail }: LeadEsfriandoCardProps) => {
   const urgencia = lead.diasParado > 7 ? "critico" : lead.diasParado > 3 ? "atencao" : "novo";
   
   const urgenciaConfig = {
@@ -307,13 +342,13 @@ const LeadEsfriandoCard = ({ lead }: LeadEsfriandoCardProps) => {
         </div>
         
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="WhatsApp">
+          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="WhatsApp" onClick={() => onWhatsApp(lead)}>
             <MessageCircle className="w-4 h-4 text-green-600" />
           </button>
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Ligar">
+          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Ligar" onClick={() => onCall(lead)}>
             <Phone className="w-4 h-4 text-blue-600" />
           </button>
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Email">
+          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Email" onClick={() => onEmail(lead)}>
             <Mail className="w-4 h-4 text-gray-600" />
           </button>
         </div>

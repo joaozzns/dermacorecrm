@@ -2,6 +2,7 @@ import { ScrollReveal } from "./ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export const CTASection = () => {
   return (
@@ -54,13 +55,15 @@ export const CTASection = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Button 
-                size="lg" 
-                className="btn-gold text-xl px-12 py-8 group"
-              >
-                Começar Minha Jornada
-                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <Link to="/auth">
+                <Button 
+                  size="lg" 
+                  className="btn-gold text-xl px-12 py-8 group"
+                >
+                  Começar Minha Jornada
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </motion.div>
 
             <p className="mt-6 text-sm text-muted-foreground">

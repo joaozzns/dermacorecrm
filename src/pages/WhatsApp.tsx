@@ -103,12 +103,50 @@ const WhatsApp = () => {
   const [mensagem, setMensagem] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const conversasFiltradas = conversas.filter(c => 
-    filtroStatus === "todos" || c.status === filtroStatus
-  );
+  const conversasFiltradas = conversas.filter(c => {
+    const matchStatus = filtroStatus === "todos" || c.status === filtroStatus;
+    const matchSearch = c.paciente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        c.procedimento.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   const naoLidasTotal = conversas.reduce((acc, c) => acc + c.naoLidas, 0);
+
+  const handleSendMessage = () => {
+    if (!mensagem.trim()) return;
+    const phone = "5511999990000";
+    const encodedMessage = encodeURIComponent(mensagem);
+    window.open(`https://wa.me/${phone}?text=${encodedMessage}`, "_blank");
+    setMensagem("");
+  };
+
+  const handlePhoneCall = () => {
+    window.open(`tel:+5511999990000`, "_self");
+  };
+
+  const handleVideoCall = () => {
+    window.open(`https://meet.google.com/new`, "_blank");
+  };
+
+  const handleNewConversation = () => {
+    window.open("https://wa.me/", "_blank");
+  };
+
+  const handleScheduleAppointment = () => {
+    window.location.href = "/agenda";
+  };
+
+  const handleSendQuote = () => {
+    const quoteMessage = `Olá ${conversaSelecionada.paciente}! Segue o orçamento para ${conversaSelecionada.procedimento}: ${formatCurrency(conversaSelecionada.valorPotencial)}`;
+    setMensagem(quoteMessage);
+  };
+
+  const handleMarkVIP = () => {
+    // Mark as VIP logic - just show feedback for now
+    alert(`${conversaSelecionada.paciente} marcado como VIP!`);
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -129,7 +167,7 @@ const WhatsApp = () => {
                   <p className="text-xs text-muted-foreground">{naoLidasTotal} não lidas</p>
                 </div>
               </div>
-              <Button variant="outline" size="icon" className="h-9 w-9">
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleNewConversation}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -139,6 +177,8 @@ const WhatsApp = () => {
               <input
                 type="text"
                 placeholder="Buscar conversa..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
@@ -192,13 +232,13 @@ const WhatsApp = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={handlePhoneCall} title="Ligar">
                 <Phone className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={handleVideoCall} title="Videochamada">
                 <Video className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" title="Mais opções">
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </div>
@@ -261,7 +301,10 @@ const WhatsApp = () => {
                   <Smile className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
-              <button className="p-3 bg-green-500 hover:bg-green-600 rounded-xl transition-colors text-white">
+              <button 
+                className="p-3 bg-green-500 hover:bg-green-600 rounded-xl transition-colors text-white"
+                onClick={handleSendMessage}
+              >
                 <Send className="w-5 h-5" />
               </button>
             </div>
@@ -329,15 +372,15 @@ const WhatsApp = () => {
                 Ações Rápidas
               </h4>
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={handleScheduleAppointment}>
                   <Calendar className="w-4 h-4" />
                   Agendar Avaliação
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={handleSendQuote}>
                   <FileText className="w-4 h-4" />
                   Enviar Orçamento
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={handleMarkVIP}>
                   <Star className="w-4 h-4" />
                   Marcar como VIP
                 </Button>
