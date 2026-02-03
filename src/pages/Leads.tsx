@@ -16,8 +16,10 @@ import {
   Share2,
   User,
   Sparkles,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react";
+import { QuoteFormDialog } from "@/components/quotes/QuoteFormDialog";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +88,8 @@ const Leads = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+  const [selectedLeadForQuote, setSelectedLeadForQuote] = useState<string | undefined>(undefined);
   
   // Form state
   const [formName, setFormName] = useState("");
@@ -388,6 +392,10 @@ const Leads = () => {
                         key={lead.id} 
                         lead={lead} 
                         onDragStart={() => handleDragStart(lead)}
+                        onCreateQuote={() => {
+                          setSelectedLeadForQuote(lead.id);
+                          setQuoteDialogOpen(true);
+                        }}
                       />
                     ))}
                     
@@ -402,6 +410,13 @@ const Leads = () => {
             </div>
           </div>
         </main>
+        
+        {/* Quote Dialog */}
+        <QuoteFormDialog 
+          open={quoteDialogOpen} 
+          onOpenChange={setQuoteDialogOpen}
+          preselectedLeadId={selectedLeadForQuote}
+        />
       </div>
     </div>
   );
@@ -410,9 +425,10 @@ const Leads = () => {
 interface LeadCardProps {
   lead: Lead;
   onDragStart: () => void;
+  onCreateQuote: () => void;
 }
 
-const LeadCard = ({ lead, onDragStart }: LeadCardProps) => {
+const LeadCard = ({ lead, onDragStart, onCreateQuote }: LeadCardProps) => {
   const tempoParado = lead.updated_at 
     ? formatDistanceToNow(new Date(lead.updated_at), { addSuffix: false, locale: ptBR })
     : "recente";
@@ -450,6 +466,13 @@ const LeadCard = ({ lead, onDragStart }: LeadCardProps) => {
       <div className="flex items-center justify-between pt-2 border-t border-border">
         <span className="text-xs text-muted-foreground">{lead.phone}</span>
         <div className="flex items-center gap-1">
+          <button 
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors" 
+            title="Criar Orçamento"
+            onClick={onCreateQuote}
+          >
+            <FileText className="w-4 h-4 text-primary" />
+          </button>
           <button 
             className="p-1.5 hover:bg-muted rounded-lg transition-colors" 
             title="WhatsApp"
