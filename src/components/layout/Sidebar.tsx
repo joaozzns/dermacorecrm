@@ -12,7 +12,9 @@ import {
   Settings,
   ChevronRight,
   Sparkles,
-  LogOut
+  LogOut,
+  Stethoscope,
+  FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -70,6 +72,8 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
     { id: "whatsapp", path: "/whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp", badge: 5 },
     { id: "followup", path: "/followup", icon: <RefreshCw className="w-5 h-5" />, label: "Follow-up" },
     { id: "pos-procedimento", path: "/pos-procedimento", icon: <Heart className="w-5 h-5" />, label: "Pós-Procedimento" },
+    { id: "procedimentos", path: "/procedimentos", icon: <Stethoscope className="w-5 h-5" />, label: "Procedimentos" },
+    { id: "orcamentos", path: "/orcamentos", icon: <FileText className="w-5 h-5" />, label: "Orçamentos" },
     { id: "relatorios", path: "/relatorios", icon: <BarChart3 className="w-5 h-5" />, label: "Relatórios" },
     { id: "financeiro", path: "/financeiro", icon: <DollarSign className="w-5 h-5" />, label: "Financeiro" },
     { id: "equipe", path: "/equipe", icon: <UserCog className="w-5 h-5" />, label: "Equipe" },

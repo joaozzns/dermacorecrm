@@ -21,6 +21,8 @@ import Automacoes from "./pages/Automacoes";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 import Planos from "./pages/Planos";
+import Procedimentos from "./pages/Procedimentos";
+import Orcamentos from "./pages/Orcamentos";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => (
               <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
               <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />
               <Route path="/pos-procedimento" element={<ProtectedRoute><PosProcedimento /></ProtectedRoute>} />
+              <Route path="/procedimentos" element={<ProtectedRoute><Procedimentos /></ProtectedRoute>} />
+              <Route path="/orcamentos" element={<ProtectedRoute><Orcamentos /></ProtectedRoute>} />
               <Route path="/equipe" element={<ProtectedRoute><Equipe /></ProtectedRoute>} />
               <Route path="/automacoes" element={<ProtectedRoute><Automacoes /></ProtectedRoute>} />
               <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
