@@ -1,5 +1,5 @@
-import { Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import logoDermacore from "@/assets/logo_dermacore.png";
 
 export const FooterSection = () => {
   const currentYear = new Date().getFullYear();
@@ -17,11 +17,8 @@ export const FooterSection = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">DermaCore</span>
+            <Link to="/" className="flex items-center mb-4">
+              <img src={logoDermacore} alt="DermaCore" className="h-16 w-auto object-contain drop-shadow-md" />
             </Link>
             <p className="text-sidebar-foreground/70 text-sm leading-relaxed">
               A plataforma completa para clínicas estéticas que querem crescer de forma inteligente.
