@@ -40,8 +40,8 @@ export const NavbarLanding = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-24">
           {/* Logo */}
-          <Link to="/landing" className="flex items-center">
-            <img src={logoDermacore} alt="DermaCore" className="h-20 w-auto object-contain" />
+          <Link to="/landing" className="flex items-center ml-4">
+            <img src={logoDermacore} alt="DermaCore" className="h-24 w-auto object-contain drop-shadow-md" />
           </Link>
 
           {/* Desktop Navigation */}
