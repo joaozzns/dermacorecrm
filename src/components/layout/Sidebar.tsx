@@ -11,11 +11,11 @@ import {
   Zap,
   Settings,
   ChevronRight,
-  Sparkles,
   LogOut,
   Stethoscope,
   FileText
 } from "lucide-react";
+import logoDermacore from "@/assets/logo_dermacore.png";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -101,14 +101,8 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sidebar-primary to-teal-400 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-white">DermaCore</h1>
-            <p className="text-xs text-sidebar-foreground">Gestão Premium</p>
-          </div>
+        <div className="flex items-center justify-center cursor-pointer" onClick={() => navigate("/dashboard")}>
+          <img src={logoDermacore} alt="DermaCore" className="h-14 w-auto" />
         </div>
       </div>
 

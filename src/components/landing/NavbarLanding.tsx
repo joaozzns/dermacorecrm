@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import logoDermacore from "@/assets/logo_dermacore.png";
 
 export const NavbarLanding = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,10 +41,7 @@ export const NavbarLanding = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/landing" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">DermaCore</span>
+            <img src={logoDermacore} alt="DermaCore" className="h-12 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
