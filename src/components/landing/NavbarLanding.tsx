@@ -41,7 +41,7 @@ export const NavbarLanding = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/landing" className="flex items-center gap-2">
-            <img src={logoDermacore} alt="DermaCore" className="h-24 w-auto" />
+            <img src={logoDermacore} alt="DermaCore" className="h-32 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
