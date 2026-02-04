@@ -102,7 +102,7 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center justify-center cursor-pointer" onClick={() => navigate("/dashboard")}>
-          <img src={logoDermacore} alt="DermaCore" className="h-20 w-auto" />
+          <img src={logoDermacore} alt="DermaCore" className="h-28 w-auto" />
         </div>
       </div>
 
