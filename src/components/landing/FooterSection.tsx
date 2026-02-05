@@ -18,7 +18,7 @@ export const FooterSection = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <img src={logoDermacore} alt="DermaCore" className="h-16 w-auto object-contain drop-shadow-md" />
+              <img src={logoDermacore} alt="DermaCore" className="h-10 w-auto object-contain drop-shadow-md" />
             </Link>
             <p className="text-sidebar-foreground/70 text-sm leading-relaxed">
               A plataforma completa para clínicas estéticas que querem crescer de forma inteligente.
