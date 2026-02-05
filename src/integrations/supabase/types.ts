@@ -78,33 +78,101 @@ export type Database = {
           },
         ]
       }
-      clinics: {
+      clinic_settings: {
         Row: {
-          address: string | null
+          agenda_preferences: Json
+          clinic_id: string
           created_at: string
-          email: string | null
           id: string
-          name: string
-          phone: string | null
+          notification_preferences: Json
           updated_at: string
         }
         Insert: {
-          address?: string | null
+          agenda_preferences?: Json
+          clinic_id: string
           created_at?: string
-          email?: string | null
           id?: string
-          name: string
-          phone?: string | null
+          notification_preferences?: Json
           updated_at?: string
         }
         Update: {
+          agenda_preferences?: Json
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          notification_preferences?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_settings_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: true
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinics: {
+        Row: {
+          address: string | null
+          business_hours: string | null
+          city: string | null
+          cnpj: string | null
+          created_at: string
+          email: string | null
+          facebook: string | null
+          id: string
+          instagram: string | null
+          legal_name: string | null
+          logo_url: string | null
+          name: string
+          phone: string | null
+          state: string | null
+          updated_at: string
+          website: string | null
+          whatsapp: string | null
+          zip_code: string | null
+        }
+        Insert: {
           address?: string | null
+          business_hours?: string | null
+          city?: string | null
+          cnpj?: string | null
           created_at?: string
           email?: string | null
+          facebook?: string | null
           id?: string
+          instagram?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_hours?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          facebook?: string | null
+          id?: string
+          instagram?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
           name?: string
           phone?: string | null
+          state?: string | null
           updated_at?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }

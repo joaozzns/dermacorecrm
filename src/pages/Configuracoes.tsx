@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { useClinicSettings, NotificationPreferences, AgendaPreferences } from "@/hooks/useClinicSettings";
 import {
   Settings,
   Building2,
@@ -51,7 +52,8 @@ import {
   Trash2,
   Plus,
   Copy,
-  Edit
+  Edit,
+  Loader2
 } from "lucide-react";
 
 // Templates de mensagem
@@ -78,58 +80,111 @@ export default function Configuracoes() {
   const [activeSection, setActiveSection] = useState("configuracoes");
   const [showApiKey, setShowApiKey] = useState(false);
   
-  // Estado da clínica
+  const { clinic, notificationPreferences, agendaPreferences, isLoading, updateClinicInfo, updateSettings } = useClinicSettings();
+
+  // Local state synced from DB
   const [clinica, setClinica] = useState({
-    nome: "Clínica Estética Plus",
-    razaoSocial: "Clínica Estética Plus Ltda",
-    cnpj: "12.345.678/0001-99",
-    telefone: "(11) 3456-7890",
-    whatsapp: "(11) 99999-0000",
-    email: "contato@clinicaesteticaplus.com.br",
-    site: "www.clinicaesteticaplus.com.br",
-    endereco: "Av. Paulista, 1000 - Sala 501",
-    cidade: "São Paulo",
-    estado: "SP",
-    cep: "01310-100",
-    instagram: "@clinicaesteticaplus",
-    facebook: "/clinicaesteticaplus",
-    horarioFuncionamento: "Seg-Sex: 8h às 20h | Sáb: 8h às 14h",
+    nome: "",
+    razaoSocial: "",
+    cnpj: "",
+    telefone: "",
+    whatsapp: "",
+    email: "",
+    site: "",
+    endereco: "",
+    cidade: "",
+    estado: "",
+    cep: "",
+    instagram: "",
+    facebook: "",
+    horarioFuncionamento: "",
     logoUrl: "",
   });
 
-  // Preferências de notificação
-  const [notificacoes, setNotificacoes] = useState({
-    emailNovoLead: true,
-    emailAgendamento: true,
-    emailNoShow: true,
-    pushNovoLead: true,
-    pushLembrete: true,
-    pushInadimplencia: false,
-    whatsappConfirmacao: true,
-    whatsappLembrete24h: true,
-    whatsappLembrete2h: true,
-    whatsappPosProcedimento: true,
-  });
+  const [notificacoes, setNotificacoes] = useState<NotificationPreferences>(notificationPreferences);
+  const [prefsAgenda, setPrefsAgenda] = useState<AgendaPreferences>(agendaPreferences);
 
-  // Preferências de agenda
-  const [prefsAgenda, setPrefsAgenda] = useState({
-    duracaoPadrao: "60",
-    intervaloMinimo: "15",
-    antecedenciaMinima: "2",
-    confirmacaoAutomatica: true,
-    lembreteAutomatico: true,
-    permitirRemarcacao: true,
-    limiteDesmarcacao: "24",
-  });
+  // Sync from DB when data loads
+  useEffect(() => {
+    if (clinic) {
+      setClinica({
+        nome: clinic.name || "",
+        razaoSocial: clinic.legal_name || "",
+        cnpj: clinic.cnpj || "",
+        telefone: clinic.phone || "",
+        whatsapp: clinic.whatsapp || "",
+        email: clinic.email || "",
+        site: clinic.website || "",
+        endereco: clinic.address || "",
+        cidade: clinic.city || "",
+        estado: clinic.state || "",
+        cep: clinic.zip_code || "",
+        instagram: clinic.instagram || "",
+        facebook: clinic.facebook || "",
+        horarioFuncionamento: clinic.business_hours || "",
+        logoUrl: clinic.logo_url || "",
+      });
+    }
+  }, [clinic]);
 
-  const handleSave = () => {
-    toast.success("Configurações salvas com sucesso!");
+  useEffect(() => {
+    setNotificacoes(notificationPreferences);
+  }, [notificationPreferences]);
+
+  useEffect(() => {
+    setPrefsAgenda(agendaPreferences);
+  }, [agendaPreferences]);
+
+  const isSaving = updateClinicInfo.isPending || updateSettings.isPending;
+
+  const handleSave = async () => {
+    try {
+      await Promise.all([
+        updateClinicInfo.mutateAsync({
+          name: clinica.nome,
+          legal_name: clinica.razaoSocial || null,
+          cnpj: clinica.cnpj || null,
+          phone: clinica.telefone || null,
+          whatsapp: clinica.whatsapp || null,
+          email: clinica.email || null,
+          website: clinica.site || null,
+          address: clinica.endereco || null,
+          city: clinica.cidade || null,
+          state: clinica.estado || null,
+          zip_code: clinica.cep || null,
+          instagram: clinica.instagram || null,
+          facebook: clinica.facebook || null,
+          business_hours: clinica.horarioFuncionamento || null,
+          logo_url: clinica.logoUrl || null,
+        }),
+        updateSettings.mutateAsync({
+          notification_preferences: notificacoes,
+          agenda_preferences: prefsAgenda,
+        }),
+      ]);
+    } catch {
+      // Errors handled by mutations
+    }
   };
 
   const handleCopyApiKey = () => {
     navigator.clipboard.writeText("sk_live_xxxxxxxxxxxxxxxxxxxxx");
     toast.success("API Key copiada!");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <main className="ml-64 p-8 flex items-center justify-center min-h-screen">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Carregando configurações...</span>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -142,9 +197,9 @@ export default function Configuracoes() {
             <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
             <p className="text-muted-foreground">Personalize sua clínica e integrações</p>
           </div>
-          <Button onClick={handleSave} className="gap-2 bg-primary hover:bg-primary/90">
-            <Save className="w-4 h-4" />
-            Salvar Alterações
+          <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-primary hover:bg-primary/90">
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {isSaving ? "Salvando..." : "Salvar Alterações"}
           </Button>
         </div>
 
@@ -578,9 +633,9 @@ export default function Configuracoes() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
-                    { key: "emailNovoLead", label: "Novo lead cadastrado", desc: "Receba um e-mail quando um novo lead entrar" },
-                    { key: "emailAgendamento", label: "Novo agendamento", desc: "Notificação de novos agendamentos" },
-                    { key: "emailNoShow", label: "No-show detectado", desc: "Alerta quando paciente não comparece" },
+                    { key: "emailNovoLead" as const, label: "Novo lead cadastrado", desc: "Receba um e-mail quando um novo lead entrar" },
+                    { key: "emailAgendamento" as const, label: "Novo agendamento", desc: "Notificação de novos agendamentos" },
+                    { key: "emailNoShow" as const, label: "No-show detectado", desc: "Alerta quando paciente não comparece" },
                   ].map((item) => (
                     <div key={item.key} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
@@ -588,7 +643,7 @@ export default function Configuracoes() {
                         <p className="text-sm text-muted-foreground">{item.desc}</p>
                       </div>
                       <Switch 
-                        checked={notificacoes[item.key as keyof typeof notificacoes]} 
+                        checked={notificacoes[item.key]} 
                         onCheckedChange={(checked) => setNotificacoes({...notificacoes, [item.key]: checked})}
                       />
                     </div>
@@ -605,9 +660,9 @@ export default function Configuracoes() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
-                    { key: "pushNovoLead", label: "Novo lead", desc: "Push quando um novo lead entrar" },
-                    { key: "pushLembrete", label: "Lembretes de agenda", desc: "Alertas de próximos agendamentos" },
-                    { key: "pushInadimplencia", label: "Inadimplência", desc: "Alerta de pagamentos em atraso" },
+                    { key: "pushNovoLead" as const, label: "Novo lead", desc: "Push quando um novo lead entrar" },
+                    { key: "pushLembrete" as const, label: "Lembretes de agenda", desc: "Alertas de próximos agendamentos" },
+                    { key: "pushInadimplencia" as const, label: "Inadimplência", desc: "Alerta de pagamentos em atraso" },
                   ].map((item) => (
                     <div key={item.key} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
@@ -615,7 +670,7 @@ export default function Configuracoes() {
                         <p className="text-sm text-muted-foreground">{item.desc}</p>
                       </div>
                       <Switch 
-                        checked={notificacoes[item.key as keyof typeof notificacoes]} 
+                        checked={notificacoes[item.key]} 
                         onCheckedChange={(checked) => setNotificacoes({...notificacoes, [item.key]: checked})}
                       />
                     </div>
@@ -633,10 +688,10 @@ export default function Configuracoes() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
-                      { key: "whatsappConfirmacao", label: "Confirmação de agendamento", desc: "Enviar confirmação após agendar" },
-                      { key: "whatsappLembrete24h", label: "Lembrete 24h antes", desc: "Lembrar paciente 24h antes" },
-                      { key: "whatsappLembrete2h", label: "Lembrete 2h antes", desc: "Lembrar paciente 2h antes" },
-                      { key: "whatsappPosProcedimento", label: "Pós-procedimento", desc: "Orientações após procedimento" },
+                      { key: "whatsappConfirmacao" as const, label: "Confirmação de agendamento", desc: "Enviar confirmação após agendar" },
+                      { key: "whatsappLembrete24h" as const, label: "Lembrete 24h antes", desc: "Lembrar paciente 24h antes" },
+                      { key: "whatsappLembrete2h" as const, label: "Lembrete 2h antes", desc: "Lembrar paciente 2h antes" },
+                      { key: "whatsappPosProcedimento" as const, label: "Pós-procedimento", desc: "Orientações após procedimento" },
                     ].map((item) => (
                       <div key={item.key} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                         <div>
@@ -644,7 +699,7 @@ export default function Configuracoes() {
                           <p className="text-sm text-muted-foreground">{item.desc}</p>
                         </div>
                         <Switch 
-                          checked={notificacoes[item.key as keyof typeof notificacoes]} 
+                          checked={notificacoes[item.key]} 
                           onCheckedChange={(checked) => setNotificacoes({...notificacoes, [item.key]: checked})}
                         />
                       </div>
@@ -731,9 +786,9 @@ export default function Configuracoes() {
                   <h4 className="font-medium text-foreground">Automações</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                      { key: "confirmacaoAutomatica", label: "Confirmação automática", desc: "Confirmar agendamento automaticamente" },
-                      { key: "lembreteAutomatico", label: "Lembrete automático", desc: "Enviar lembretes antes do horário" },
-                      { key: "permitirRemarcacao", label: "Permitir remarcação", desc: "Paciente pode remarcar pelo link" },
+                      { key: "confirmacaoAutomatica" as const, label: "Confirmação automática", desc: "Confirmar agendamento automaticamente" },
+                      { key: "lembreteAutomatico" as const, label: "Lembrete automático", desc: "Enviar lembretes antes do horário" },
+                      { key: "permitirRemarcacao" as const, label: "Permitir remarcação", desc: "Paciente pode remarcar pelo link" },
                     ].map((item) => (
                       <div key={item.key} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                         <div>
@@ -741,7 +796,7 @@ export default function Configuracoes() {
                           <p className="text-xs text-muted-foreground">{item.desc}</p>
                         </div>
                         <Switch 
-                          checked={prefsAgenda[item.key as keyof typeof prefsAgenda] as boolean} 
+                          checked={prefsAgenda[item.key] as boolean} 
                           onCheckedChange={(checked) => setPrefsAgenda({...prefsAgenda, [item.key]: checked})}
                         />
                       </div>
