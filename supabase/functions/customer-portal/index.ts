@@ -50,7 +50,7 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    const origin = req.headers.get("origin") || "https://id-preview--ebd78e30-336c-4126-997b-86508f817800.lovable.app";
+    const origin = req.headers.get("origin") || Deno.env.get("SITE_URL") || "https://dermacore.lovable.app";
     
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,

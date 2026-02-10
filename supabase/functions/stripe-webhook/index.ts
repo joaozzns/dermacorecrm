@@ -230,20 +230,12 @@ async function findClinicByEmail(supabase: any, email: string): Promise<string |
 async function findPlanByPrice(supabase: any, priceId: string | undefined): Promise<string | null> {
   if (!priceId) return null;
   
-  // Try to find plan where features contains the price_id
-  const { data: plans } = await supabase
+  // Find plan by stripe_price_id column
+  const { data: plan } = await supabase
     .from("plans")
-    .select("id, features")
-    .order("created_at", { ascending: true });
+    .select("id")
+    .eq("stripe_price_id", priceId)
+    .maybeSingle();
 
-  if (!plans) return null;
-
-  for (const plan of plans) {
-    const features = plan.features as any;
-    if (features?.stripe_price_id === priceId) {
-      return plan.id;
-    }
-  }
-
-  return null;
+  return plan?.id || null;
 }
