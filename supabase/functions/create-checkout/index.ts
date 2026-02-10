@@ -12,12 +12,8 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Map plan slugs to Stripe price IDs
-const PLAN_PRICES: Record<string, string> = {
-  essencial: "price_1SuCg0FMQoBY59cUPqcmrZvZ",
-  profissional: "price_1SuCgYFMQoBY59cUSqOZ00g",
-  enterprise: "price_1SuCgyFMQoBY59cUju0ko18z",
-};
+// Plan slugs are validated against the database
+const VALID_PLAN_SLUGS = ["essencial", "profissional", "enterprise"];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -47,11 +43,22 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { planSlug } = await req.json();
-    if (!planSlug || !PLAN_PRICES[planSlug]) {
+    if (!planSlug || !VALID_PLAN_SLUGS.includes(planSlug)) {
       throw new Error(`Invalid plan slug: ${planSlug}`);
     }
 
-    const priceId = PLAN_PRICES[planSlug];
+    // Fetch price ID from database
+    const { data: plan, error: planError } = await supabaseClient
+      .from("plans")
+      .select("stripe_price_id")
+      .eq("slug", planSlug)
+      .single();
+    
+    if (planError || !plan?.stripe_price_id) {
+      throw new Error(`Plan not found or missing stripe_price_id: ${planSlug}`);
+    }
+
+    const priceId = plan.stripe_price_id;
     logStep("Plan selected", { planSlug, priceId });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
@@ -64,7 +71,7 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "https://id-preview--ebd78e30-336c-4126-997b-86508f817800.lovable.app";
+    const origin = req.headers.get("origin") || Deno.env.get("SITE_URL") || "https://dermacore.lovable.app";
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
