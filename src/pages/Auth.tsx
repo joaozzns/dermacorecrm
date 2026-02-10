@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Sparkles, Mail, Lock, User, Loader2, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   // Login form
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -72,6 +74,25 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.error("Informe seu email");
+      return;
+    }
+    setIsLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setIsLoading(false);
+    if (error) {
+      toast.error("Erro ao enviar email: " + error.message);
+    } else {
+      toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+      setForgotPassword(false);
+    }
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -119,6 +140,46 @@ export default function Auth() {
         </div>
 
         <Card className="glass-card">
+          {forgotPassword ? (
+            <CardContent className="pt-6">
+              <button
+                onClick={() => setForgotPassword(false)}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+              >
+                <ArrowLeft className="w-4 h-4" /> Voltar ao login
+              </button>
+              <h2 className="text-lg font-semibold text-foreground mb-1">Recuperar senha</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Informe seu email e enviaremos um link para redefinir sua senha.
+              </p>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <Button type="submit" className="w-full btn-premium text-white" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    "Enviar link de recuperação"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          ) : (
           <Tabs defaultValue="login" className="w-full">
             <CardHeader>
               <TabsList className="grid w-full grid-cols-2">
@@ -169,18 +230,26 @@ export default function Auth() {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full btn-premium text-white" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Entrando...
-                      </>
-                    ) : (
-                      "Entrar"
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
+                    <Button type="submit" className="w-full btn-premium text-white" disabled={isLoading}>
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Entrando...
+                        </>
+                      ) : (
+                        "Entrar"
+                      )}
+                    </Button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setForgotPassword(true)}
+                      className="w-full text-sm text-primary hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </form>
+                </TabsContent>
               
               {/* Signup Tab */}
               <TabsContent value="signup">
@@ -275,6 +344,7 @@ export default function Auth() {
               </TabsContent>
             </CardContent>
           </Tabs>
+          )}
         </Card>
         
         <p className="text-center text-sm text-muted-foreground mt-6">

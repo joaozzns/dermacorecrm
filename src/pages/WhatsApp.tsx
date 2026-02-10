@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   MessageCircle, 
   Send, 
@@ -149,10 +149,8 @@ const WhatsApp = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
-      <div className="flex-1 ml-64 flex">
+    <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection} contentClassName="flex">
+      <>
         {/* Lista de Conversas */}
         <div className="w-96 border-r border-border flex flex-col bg-card">
           {/* Header */}
@@ -388,8 +386,8 @@ const WhatsApp = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </>
+    </DashboardLayout>
   );
 };
 

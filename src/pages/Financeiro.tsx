@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,10 +169,8 @@ export default function Financeiro() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
-      <main className="ml-64 p-8">
+    <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+      <main className="p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -500,6 +498,6 @@ export default function Financeiro() {
           </TabsContent>
         </Tabs>
       </main>
-    </div>
+    </DashboardLayout>
   );
 }
