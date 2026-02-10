@@ -7,48 +7,52 @@ import { AgendaHoje } from "./AgendaHoje";
 import { InsightsIA } from "./InsightsIA";
 import { PlanUsageCard } from "./PlanUsageCard";
 import { TrialBanner } from "./TrialBanner";
-import { Bell, Search, Plus, X } from "lucide-react";
+import { Bell, Search, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuotes } from "@/hooks/useQuotes";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock notifications
+// Mock notifications (will be replaced with real system later)
 const mockNotifications = [
-  { id: 1, title: "Novo lead recebido", description: "Ana Carolina enviou uma mensagem", time: "2 min", read: false },
-  { id: 2, title: "Agendamento confirmado", description: "Maria Fernanda confirmou para amanhã", time: "15 min", read: false },
-  { id: 3, title: "Pagamento recebido", description: "R$ 1.800,00 - Botox", time: "1h", read: true },
-  { id: 4, title: "Lembrete de follow-up", description: "3 leads aguardando contato", time: "2h", read: true },
+  { id: 1, title: "Bem-vindo ao DermaCore!", description: "Configure sua clínica para começar", time: "agora", read: false },
 ];
 
 export const Dashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const [isNewLeadOpen, setIsNewLeadOpen] = useState(false);
+  const { quotes, isLoading: quotesLoading } = useQuotes();
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState(mockNotifications);
-  
+
   const currentDate = new Date();
   const greeting = currentDate.getHours() < 12 ? "Bom dia" : currentDate.getHours() < 18 ? "Boa tarde" : "Boa noite";
-  const formattedDate = currentDate.toLocaleDateString('pt-BR', { 
-    weekday: 'long', 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
+  const formattedDate = currentDate.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Compute revenue metrics from quotes
+  const approvedQuotes = quotes.filter(q => q.status === 'approved');
+  const sentQuotes = quotes.filter(q => q.status === 'sent');
+  const draftQuotes = quotes.filter(q => q.status === 'draft');
+  const rejectedQuotes = quotes.filter(q => q.status === 'rejected');
+
+  const confirmada = approvedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const emRisco = sentQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const parada = draftQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const recuperavel = rejectedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const total = confirmada + emRisco + parada + recuperavel;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,37 +65,21 @@ export const Dashboard = () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
-    setNotifications(notifications.map(n => 
-      n.id === notification.id ? { ...n, read: true } : n
-    ));
-    // Navigate based on notification type
-    if (notification.title.includes("lead")) {
-      navigate("/leads");
-    } else if (notification.title.includes("Agendamento")) {
-      navigate("/agenda");
-    } else if (notification.title.includes("Pagamento")) {
-      navigate("/financeiro");
-    } else if (notification.title.includes("follow-up")) {
-      navigate("/followup");
-    }
-  };
-
   return (
     <div className="flex-1 overflow-auto">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="flex items-center justify-between px-8 py-4">
+        <div className="flex items-center justify-between px-4 md:px-8 py-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               {greeting}, {profile?.full_name?.split(' ')[0] || 'Usuário'} 👋
             </h1>
             <p className="text-sm text-muted-foreground capitalize">{formattedDate}</p>
           </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Search */}
-            <form onSubmit={handleSearch} className="relative">
+
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Search - hidden on mobile */}
+            <form onSubmit={handleSearch} className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="search"
@@ -102,11 +90,11 @@ export const Dashboard = () => {
                 maxLength={100}
               />
             </form>
-            
+
             {/* Notifications */}
             <Popover>
               <PopoverTrigger asChild>
-                <button 
+                <button
                   className="relative p-2 rounded-lg hover:bg-muted transition-colors"
                   aria-label="Notificações"
                 >
@@ -121,82 +109,64 @@ export const Dashboard = () => {
                   <h3 className="font-semibold">Notificações</h3>
                   {unreadCount > 0 && (
                     <Button variant="ghost" size="sm" onClick={handleMarkAllRead}>
-                      Marcar todas como lidas
+                      Marcar como lidas
                     </Button>
                   )}
                 </div>
-                <ScrollArea className="h-[300px]">
-                  {notifications.length > 0 ? (
-                    <div className="divide-y divide-border">
-                      {notifications.map((notification) => (
-                        <button
-                          key={notification.id}
-                          onClick={() => handleNotificationClick(notification)}
-                          className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
-                            !notification.read ? 'bg-primary/5' : ''
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            {!notification.read && (
-                              <span className="w-2 h-2 mt-2 rounded-full bg-primary flex-shrink-0" />
-                            )}
-                            <div className={!notification.read ? '' : 'ml-5'}>
-                              <p className="font-medium text-sm">{notification.title}</p>
-                              <p className="text-xs text-muted-foreground">{notification.description}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                      Nenhuma notificação
-                    </div>
-                  )}
+                <ScrollArea className="h-[200px]">
+                  <div className="divide-y divide-border">
+                    {notifications.map((n) => (
+                      <div key={n.id} className={`p-4 ${!n.read ? 'bg-primary/5' : ''}`}>
+                        <p className="font-medium text-sm">{n.title}</p>
+                        <p className="text-xs text-muted-foreground">{n.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                      </div>
+                    ))}
+                  </div>
                 </ScrollArea>
               </PopoverContent>
             </Popover>
-            
+
             {/* Quick Action */}
-            <button 
+            <button
               onClick={() => navigate("/leads")}
               className="btn-premium flex items-center gap-2 text-white text-sm py-2"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
-              Novo Lead
+              <span className="hidden md:inline">Novo Lead</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="p-8 space-y-6">
-        {/* Trial Banner */}
+      <main className="p-4 md:p-8 space-y-6">
         <TrialBanner />
 
         {/* Métrica Central */}
-        <MetricaReceita
-          total={185000}
-          confirmada={98500}
-          emRisco={28000}
-          parada={32500}
-          recuperavel={26000}
-          variacao={12.5}
-        />
+        {quotesLoading ? (
+          <Skeleton className="h-48 w-full rounded-xl" />
+        ) : (
+          <MetricaReceita
+            total={total || 0}
+            confirmada={confirmada}
+            emRisco={emRisco}
+            parada={parada}
+            recuperavel={recuperavel}
+            variacao={0}
+          />
+        )}
 
         {/* Grid Principal */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Coluna 1: Alertas + Plano */}
           <div className="col-span-1 space-y-6">
             <PlanUsageCard />
             <AlertasAcao />
           </div>
 
-          {/* Coluna 2-3: Pipeline e Agenda */}
           <div className="col-span-1 lg:col-span-2 space-y-6">
             <PipelineLeads />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <AgendaHoje />
               <InsightsIA />

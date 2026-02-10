@@ -1,63 +1,24 @@
 import { Users, ArrowRight, Clock, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Lead {
-  id: string;
-  nome: string;
-  procedimento: string;
-  valorPotencial: number;
-  tempoParado: string;
-  origem: string;
-}
+import { useLeads, Lead } from "@/hooks/useLeads";
+import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface EtapaPipeline {
   id: string;
   nome: string;
   cor: string;
   leads: Lead[];
-  valorTotal: number;
 }
 
-const pipeline: EtapaPipeline[] = [
-  {
-    id: "novo",
-    nome: "Novo Lead",
-    cor: "stage-new",
-    valorTotal: 25000,
-    leads: [
-      { id: "1", nome: "Ana Silva", procedimento: "Harmonização Facial", valorPotencial: 8500, tempoParado: "2h", origem: "Instagram" },
-      { id: "2", nome: "Carla Santos", procedimento: "Botox", valorPotencial: 2500, tempoParado: "5h", origem: "WhatsApp" },
-    ]
-  },
-  {
-    id: "contato",
-    nome: "Contato Feito",
-    cor: "stage-contacted",
-    valorTotal: 18000,
-    leads: [
-      { id: "3", nome: "Maria Oliveira", procedimento: "Preenchimento Labial", valorPotencial: 3500, tempoParado: "1d", origem: "Google" },
-    ]
-  },
-  {
-    id: "avaliacao",
-    nome: "Avaliação Agendada",
-    cor: "stage-scheduled",
-    valorTotal: 42000,
-    leads: [
-      { id: "4", nome: "Juliana Costa", procedimento: "Lipoaspiração", valorPotencial: 15000, tempoParado: "3d", origem: "Indicação" },
-      { id: "5", nome: "Patricia Mendes", procedimento: "Rinoplastia", valorPotencial: 12000, tempoParado: "2d", origem: "Facebook" },
-    ]
-  },
-  {
-    id: "vendido",
-    nome: "Procedimento Vendido",
-    cor: "stage-sold",
-    valorTotal: 28500,
-    leads: [
-      { id: "6", nome: "Fernanda Lima", procedimento: "Harmonização", valorPotencial: 9500, tempoParado: "1d", origem: "Instagram" },
-    ]
-  }
-];
+const statusMap: Record<string, { nome: string; cor: string }> = {
+  novo: { nome: "Novo Lead", cor: "stage-new" },
+  contatado: { nome: "Contato Feito", cor: "stage-contacted" },
+  qualificado: { nome: "Qualificado", cor: "stage-scheduled" },
+  agendado: { nome: "Agendado", cor: "stage-sold" },
+};
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -68,8 +29,31 @@ const formatCurrency = (value: number) => {
 };
 
 export const PipelineLeads = () => {
-  const totalLeads = pipeline.reduce((acc, etapa) => acc + etapa.leads.length, 0);
-  const valorTotal = pipeline.reduce((acc, etapa) => acc + etapa.valorTotal, 0);
+  const { leads, isLoading } = useLeads();
+  const navigate = useNavigate();
+
+  // Only show active pipeline stages (exclude convertido/perdido)
+  const activeLeads = leads.filter(l => !['convertido', 'perdido'].includes(l.status));
+
+  const pipeline: EtapaPipeline[] = Object.entries(statusMap).map(([status, config]) => ({
+    id: status,
+    nome: config.nome,
+    cor: config.cor,
+    leads: activeLeads.filter(l => l.status === status),
+  }));
+
+  const totalLeads = activeLeads.length;
+
+  if (isLoading) {
+    return (
+      <div className="card-premium p-6 space-y-4">
+        <Skeleton className="h-6 w-48" />
+        <div className="grid grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-40" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card-premium p-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -80,19 +64,21 @@ export const PipelineLeads = () => {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-foreground">Pipeline de Leads</h2>
-            <p className="text-sm text-muted-foreground">{totalLeads} leads • {formatCurrency(valorTotal)} potencial</p>
+            <p className="text-sm text-muted-foreground">{totalLeads} leads ativos</p>
           </div>
         </div>
-        <button className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors">
+        <button
+          onClick={() => navigate("/leads")}
+          className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+        >
           Ver todos
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        {pipeline.map((etapa, index) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {pipeline.map((etapa) => (
           <div key={etapa.id} className="space-y-3">
-            {/* Etapa Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className={cn("w-3 h-3 rounded-full", etapa.cor)} />
@@ -102,17 +88,22 @@ export const PipelineLeads = () => {
                 {etapa.leads.length}
               </span>
             </div>
-            
-            {/* Valor da Etapa */}
-            <div className="text-lg font-semibold text-foreground">
-              {formatCurrency(etapa.valorTotal)}
-            </div>
 
-            {/* Lead Cards */}
             <div className="space-y-2">
-              {etapa.leads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
-              ))}
+              {etapa.leads.length === 0 ? (
+                <div className="p-3 rounded-lg bg-muted/30 text-center">
+                  <p className="text-xs text-muted-foreground">Nenhum lead</p>
+                </div>
+              ) : (
+                etapa.leads.slice(0, 3).map((lead) => (
+                  <LeadCard key={lead.id} lead={lead} />
+                ))
+              )}
+              {etapa.leads.length > 3 && (
+                <p className="text-xs text-muted-foreground text-center">
+                  +{etapa.leads.length - 3} mais
+                </p>
+              )}
             </div>
           </div>
         ))}
@@ -121,33 +112,32 @@ export const PipelineLeads = () => {
   );
 };
 
-interface LeadCardProps {
-  lead: Lead;
-}
+const LeadCard = ({ lead }: { lead: Lead }) => {
+  const timeAgo = formatDistanceToNow(new Date(lead.created_at), {
+    addSuffix: false,
+    locale: ptBR,
+  });
 
-const LeadCard = ({ lead }: LeadCardProps) => {
   return (
     <div className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer group border border-transparent hover:border-border">
       <div className="flex items-start justify-between mb-2">
         <div>
           <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-            {lead.nome}
+            {lead.name}
           </h4>
-          <p className="text-xs text-muted-foreground">{lead.procedimento}</p>
+          <p className="text-xs text-muted-foreground">{lead.interest || "Sem interesse definido"}</p>
         </div>
-        <span className="text-xs text-muted-foreground bg-background px-1.5 py-0.5 rounded">
-          {lead.origem}
-        </span>
+        {lead.source && (
+          <span className="text-xs text-muted-foreground bg-background px-1.5 py-0.5 rounded">
+            {lead.source}
+          </span>
+        )}
       </div>
-      
+
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1 text-muted-foreground">
           <Clock className="w-3 h-3" />
-          <span>{lead.tempoParado}</span>
-        </div>
-        <div className="flex items-center gap-1 font-medium text-primary">
-          <DollarSign className="w-3 h-3" />
-          <span>{formatCurrency(lead.valorPotencial)}</span>
+          <span>{timeAgo}</span>
         </div>
       </div>
     </div>

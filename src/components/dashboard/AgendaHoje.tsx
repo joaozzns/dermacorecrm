@@ -1,25 +1,9 @@
-import { Calendar, Clock, User, AlertTriangle, CheckCircle, XCircle, DollarSign, ArrowRight } from "lucide-react";
+import { Calendar, Clock, AlertTriangle, CheckCircle, XCircle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Agendamento {
-  id: string;
-  horario: string;
-  paciente: string;
-  procedimento: string;
-  profissional: string;
-  valor: number;
-  status: 'confirmado' | 'pendente' | 'risco' | 'cancelado';
-  historicoFaltas?: number;
-}
-
-const agendamentos: Agendamento[] = [
-  { id: "1", horario: "08:00", paciente: "Maria Fernanda", procedimento: "Botox Glabela", profissional: "Dra. Renata", valor: 1800, status: "confirmado" },
-  { id: "2", horario: "09:30", paciente: "Carolina Alves", procedimento: "Preenchimento Labial", profissional: "Dra. Renata", valor: 2500, status: "confirmado" },
-  { id: "3", horario: "11:00", paciente: "Juliana Costa", procedimento: "Avaliação Harmonização", profissional: "Dra. Renata", valor: 0, status: "pendente" },
-  { id: "4", horario: "14:00", paciente: "Patrícia Santos", procedimento: "Lipo Enzimática", profissional: "Dra. Amanda", valor: 4500, status: "risco", historicoFaltas: 2 },
-  { id: "5", horario: "15:30", paciente: "Ana Beatriz", procedimento: "Bioestimulador", profissional: "Dra. Renata", valor: 3200, status: "confirmado" },
-  { id: "6", horario: "17:00", paciente: "Fernanda Lima", procedimento: "Skinbooster", profissional: "Dra. Amanda", valor: 1500, status: "risco", historicoFaltas: 1 },
-];
+import { useAppointments, Appointment } from "@/hooks/useAppointments";
+import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
 
 const formatCurrency = (value: number) => {
   if (value === 0) return "Avaliação";
@@ -31,9 +15,23 @@ const formatCurrency = (value: number) => {
 };
 
 export const AgendaHoje = () => {
-  const valorConfirmado = agendamentos.filter(a => a.status === 'confirmado').reduce((acc, a) => acc + a.valor, 0);
-  const valorEmRisco = agendamentos.filter(a => a.status === 'risco').reduce((acc, a) => acc + a.valor, 0);
-  const ocupacao = (agendamentos.length / 10) * 100; // Assumindo 10 slots disponíveis
+  const today = new Date();
+  const { appointments, isLoading } = useAppointments(today);
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <div className="card-premium p-6 space-y-4">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </div>
+    );
+  }
+
+  const confirmados = appointments.filter(a => a.status === 'confirmado');
+  const pendentes = appointments.filter(a => a.status === 'agendado');
+  const concluidos = appointments.filter(a => a.status === 'concluido');
 
   return (
     <div className="card-premium p-6 animate-fade-in" style={{ animationDelay: '0.3s' }}>
@@ -44,10 +42,13 @@ export const AgendaHoje = () => {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-foreground">Agenda de Hoje</h2>
-            <p className="text-sm text-muted-foreground">{agendamentos.length} agendamentos</p>
+            <p className="text-sm text-muted-foreground">{appointments.length} agendamentos</p>
           </div>
         </div>
-        <button className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors">
+        <button
+          onClick={() => navigate("/agenda")}
+          className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+        >
           Ver agenda completa
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -56,62 +57,80 @@ export const AgendaHoje = () => {
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="p-3 rounded-lg bg-revenue-confirmed-bg">
-          <div className="text-xs font-medium text-muted-foreground mb-1">Confirmado</div>
-          <div className="text-lg font-bold text-revenue-confirmed">{formatCurrency(valorConfirmado)}</div>
+          <div className="text-xs font-medium text-muted-foreground mb-1">Confirmados</div>
+          <div className="text-lg font-bold text-revenue-confirmed">{confirmados.length}</div>
         </div>
         <div className="p-3 rounded-lg bg-revenue-at-risk-bg">
-          <div className="text-xs font-medium text-muted-foreground mb-1">Em Risco</div>
-          <div className="text-lg font-bold text-revenue-at-risk">{formatCurrency(valorEmRisco)}</div>
+          <div className="text-xs font-medium text-muted-foreground mb-1">Pendentes</div>
+          <div className="text-lg font-bold text-revenue-at-risk">{pendentes.length}</div>
         </div>
         <div className="p-3 rounded-lg bg-muted">
-          <div className="text-xs font-medium text-muted-foreground mb-1">Ocupação</div>
-          <div className="text-lg font-bold text-foreground">{ocupacao.toFixed(0)}%</div>
+          <div className="text-xs font-medium text-muted-foreground mb-1">Concluídos</div>
+          <div className="text-lg font-bold text-foreground">{concluidos.length}</div>
         </div>
       </div>
 
       {/* Timeline */}
       <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
-        {agendamentos.map((agendamento) => (
-          <AgendamentoCard key={agendamento.id} agendamento={agendamento} />
-        ))}
+        {appointments.length === 0 ? (
+          <div className="p-6 text-center text-muted-foreground">
+            <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Nenhum agendamento para hoje</p>
+          </div>
+        ) : (
+          appointments.map((appointment) => (
+            <AgendamentoCard key={appointment.id} appointment={appointment} />
+          ))
+        )}
       </div>
     </div>
   );
 };
 
-interface AgendamentoCardProps {
-  agendamento: Agendamento;
-}
+const statusConfig = {
+  agendado: {
+    icon: <Clock className="w-4 h-4" />,
+    color: "text-revenue-paused",
+    bg: "bg-revenue-paused-bg",
+    border: "border-l-revenue-paused"
+  },
+  confirmado: {
+    icon: <CheckCircle className="w-4 h-4" />,
+    color: "text-revenue-confirmed",
+    bg: "bg-revenue-confirmed-bg",
+    border: "border-l-revenue-confirmed"
+  },
+  em_atendimento: {
+    icon: <Clock className="w-4 h-4" />,
+    color: "text-primary",
+    bg: "bg-primary/10",
+    border: "border-l-primary"
+  },
+  concluido: {
+    icon: <CheckCircle className="w-4 h-4" />,
+    color: "text-revenue-confirmed",
+    bg: "bg-revenue-confirmed-bg",
+    border: "border-l-revenue-confirmed"
+  },
+  cancelado: {
+    icon: <XCircle className="w-4 h-4" />,
+    color: "text-revenue-lost",
+    bg: "bg-revenue-lost-bg",
+    border: "border-l-revenue-lost"
+  },
+  faltou: {
+    icon: <AlertTriangle className="w-4 h-4" />,
+    color: "text-revenue-at-risk",
+    bg: "bg-revenue-at-risk-bg",
+    border: "border-l-revenue-at-risk"
+  }
+};
 
-const AgendamentoCard = ({ agendamento }: AgendamentoCardProps) => {
-  const statusConfig = {
-    confirmado: {
-      icon: <CheckCircle className="w-4 h-4" />,
-      color: "text-revenue-confirmed",
-      bg: "bg-revenue-confirmed-bg",
-      border: "border-l-revenue-confirmed"
-    },
-    pendente: {
-      icon: <Clock className="w-4 h-4" />,
-      color: "text-revenue-paused",
-      bg: "bg-revenue-paused-bg",
-      border: "border-l-revenue-paused"
-    },
-    risco: {
-      icon: <AlertTriangle className="w-4 h-4" />,
-      color: "text-revenue-at-risk",
-      bg: "bg-revenue-at-risk-bg",
-      border: "border-l-revenue-at-risk"
-    },
-    cancelado: {
-      icon: <XCircle className="w-4 h-4" />,
-      color: "text-revenue-lost",
-      bg: "bg-revenue-lost-bg",
-      border: "border-l-revenue-lost"
-    }
-  };
-
-  const config = statusConfig[agendamento.status];
+const AgendamentoCard = ({ appointment }: { appointment: Appointment }) => {
+  const config = statusConfig[appointment.status] || statusConfig.agendado;
+  const horario = format(new Date(appointment.start_time), 'HH:mm');
+  const patientName = appointment.patients?.full_name || 'Paciente';
+  const professionalName = appointment.profiles?.full_name || '';
 
   return (
     <div className={cn(
@@ -122,27 +141,23 @@ const AgendamentoCard = ({ agendamento }: AgendamentoCardProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="text-center min-w-[50px]">
-            <div className="text-sm font-bold text-foreground">{agendamento.horario}</div>
+            <div className="text-sm font-bold text-foreground">{horario}</div>
           </div>
-          
+
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-foreground">{agendamento.paciente}</span>
-              {agendamento.historicoFaltas && agendamento.historicoFaltas > 0 && (
-                <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-revenue-at-risk text-white">
-                  {agendamento.historicoFaltas} falta{agendamento.historicoFaltas > 1 ? 's' : ''}
-                </span>
-              )}
+              <span className="font-medium text-foreground">{patientName}</span>
             </div>
-            <div className="text-sm text-muted-foreground">{agendamento.procedimento}</div>
+            <div className="text-sm text-muted-foreground">{appointment.title}</div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-sm font-semibold text-foreground">{formatCurrency(agendamento.valor)}</div>
-            <div className="text-xs text-muted-foreground">{agendamento.profissional}</div>
-          </div>
+          {professionalName && (
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground">{professionalName}</div>
+            </div>
+          )}
           <div className={cn("p-2 rounded-lg", config.bg, config.color)}>
             {config.icon}
           </div>
