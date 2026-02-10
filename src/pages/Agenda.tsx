@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   Calendar, 
   ChevronLeft, 
@@ -223,10 +223,8 @@ const Agenda = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
-      <div className="flex-1 ml-64 overflow-auto">
+    <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+      <div className="flex-1 overflow-auto">
         {/* Header */}
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
           <div className="flex items-center justify-between px-8 py-4">
@@ -597,7 +595,7 @@ const Agenda = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardLayout>
   );
 };
 

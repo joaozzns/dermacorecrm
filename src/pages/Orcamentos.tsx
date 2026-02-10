@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -99,9 +99,8 @@ const Orcamentos = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 ml-64 p-8">
+    <DashboardLayout>
+      <div className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Orçamentos</h1>
           <p className="text-muted-foreground">Gerencie os orçamentos dos seus clientes</p>
@@ -268,7 +267,7 @@ const Orcamentos = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

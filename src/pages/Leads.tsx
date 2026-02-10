@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   Users, 
   Plus, 
@@ -107,9 +107,8 @@ const Leads = () => {
   // Show message if user doesn't have a clinic
   if (!authLoading && user && !profile?.clinic_id) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-        <div className="flex-1 ml-64 flex items-center justify-center">
+      <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+        <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Sparkles className="w-16 h-16 text-primary mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Configure sua clínica</h2>
@@ -121,7 +120,7 @@ const Leads = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -180,20 +179,17 @@ const Leads = () => {
 
   if (isLoading || authLoading) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-        <div className="flex-1 ml-64 flex items-center justify-center">
+      <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+        <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      
-      <div className="flex-1 ml-64 overflow-auto">
+    <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+      <div className="flex-1 overflow-auto">
         {/* Header */}
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
           <div className="flex items-center justify-between px-8 py-4">
@@ -418,7 +414,7 @@ const Leads = () => {
           preselectedLeadId={selectedLeadForQuote}
         />
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
