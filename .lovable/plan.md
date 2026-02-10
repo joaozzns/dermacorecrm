@@ -1,89 +1,100 @@
 
-# Persistencia das Configuracoes da Clinica
 
-## Resumo
-Atualmente, todas as configuracoes da pagina de Configuracoes sao armazenadas apenas em estado local (useState). Ao recarregar a pagina, tudo se perde. O objetivo e salvar e carregar essas configuracoes no banco de dados.
+# Analise Geral - O que Falta para Colocar no Ar
 
-## O que muda para voce
-- As informacoes da clinica (nome, CNPJ, telefone, redes sociais, endereco) serao salvas de verdade
-- As preferencias de notificacao e agenda tambem serao persistidas
-- Ao abrir a pagina, os dados serao carregados automaticamente do banco
+## Status Atual
 
-## Plano Tecnico
+O projeto DermaCore esta bem estruturado com landing page, autenticacao, dashboard, modulos operacionais e integracao Stripe. Porem, apos uma analise detalhada, identifiquei itens criticos e melhorias necessarias antes do lancamento.
 
-### 1. Migracoes no Banco de Dados
+---
 
-**Expandir a tabela `clinics`** com novas colunas para os dados que faltam:
+## 1. CRITICO - Corrigir Antes de Lançar
 
-```sql
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS legal_name text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS cnpj text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS whatsapp text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS website text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS city text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS state text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS zip_code text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS instagram text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS facebook text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS business_hours text;
-ALTER TABLE public.clinics ADD COLUMN IF NOT EXISTS logo_url text;
-```
+### 1.1 Dados Mock em Telas Internas
+As telas internas (Dashboard, Financeiro, Relatorios, WhatsApp, Notificacoes) usam **dados ficticios hardcoded** em vez de dados reais do banco. Isso significa que:
+- O dashboard mostra receita fixa de R$185.000 que nunca muda
+- As notificacoes sao mock (nao persistem nem sao reais)
+- Financeiro, Relatorios e WhatsApp mostram dados inventados
 
-**Criar tabela `clinic_settings`** para preferencias de notificacao e agenda (dados JSONB):
+**Acao**: Conectar todas as telas aos dados reais do banco via hooks existentes (useLeads, useAppointments, usePatients, etc.)
 
-```sql
-CREATE TABLE public.clinic_settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinic_id uuid NOT NULL UNIQUE REFERENCES public.clinics(id) ON DELETE CASCADE,
-  notification_preferences jsonb NOT NULL DEFAULT '{}',
-  agenda_preferences jsonb NOT NULL DEFAULT '{}',
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
+### 1.2 Tabela `plans` sem `stripe_price_id`
+O campo `features` da tabela `plans` e um array de strings com nomes de features. O webhook do Stripe tenta encontrar planos via `features.stripe_price_id`, mas esse campo nao existe. Os Price IDs do Stripe estao hardcoded apenas na Edge Function `create-checkout`.
 
--- RLS: mesma logica de isolamento por clinica
-ALTER TABLE public.clinic_settings ENABLE ROW LEVEL SECURITY;
+**Acao**: Adicionar coluna `stripe_price_id` na tabela `plans` ou salvar no campo `features` como JSON, para que o webhook consiga mapear corretamente.
 
-CREATE POLICY "Users can view their clinic settings"
-  ON public.clinic_settings FOR SELECT
-  USING (clinic_id = get_my_clinic());
+### 1.3 Seguranca - Dados de Pacientes Expostos
+O scan de seguranca identificou:
+- Tabela `patients` com dados medicos sensiveis (historico, CPF) acessiveis a **todos** os membros da clinica
+- Tabela `appointments` com notas clinicas visiveis a staff nao autorizado
 
-CREATE POLICY "Admins can update their clinic settings"
-  ON public.clinic_settings FOR UPDATE
-  USING (clinic_id = get_my_clinic() AND get_my_role() = 'admin');
+**Acao**: Implementar politicas RLS baseadas em role (admin vs staff) para restringir acesso a dados sensiveis.
 
-CREATE POLICY "Admins can insert their clinic settings"
-  ON public.clinic_settings FOR INSERT
-  WITH CHECK (clinic_id = get_my_clinic() AND get_my_role() = 'admin');
+### 1.4 URLs Hardcoded nas Edge Functions
+As funcoes `create-checkout` e `customer-portal` tem URLs de fallback hardcoded apontando para o preview do Lovable. Em producao, isso quebraria os redirecionamentos.
 
--- Trigger updated_at
-CREATE TRIGGER update_clinic_settings_updated_at
-  BEFORE UPDATE ON public.clinic_settings
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-```
+**Acao**: Usar o header `origin` da requisicao de forma consistente ou configurar uma variavel de ambiente com a URL de producao.
 
-### 2. Criar Hook `useClinicSettings`
+---
 
-Novo arquivo `src/hooks/useClinicSettings.tsx`:
+## 2. IMPORTANTE - Necessario para uma Boa Experiencia
 
-- Busca dados da tabela `clinics` e `clinic_settings` ao montar
-- Funcao `updateClinicInfo()` - atualiza dados da clinica (nome, CNPJ, etc.)
-- Funcao `updateSettings()` - atualiza preferencias (notificacoes, agenda)
-- Faz upsert na tabela `clinic_settings` (insert se nao existir, update se existir)
-- Usa react-query para cache e invalidacao
+### 2.1 Sidebar sem Responsividade Mobile
+A sidebar e fixa com `w-64` e `ml-64` em todas as paginas. Em dispositivos moveis, o app fica inutilizavel.
 
-### 3. Refatorar Pagina de Configuracoes
+**Acao**: Implementar sidebar colapsavel com menu hamburger para mobile.
 
-Atualizar `src/pages/Configuracoes.tsx`:
+### 2.2 Recuperacao de Senha
+Nao existe fluxo de "Esqueci minha senha" na tela de login.
 
-- Remover dados hardcoded dos useState
-- Importar e usar o hook `useClinicSettings`
-- Carregar dados reais ao montar (com loading state)
-- O botao "Salvar Alteracoes" chama as funcoes do hook para persistir
-- Adicionar indicadores de carregamento e estados de erro
-- Manter a mesma interface visual, apenas conectando ao banco
+**Acao**: Adicionar link e fluxo de reset de senha via email.
 
-### Arquivos afetados
-- 1 migracao SQL (novas colunas + nova tabela)
-- 1 arquivo novo: `src/hooks/useClinicSettings.tsx`
-- 1 arquivo editado: `src/pages/Configuracoes.tsx`
+### 2.3 Leaked Password Protection Desabilitada
+O linter do banco identificou que a protecao contra senhas vazadas esta desativada.
+
+**Acao**: Ativar nas configuracoes de autenticacao.
+
+### 2.4 Dominio Customizado
+O app esta rodando apenas no subdominio do Lovable. Para uso comercial, e necessario conectar um dominio proprio (ex: app.dermacore.com.br).
+
+---
+
+## 3. DESEJAVEL - Melhorias para Apos o Lancamento
+
+### 3.1 Paginas com Conteudo de Demonstracao
+Automacoes, WhatsApp e Pos-Procedimento funcionam como mockups visuais sem integracao real. Sao boas para demonstracao, mas precisarao de backend real para funcionar.
+
+### 3.2 Upload de Logo Real
+O botao "Alterar Logo" nas configuracoes nao tem funcionalidade real de upload de arquivo.
+
+### 3.3 Notificacoes Reais
+Substituir as notificacoes mock por um sistema real (possivelmente usando Realtime do banco).
+
+### 3.4 Termos de Servico e Politica de Privacidade
+A tela de login menciona "Termos de Servico e Politica de Privacidade" mas nao ha link nem paginas reais.
+
+---
+
+## Resumo de Prioridades
+
+| Prioridade | Item | Esforco |
+|---|---|---|
+| Critico | Mapear stripe_price_id nos planos | Baixo |
+| Critico | Corrigir URLs hardcoded | Baixo |
+| Critico | Seguranca de dados de pacientes (RLS) | Medio |
+| Critico | Conectar dashboard a dados reais | Alto |
+| Importante | Layout responsivo mobile | Medio |
+| Importante | Fluxo de recuperacao de senha | Baixo |
+| Importante | Dominio customizado | Configuracao |
+| Desejavel | Upload de logo | Medio |
+| Desejavel | Notificacoes reais | Alto |
+| Desejavel | Termos e politica de privacidade | Baixo |
+
+---
+
+## Recomendacao
+
+Sugiro comecar pelos itens **criticos** na ordem: (1) corrigir o mapeamento de stripe_price_id, (2) corrigir URLs hardcoded, (3) ajustar RLS de seguranca, e depois (4) conectar o dashboard aos dados reais. Isso garante que o fluxo de pagamento funcione corretamente e que os dados dos pacientes estejam protegidos.
+
+Quer que eu comece por algum desses itens?
+
