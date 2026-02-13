@@ -54,14 +54,15 @@ export function usePatients() {
     queryFn: async () => {
       if (!profile?.clinic_id) return [];
       
+      // Use the secure view that masks sensitive data for staff users
       const { data, error } = await supabase
-        .from('patients')
+        .from('patients_safe' as any)
         .select('*')
         .eq('clinic_id', profile.clinic_id)
         .order('full_name', { ascending: true });
       
       if (error) throw error;
-      return data as Patient[];
+      return (data as unknown) as Patient[];
     },
     enabled: !!profile?.clinic_id,
   });

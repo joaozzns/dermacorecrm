@@ -70,6 +70,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_professional_id_fkey"
             columns: ["professional_id"]
             isOneToOne: false
@@ -639,6 +646,13 @@ export type Database = {
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "quotes_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subscriptions: {
@@ -760,7 +774,69 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      patients_safe: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          clinic_id: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          lead_id: string | null
+          medical_history: string | null
+          notes: string | null
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          clinic_id?: string | null
+          cpf?: never
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          lead_id?: string | null
+          medical_history?: never
+          notes?: never
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          clinic_id?: string | null
+          cpf?: never
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          lead_id?: string | null
+          medical_history?: never
+          notes?: never
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       generate_quote_number: { Args: { p_clinic_id: string }; Returns: string }
