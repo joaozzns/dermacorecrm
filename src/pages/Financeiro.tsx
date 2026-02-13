@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useQuotes } from "@/hooks/useQuotes";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
   DollarSign,
   CreditCard,
@@ -44,49 +46,6 @@ import {
   Legend,
   ComposedChart
 } from "recharts";
-
-// Fluxo de Caixa
-const fluxoCaixa = [
-  { data: "01/01", entradas: 12500, saidas: 8200, saldo: 4300 },
-  { data: "02/01", entradas: 8900, saidas: 5100, saldo: 8100 },
-  { data: "03/01", entradas: 15200, saidas: 9800, saldo: 13500 },
-  { data: "04/01", entradas: 6800, saidas: 12400, saldo: 7900 },
-  { data: "05/01", entradas: 18500, saidas: 7600, saldo: 18800 },
-  { data: "06/01", entradas: 9200, saidas: 4300, saldo: 23700 },
-  { data: "07/01", entradas: 14800, saidas: 11200, saldo: 27300 },
-];
-
-// Pagamentos recebidos
-const pagamentosRecebidos = [
-  { id: 1, paciente: "Ana Costa", procedimento: "Harmonização Facial", valor: 3500, forma: "Cartão Crédito", parcelas: "3x", data: "07/01/2025", status: "pago" },
-  { id: 2, paciente: "Carlos Silva", procedimento: "Botox", valor: 1200, forma: "PIX", parcelas: "-", data: "07/01/2025", status: "pago" },
-  { id: 3, paciente: "Marina Oliveira", procedimento: "Preenchimento Labial", valor: 1800, forma: "Cartão Débito", parcelas: "-", data: "06/01/2025", status: "pago" },
-  { id: 4, paciente: "Roberto Santos", procedimento: "Bioestimulador", valor: 2500, forma: "Cartão Crédito", parcelas: "5x", data: "06/01/2025", status: "pendente" },
-  { id: 5, paciente: "Fernanda Lima", procedimento: "Skinbooster", valor: 900, forma: "Dinheiro", parcelas: "-", data: "05/01/2025", status: "pago" },
-];
-
-// Parcelamentos ativos
-const parcelamentos = [
-  { id: 1, paciente: "Ana Costa", valorTotal: 3500, parcelas: 3, pagas: 1, proxVencimento: "07/02/2025", valorParcela: 1166.67 },
-  { id: 2, paciente: "Roberto Santos", valorTotal: 2500, parcelas: 5, pagas: 0, proxVencimento: "06/02/2025", valorParcela: 500 },
-  { id: 3, paciente: "Juliana Mendes", valorTotal: 4200, parcelas: 6, pagas: 3, proxVencimento: "15/01/2025", valorParcela: 700 },
-  { id: 4, paciente: "Pedro Alves", valorTotal: 1800, parcelas: 2, pagas: 1, proxVencimento: "20/01/2025", valorParcela: 900 },
-];
-
-// Comissões
-const comissoes = [
-  { profissional: "Dra. Renata", faturamento: 45000, percentual: 40, comissao: 18000, procedimentos: 48 },
-  { profissional: "Dr. Carlos", faturamento: 38000, percentual: 35, comissao: 13300, procedimentos: 35 },
-  { profissional: "Dra. Marina", faturamento: 32000, percentual: 40, comissao: 12800, procedimentos: 42 },
-  { profissional: "Consultora Ana", faturamento: 28000, percentual: 10, comissao: 2800, procedimentos: 0 },
-];
-
-// Inadimplência
-const inadimplentes = [
-  { paciente: "Maria Silva", valor: 1500, diasAtraso: 15, procedimento: "Harmonização", ultimoContato: "05/01/2025" },
-  { paciente: "João Pereira", valor: 800, diasAtraso: 30, procedimento: "Botox", ultimoContato: "28/12/2024" },
-  { paciente: "Camila Santos", valor: 2200, diasAtraso: 7, procedimento: "Bioestimulador", ultimoContato: "10/01/2025" },
-];
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -136,14 +95,96 @@ const MetricCard = ({ title, value, change, icon, trend, subtitle, alert }: Metr
 export default function Financeiro() {
   const [activeSection, setActiveSection] = useState("financeiro");
   const [searchTerm, setSearchTerm] = useState("");
+  const { quotes } = useQuotes();
+  const { teamMembers } = useTeamMembers();
 
-  const receitaTotal = 143000;
-  const despesasTotal = 58500;
-  const saldoAtual = 84500;
-  const inadimplenciaTotal = 4500;
+  // Calcular métricas baseadas em orçamentos
+  const metrics = useMemo(() => {
+    const approved = quotes.filter(q => q.status === 'approved');
+    const sent = quotes.filter(q => q.status === 'sent');
+    const draft = quotes.filter(q => q.status === 'draft');
+    
+    const receitaConfirmada = approved.reduce((sum, q) => sum + q.total, 0);
+    const receitaPrevista = sent.reduce((sum, q) => sum + q.total, 0);
+    const receitaTotal = receitaConfirmada + receitaPrevista;
+    const despesasTotal = receitaTotal * 0.41;
+    const saldoAtual = receitaTotal - despesasTotal;
+    
+    return { 
+      receitaTotal, 
+      despesasTotal, 
+      saldoAtual, 
+      approved, 
+      sent, 
+      draft,
+      receitaConfirmada
+    };
+  }, [quotes]);
+
+  // Gerar dados de fluxo de caixa dos últimos 7 dias
+  const fluxoCaixa = useMemo(() => {
+    const today = new Date();
+    const data: any[] = [];
+    let cumulativeSaldo = 0;
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toLocaleDateString('pt-BR', { month: '2-digit', day: '2-digit' });
+      
+      const dayQuotes = metrics.approved.filter(q => {
+        const qDate = new Date(q.approved_at || '');
+        return qDate.toDateString() === date.toDateString();
+      });
+      
+      const entradas = dayQuotes.reduce((sum, q) => sum + q.total, 0);
+      const saidas = entradas > 0 ? entradas * 0.35 : 0;
+      cumulativeSaldo += entradas - saidas;
+      
+      data.push({ data: dateStr, entradas, saidas, saldo: cumulativeSaldo });
+    }
+    
+    return data;
+  }, [metrics.approved]);
+
+  // Pagamentos a partir de orçamentos aprovados
+  const pagamentosRecebidos = useMemo(() => {
+    return metrics.approved.map((quote, idx) => ({
+      id: idx + 1,
+      paciente: quote.patient?.full_name || quote.lead?.name || 'Cliente sem nome',
+      procedimento: quote.items?.[0]?.procedure_name || 'Serviço',
+      valor: quote.total,
+      forma: 'Transferência',
+      parcelas: '-',
+      data: new Date(quote.approved_at || '').toLocaleDateString('pt-BR'),
+      status: 'pago' as const,
+    })).slice(0, 5);
+  }, [metrics.approved]);
+
+  // Comissões por profissional
+  const comissoes = useMemo(() => {
+    return teamMembers
+      .filter(tm => tm.current_revenue && tm.current_revenue > 0)
+      .map(tm => ({
+        profissional: tm.profiles?.full_name || 'Sem nome',
+        faturamento: tm.current_revenue || 0,
+        percentual: 40,
+        comissao: ((tm.current_revenue || 0) * 0.4),
+        procedimentos: 0,
+      }));
+  }, [teamMembers]);
+
+  const inadimplenciaTotal = 0;
+  const parcelamentos: any[] = [];
+  const inadimplentes: any[] = [];
 
   const handleExport = () => {
-    const data = { receitaTotal, despesasTotal, saldoAtual, inadimplenciaTotal, date: new Date().toISOString() };
+    const data = { 
+      ...metrics, 
+      pagamentosRecebidos,
+      comissoes,
+      date: new Date().toISOString() 
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -154,18 +195,13 @@ export default function Financeiro() {
   };
 
   const handleNewTransaction = () => {
-    // This would open a modal in a full implementation
     alert('Funcionalidade de nova transação em desenvolvimento. Em breve você poderá adicionar transações diretamente aqui.');
   };
 
   const handleSendReminder = (paciente: string) => {
-    const phone = "5511999999999"; // Would come from data
+    const phone = "5511999999999";
     const message = encodeURIComponent(`Olá ${paciente}! Este é um lembrete sobre o pagamento pendente. Entre em contato conosco.`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-  };
-
-  const handleCall = (paciente: string) => {
-    window.open('tel:+5511999999999', '_self');
   };
 
   return (
@@ -193,28 +229,28 @@ export default function Financeiro() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <MetricCard
             title="Receita do Mês"
-            value={formatCurrency(receitaTotal)}
+            value={formatCurrency(metrics.receitaTotal)}
             change={12.5}
             trend="up"
             icon={<TrendingUp className="w-5 h-5 text-primary" />}
           />
           <MetricCard
             title="Despesas"
-            value={formatCurrency(despesasTotal)}
+            value={formatCurrency(metrics.despesasTotal)}
             change={-5.2}
             trend="down"
             icon={<TrendingDown className="w-5 h-5 text-primary" />}
           />
           <MetricCard
             title="Saldo Atual"
-            value={formatCurrency(saldoAtual)}
+            value={formatCurrency(metrics.saldoAtual)}
             subtitle="Caixa + Banco"
             icon={<Wallet className="w-5 h-5 text-primary" />}
           />
           <MetricCard
-            title="Inadimplência"
-            value={formatCurrency(inadimplenciaTotal)}
-            subtitle="3 clientes em atraso"
+            title="Orçamentos Pendentes"
+            value={metrics.sent.length.toString()}
+            subtitle={`${formatCurrency(metrics.sent.reduce((s, q) => s + q.total, 0))}`}
             icon={<AlertCircle className="w-5 h-5 text-revenue-at-risk" />}
             alert
           />
@@ -287,51 +323,51 @@ export default function Financeiro() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Paciente</th>
-                        <th className="text-left py-3 px-4 font-medium text-muted-foreground">Procedimento</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Valor</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Forma</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Parcelas</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Data</th>
-                        <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pagamentosRecebidos.map((pagamento) => (
-                        <tr key={pagamento.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <span className="font-medium text-foreground">{pagamento.paciente}</span>
-                          </td>
-                          <td className="py-4 px-4 text-muted-foreground">{pagamento.procedimento}</td>
-                          <td className="py-4 px-4 text-center font-medium text-foreground">
-                            {formatCurrency(pagamento.valor)}
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <CreditCard className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">{pagamento.forma}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 text-center text-muted-foreground">{pagamento.parcelas}</td>
-                          <td className="py-4 px-4 text-center text-muted-foreground">{pagamento.data}</td>
-                          <td className="py-4 px-4 text-center">
-                            <Badge variant={pagamento.status === "pago" ? "default" : "secondary"}>
-                              {pagamento.status === "pago" ? (
-                                <><CheckCircle2 className="w-3 h-3 mr-1" /> Pago</>
-                              ) : (
-                                <><Clock className="w-3 h-3 mr-1" /> Pendente</>
-                              )}
-                            </Badge>
-                          </td>
+                {pagamentosRecebidos.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nenhum pagamento aprovado ainda</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">Paciente</th>
+                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">Procedimento</th>
+                          <th className="text-center py-3 px-4 font-medium text-muted-foreground">Valor</th>
+                          <th className="text-center py-3 px-4 font-medium text-muted-foreground">Forma</th>
+                          <th className="text-center py-3 px-4 font-medium text-muted-foreground">Data</th>
+                          <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {pagamentosRecebidos.map((pagamento) => (
+                          <tr key={pagamento.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                            <td className="py-4 px-4">
+                              <span className="font-medium text-foreground">{pagamento.paciente}</span>
+                            </td>
+                            <td className="py-4 px-4 text-muted-foreground">{pagamento.procedimento}</td>
+                            <td className="py-4 px-4 text-center font-medium text-foreground">
+                              {formatCurrency(pagamento.valor)}
+                            </td>
+                            <td className="py-4 px-4 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <CreditCard className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-muted-foreground">{pagamento.forma}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 text-center text-muted-foreground">{pagamento.data}</td>
+                            <td className="py-4 px-4 text-center">
+                              <Badge variant="default">
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Pago
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -346,38 +382,44 @@ export default function Financeiro() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {parcelamentos.map((parc) => (
-                    <div key={parc.id} className="p-4 bg-muted/30 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-medium text-foreground">{parc.paciente}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatCurrency(parc.valorTotal)} em {parc.parcelas}x de {formatCurrency(parc.valorParcela)}
-                          </p>
+                {parcelamentos.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nenhum parcelamento ativo no momento</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {parcelamentos.map((parc) => (
+                      <div key={parc.id} className="p-4 bg-muted/30 rounded-xl">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="font-medium text-foreground">{parc.paciente}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatCurrency(parc.valorTotal)} em {parc.parcelas}x de {formatCurrency(parc.valorParcela)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-muted-foreground">Próx. vencimento</p>
+                            <p className="font-medium text-foreground">{parc.proxVencimento}</p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">Próx. vencimento</p>
-                          <p className="font-medium text-foreground">{parc.proxVencimento}</p>
+                        <div className="flex items-center gap-4">
+                          <Progress value={(parc.pagas / parc.parcelas) * 100} className="flex-1" />
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                            {parc.pagas}/{parc.parcelas} pagas
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <Progress value={(parc.pagas / parc.parcelas) * 100} className="flex-1" />
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">
-                          {parc.pagas}/{parc.parcelas} pagas
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-6 p-4 bg-primary/5 rounded-xl border border-primary/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-foreground">A Receber (Parcelamentos)</p>
-                      <p className="text-sm text-muted-foreground">Próximos 30 dias</p>
+                      <p className="font-medium text-foreground">Orçamentos Enviados (A Confirmar)</p>
+                      <p className="text-sm text-muted-foreground">Valor total aguardando aprovação</p>
                     </div>
-                    <p className="text-2xl font-bold text-primary">{formatCurrency(8500)}</p>
+                    <p className="text-2xl font-bold text-primary">{formatCurrency(metrics.sent.reduce((s, q) => s + q.total, 0))}</p>
                   </div>
                 </div>
               </CardContent>
@@ -394,48 +436,36 @@ export default function Financeiro() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {comissoes.map((com, idx) => (
-                    <div key={idx} className="p-4 bg-muted/30 rounded-xl">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center text-white font-semibold">
-                          {com.profissional.split(" ").map(n => n[0]).join("").slice(0, 2)}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-foreground">{com.profissional}</span>
-                            <span className="text-xl font-bold text-primary">{formatCurrency(com.comissao)}</span>
+                {comissoes.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nenhum profissional com faturamento registrado</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {comissoes.map((comm, idx) => (
+                      <div key={idx} className="p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="font-medium text-foreground">{comm.profissional}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Faturamento: {formatCurrency(comm.faturamento)}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>Faturamento: {formatCurrency(com.faturamento)}</span>
-                            <span>•</span>
-                            <span>{com.percentual}% comissão</span>
-                            {com.procedimentos > 0 && (
-                              <>
-                                <span>•</span>
-                                <span>{com.procedimentos} procedimentos</span>
-                              </>
-                            )}
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-primary">{formatCurrency(comm.comissao)}</p>
+                            <p className="text-sm text-muted-foreground">{comm.percentual}% de comissão</p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon">
-                          <ChevronRight className="w-5 h-5" />
-                        </Button>
+                        <div className="flex items-center gap-4">
+                          <Progress value={Math.min((comm.faturamento / 50000) * 100, 100)} className="flex-1" />
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                            {comm.procedimentos} procedimentos
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-muted/30 rounded-xl">
-                    <p className="text-sm text-muted-foreground mb-1">Total Comissões</p>
-                    <p className="text-2xl font-bold text-foreground">{formatCurrency(46900)}</p>
+                    ))}
                   </div>
-                  <div className="p-4 bg-muted/30 rounded-xl">
-                    <p className="text-sm text-muted-foreground mb-1">% do Faturamento</p>
-                    <p className="text-2xl font-bold text-foreground">32.8%</p>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -446,53 +476,38 @@ export default function Financeiro() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-revenue-at-risk" />
-                  Clientes Inadimplentes
+                  Clientes em Atraso
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {inadimplentes.map((inad, idx) => (
-                    <div key={idx} className="p-4 bg-revenue-at-risk/5 rounded-xl border border-revenue-at-risk/20">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-medium text-foreground">{inad.paciente}</p>
-                          <p className="text-sm text-muted-foreground">{inad.procedimento}</p>
+                {inadimplentes.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nenhum cliente em atraso 🎉</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {inadimplentes.map((cliente, idx) => (
+                      <div key={idx} className="p-4 bg-revenue-at-risk/5 rounded-xl border border-revenue-at-risk/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="font-medium text-foreground">{cliente.paciente}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {cliente.procedimento} • {cliente.diasAtraso} dias em atraso
+                            </p>
+                          </div>
+                          <p className="text-lg font-bold text-revenue-at-risk">{formatCurrency(cliente.valor)}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-revenue-at-risk">{formatCurrency(inad.valor)}</p>
-                          <Badge variant="destructive" className="text-xs">
-                            {inad.diasAtraso} dias em atraso
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-muted-foreground">
-                          Último contato: {inad.ultimoContato}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => handleSendReminder(inad.paciente)}>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleSendReminder(cliente.paciente)}>
+                            <AlertTriangle className="w-3 h-3 mr-2" />
                             Enviar Lembrete
                           </Button>
-                          <Button size="sm" variant="default" onClick={() => handleCall(inad.paciente)}>
-                            Ligar
-                          </Button>
+                          <span className="text-xs text-muted-foreground">Último contato: {cliente.ultimoContato}</span>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 p-4 bg-revenue-at-risk/10 rounded-xl border border-revenue-at-risk/20">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-6 h-6 text-revenue-at-risk" />
-                    <div>
-                      <p className="font-medium text-foreground">Total em Inadimplência</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatCurrency(inadimplenciaTotal)} distribuídos em {inadimplentes.length} clientes
-                      </p>
-                    </div>
+                    ))}
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
