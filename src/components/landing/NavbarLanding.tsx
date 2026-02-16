@@ -74,7 +74,7 @@ export const NavbarLanding = () => {
                 Entrar
               </Button>
             </Link>
-            <Link to="/auth">
+            <Link to="/auth?plan=essencial">
               <Button className="btn-premium">
                 <ArrowRight className="w-4 h-4 mr-2" />
                 Testar 7 dias Grátis
@@ -131,7 +131,7 @@ export const NavbarLanding = () => {
                     Entrar
                   </Button>
                 </Link>
-                <Link to="/auth">
+                <Link to="/auth?plan=essencial">
                   <Button className="btn-premium w-full">
                     <ArrowRight className="w-4 h-4 mr-2" />
                     Testar 7 dias Grátis

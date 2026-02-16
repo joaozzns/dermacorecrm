@@ -55,7 +55,7 @@ export const CTASection = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Link to="/auth">
+              <Link to="/auth?plan=essencial">
                 <Button 
                   size="lg" 
                   className="btn-gold text-xl px-12 py-8 group"

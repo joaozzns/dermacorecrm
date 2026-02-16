@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Sparkles, Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function Auth() {
+  const [searchParams] = useSearchParams();
+  const planSlug = searchParams.get("plan");
   const navigate = useNavigate();
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +31,41 @@ export default function Auth() {
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
 
-  // Redirect if already logged in (only after auth check completes)
+  // Redirect if already logged in - trigger checkout if plan param present
   useEffect(() => {
     if (!loading && user) {
+      if (planSlug) {
+        triggerCheckout(planSlug);
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [user, loading, navigate, planSlug]);
+
+  const triggerCheckout = async (slug: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+      toast.info("Redirecionando para o checkout...");
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { planSlug: slug },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      toast.error("Erro ao iniciar checkout. Redirecionando ao dashboard.");
       navigate("/dashboard", { replace: true });
     }
-  }, [user, loading, navigate]);
+  };
 
   // Show loading while checking auth state
   if (loading) {
@@ -70,7 +101,11 @@ export default function Auth() {
       }
     } else {
       toast.success("Login realizado com sucesso!");
-      navigate("/dashboard");
+      if (planSlug) {
+        await triggerCheckout(planSlug);
+      } else {
+        navigate("/dashboard");
+      }
     }
   };
 
@@ -122,8 +157,12 @@ export default function Auth() {
         toast.error("Erro ao cadastrar: " + error.message);
       }
     } else {
-      toast.success("Conta criada com sucesso! Você já pode fazer login.");
-      navigate("/dashboard");
+      toast.success("Conta criada com sucesso!");
+      if (planSlug) {
+        await triggerCheckout(planSlug);
+      } else {
+        navigate("/dashboard");
+      }
     }
   };
 

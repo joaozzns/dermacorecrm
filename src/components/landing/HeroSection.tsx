@@ -150,7 +150,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.7, delay: 0.6 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
         >
-          <Link to="/auth">
+          <Link to="/auth?plan=essencial">
             <Button 
               size="lg" 
               className="btn-premium text-lg px-8 py-6 group"
