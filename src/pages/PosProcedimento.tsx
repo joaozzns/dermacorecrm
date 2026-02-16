@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NovaOrientacaoDialog } from "@/components/pos-procedimento/NovaOrientacaoDialog";
 import {
   Heart,
   MessageCircle,
@@ -248,10 +249,7 @@ export default function PosProcedimento() {
             <h1 className="text-2xl font-bold text-foreground">Pós-Procedimento</h1>
             <p className="text-muted-foreground">Acompanhamento e satisfação de pacientes</p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => alert("Funcionalidade de nova orientação em desenvolvimento!")}>
-            <Plus className="w-4 h-4" />
-            Nova Orientação
-          </Button>
+          <NovaOrientacaoDialog />
         </div>
 
         {/* Métricas */}
