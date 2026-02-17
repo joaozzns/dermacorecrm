@@ -53,12 +53,12 @@ interface EtapaPipeline {
 }
 
 const etapas: EtapaPipeline[] = [
-  { id: "novo", nome: "Novo Lead", cor: "bg-blue-500", bgCor: "bg-blue-50" },
-  { id: "contatado", nome: "Contato Feito", cor: "bg-purple-500", bgCor: "bg-purple-50" },
-  { id: "qualificado", nome: "Qualificado", cor: "bg-amber-500", bgCor: "bg-amber-50" },
-  { id: "agendado", nome: "Agendado", cor: "bg-emerald-500", bgCor: "bg-emerald-50" },
-  { id: "convertido", nome: "Convertido", cor: "bg-teal-600", bgCor: "bg-teal-50" },
-  { id: "perdido", nome: "Perdido", cor: "bg-red-500", bgCor: "bg-red-50" },
+  { id: "novo", nome: "Novo Lead", cor: "bg-blue-500", bgCor: "bg-blue-500/10 dark:bg-blue-500/20" },
+  { id: "contatado", nome: "Contato Feito", cor: "bg-purple-500", bgCor: "bg-purple-500/10 dark:bg-purple-500/20" },
+  { id: "qualificado", nome: "Qualificado", cor: "bg-amber-500", bgCor: "bg-amber-500/10 dark:bg-amber-500/20" },
+  { id: "agendado", nome: "Agendado", cor: "bg-emerald-500", bgCor: "bg-emerald-500/10 dark:bg-emerald-500/20" },
+  { id: "convertido", nome: "Convertido", cor: "bg-teal-600", bgCor: "bg-teal-600/10 dark:bg-teal-600/20" },
+  { id: "perdido", nome: "Perdido", cor: "bg-red-500", bgCor: "bg-red-500/10 dark:bg-red-500/20" },
 ];
 
 const origemIcons: Record<string, React.ReactNode> = {
@@ -324,7 +324,7 @@ const Leads = () => {
                 <span className="text-sm text-muted-foreground">Leads Novos</span>
                 <Sparkles className="w-5 h-5 text-blue-500" />
               </div>
-              <div className="text-2xl font-bold text-blue-600">{leadsNovos}</div>
+              <div className="text-2xl font-bold text-primary">{leadsNovos}</div>
               {leadsNovos > 0 && (
                 <div className="text-xs text-revenue-at-risk mt-1">Ação necessária</div>
               )}
@@ -365,7 +365,7 @@ const Leads = () => {
                         <span className={cn("w-3 h-3 rounded-full", etapa.cor)} />
                         <span className="font-semibold text-foreground">{etapa.nome}</span>
                       </div>
-                      <span className="text-xs font-medium text-muted-foreground bg-white/80 px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-medium text-muted-foreground bg-background/80 px-2 py-0.5 rounded-full">
                         {getLeadsByEtapa(etapa.id).length}
                       </span>
                     </div>
