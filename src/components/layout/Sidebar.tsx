@@ -100,9 +100,9 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
-      <div className="p-6 border-b border-sidebar-border">
+      <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center justify-center cursor-pointer" onClick={() => navigate("/dashboard")}>
-          <img src={logoDermacore} alt="DermaCore" className="h-24 w-auto" />
+          <img src={logoDermacore} alt="DermaCore" className="h-10 w-auto" />
         </div>
       </div>
 
