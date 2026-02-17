@@ -890,6 +890,7 @@ export type Database = {
     }
     Functions: {
       accept_clinic_invite: { Args: { p_invite_code: string }; Returns: Json }
+      create_clinic_for_user: { Args: { p_clinic_name: string }; Returns: Json }
       generate_quote_number: { Args: { p_clinic_id: string }; Returns: string }
       get_clinic_plan_limits: {
         Args: never

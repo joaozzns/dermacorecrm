@@ -33,20 +33,12 @@ export function NoClinicSetup() {
 
     setIsCreating(true);
     try {
-      // Create clinic
-      const { data: clinic, error: clinicError } = await supabase
-        .from('clinics')
-        .insert([{ name: clinicName.trim() }])
-        .select()
-        .single();
-      if (clinicError) throw clinicError;
-
-      // Update profile with clinic_id and set as admin
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ clinic_id: clinic.id, role: 'admin' })
-        .eq('id', user.id);
-      if (profileError) throw profileError;
+      const { data, error } = await supabase.rpc('create_clinic_for_user', {
+        p_clinic_name: clinicName.trim(),
+      });
+      if (error) throw error;
+      const result = data as unknown as { success: boolean; error?: string; clinic_id?: string };
+      if (!result.success) throw new Error(result.error || 'Erro ao criar clínica');
 
       toast.success('Clínica criada com sucesso!');
       window.location.reload();
