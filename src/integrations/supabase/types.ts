@@ -85,6 +85,56 @@ export type Database = {
           },
         ]
       }
+      clinic_invites: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          invite_code: string
+          is_active: boolean
+          max_uses: number | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          is_active?: boolean
+          max_uses?: number | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          is_active?: boolean
+          max_uses?: number | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_invites_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_settings: {
         Row: {
           agenda_preferences: Json
@@ -839,6 +889,7 @@ export type Database = {
       }
     }
     Functions: {
+      accept_clinic_invite: { Args: { p_invite_code: string }; Returns: Json }
       generate_quote_number: { Args: { p_clinic_id: string }; Returns: string }
       get_clinic_plan_limits: {
         Args: never

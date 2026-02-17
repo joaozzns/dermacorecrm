@@ -14,10 +14,12 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useClinicSettings, NotificationPreferences, AgendaPreferences } from "@/hooks/useClinicSettings";
+import { InviteManagement } from "@/components/clinic/InviteManagement";
 import {
   Settings,
   Building2,
   User,
+  Users,
   Bell,
   MessageCircle,
   Palette,
@@ -203,6 +205,7 @@ export default function Configuracoes() {
         <Tabs defaultValue="clinica" className="space-y-6">
           <TabsList className="bg-card border flex-wrap h-auto p-1">
             <TabsTrigger value="clinica" className="gap-2"><Building2 className="w-4 h-4" /> Clínica</TabsTrigger>
+            <TabsTrigger value="equipe" className="gap-2"><Users className="w-4 h-4" /> Equipe & Convites</TabsTrigger>
             <TabsTrigger value="templates" className="gap-2"><FileText className="w-4 h-4" /> Templates</TabsTrigger>
             <TabsTrigger value="integracoes" className="gap-2"><Link2 className="w-4 h-4" /> Integrações</TabsTrigger>
             <TabsTrigger value="notificacoes" className="gap-2"><Bell className="w-4 h-4" /> Notificações</TabsTrigger>
@@ -415,6 +418,11 @@ export default function Configuracoes() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Tab Equipe & Convites */}
+          <TabsContent value="equipe" className="space-y-6">
+            <InviteManagement />
           </TabsContent>
 
           {/* Tab Templates */}

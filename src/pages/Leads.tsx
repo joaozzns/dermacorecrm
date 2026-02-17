@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { NoClinicSetup } from "@/components/clinic/NoClinicSetup";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   Users, 
@@ -108,18 +109,7 @@ const Leads = () => {
   if (!authLoading && user && !profile?.clinic_id) {
     return (
       <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Sparkles className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Configure sua clínica</h2>
-            <p className="text-muted-foreground mb-4">
-              Você precisa estar vinculado a uma clínica para gerenciar leads.
-            </p>
-            <Button onClick={() => navigate("/configuracoes")}>
-              Ir para Configurações
-            </Button>
-          </div>
-        </div>
+        <NoClinicSetup />
       </DashboardLayout>
     );
   }

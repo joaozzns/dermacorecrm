@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import Planos from "./pages/Planos";
 import Procedimentos from "./pages/Procedimentos";
 import Orcamentos from "./pages/Orcamentos";
+import Convite from "./pages/Convite";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/landing" element={<Landing />} />
               <Route path="/planos" element={<Planos />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/convite/:code" element={<Convite />} />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
