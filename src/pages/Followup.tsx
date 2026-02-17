@@ -439,7 +439,7 @@ const LeadEsfriandoCard = ({ lead, onWhatsApp, onCall, onEmail }: LeadEsfriandoC
         <span>{lead.etapaFunil}</span>
       </div>
       
-      <div className="p-2 rounded-lg bg-white/50 mb-3">
+      <div className="p-2 rounded-lg bg-background/50 mb-3">
         <p className="text-xs text-muted-foreground">
           <span className="font-medium">Motivo:</span> {lead.motivoEsfriamento}
         </p>
@@ -451,14 +451,14 @@ const LeadEsfriandoCard = ({ lead, onWhatsApp, onCall, onEmail }: LeadEsfriandoC
         </div>
         
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="WhatsApp" onClick={() => onWhatsApp(lead)}>
-            <MessageCircle className="w-4 h-4 text-green-600" />
+          <button className="p-2 hover:bg-background/50 rounded-lg transition-colors" title="WhatsApp" onClick={() => onWhatsApp(lead)}>
+            <MessageCircle className="w-4 h-4 text-revenue-confirmed" />
           </button>
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Ligar" onClick={() => onCall(lead)}>
-            <Phone className="w-4 h-4 text-blue-600" />
+          <button className="p-2 hover:bg-background/50 rounded-lg transition-colors" title="Ligar" onClick={() => onCall(lead)}>
+            <Phone className="w-4 h-4 text-primary" />
           </button>
-          <button className="p-2 hover:bg-white/50 rounded-lg transition-colors" title="Email" onClick={() => onEmail(lead)}>
-            <Mail className="w-4 h-4 text-gray-600" />
+          <button className="p-2 hover:bg-background/50 rounded-lg transition-colors" title="Email" onClick={() => onEmail(lead)}>
+            <Mail className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
       </div>
