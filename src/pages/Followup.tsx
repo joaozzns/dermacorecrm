@@ -24,10 +24,20 @@ import {
   Plus,
   MoreHorizontal,
   Bell,
-  Search
+  Search,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -36,6 +46,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 interface Sequencia {
   id: string;
@@ -62,7 +73,7 @@ interface LeadEsfriando {
   acaoRecomendada: string;
 }
 
-const sequencias: Sequencia[] = [
+const sequenciasIniciais: Sequencia[] = [
   { id: "1", nome: "Pós-Avaliação", descricao: "Follow-up automático após avaliação presencial", tipo: "pos-avaliacao", leadsAtivos: 24, taxaResposta: 68, receitaRecuperada: 45000, ativa: true, etapas: 5 },
   { id: "2", nome: "Pós-Orçamento", descricao: "Recuperação de leads que receberam orçamento", tipo: "pos-orcamento", leadsAtivos: 18, taxaResposta: 42, receitaRecuperada: 32000, ativa: true, etapas: 4 },
   { id: "3", nome: "Recompra 90 dias", descricao: "Lembrete de manutenção após 90 dias", tipo: "recompra", leadsAtivos: 35, taxaResposta: 55, receitaRecuperada: 28000, ativa: true, etapas: 3 },
@@ -79,6 +90,14 @@ const leadsEsfriando: LeadEsfriando[] = [
   { id: "6", nome: "Luciana Ferreira", procedimento: "Skinbooster", valorPotencial: 1800, ultimoContato: "8 dias atrás", diasParado: 8, etapaFunil: "Pós-Orçamento", motivoEsfriamento: "Disse que está sem dinheiro", probabilidade: 25, acaoRecomendada: "Oferecer parcelamento" },
 ];
 
+const tipoLabels: Record<Sequencia['tipo'], string> = {
+  'pos-avaliacao': 'Pós-Avaliação',
+  'pos-orcamento': 'Pós-Orçamento',
+  'recompra': 'Recompra',
+  'reativacao': 'Reativação',
+  'aniversario': 'Aniversário',
+};
+
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -91,14 +110,41 @@ const Followup = () => {
   const [activeSection, setActiveSection] = useState("followup");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sequencias, setSequencias] = useState<Sequencia[]>(sequenciasIniciais);
+  const [isNewSeqDialogOpen, setIsNewSeqDialogOpen] = useState(false);
+  const [newSeqName, setNewSeqName] = useState("");
+  const [newSeqDesc, setNewSeqDesc] = useState("");
+  const [newSeqType, setNewSeqType] = useState<Sequencia['tipo']>("pos-avaliacao");
+  const [newSeqEtapas, setNewSeqEtapas] = useState("3");
 
   const receitaEmRisco = leadsEsfriando.reduce((acc, lead) => acc + lead.valorPotencial, 0);
   const receitaRecuperada = sequencias.reduce((acc, seq) => acc + seq.receitaRecuperada, 0);
   const totalLeadsAtivos = sequencias.reduce((acc, seq) => acc + seq.leadsAtivos, 0);
   const taxaMediaResposta = Math.round(sequencias.reduce((acc, seq) => acc + seq.taxaResposta, 0) / sequencias.length);
 
-  const handleNewSequence = () => {
-    alert("Funcionalidade de nova sequência em desenvolvimento. Em breve disponível!");
+  const handleCreateSequence = () => {
+    if (!newSeqName.trim()) {
+      toast.error("Nome da sequência é obrigatório");
+      return;
+    }
+    const newSeq: Sequencia = {
+      id: String(Date.now()),
+      nome: newSeqName.trim(),
+      descricao: newSeqDesc.trim() || `Sequência de ${tipoLabels[newSeqType]}`,
+      tipo: newSeqType,
+      leadsAtivos: 0,
+      taxaResposta: 0,
+      receitaRecuperada: 0,
+      ativa: true,
+      etapas: parseInt(newSeqEtapas) || 3,
+    };
+    setSequencias(prev => [...prev, newSeq]);
+    setNewSeqName("");
+    setNewSeqDesc("");
+    setNewSeqType("pos-avaliacao");
+    setNewSeqEtapas("3");
+    setIsNewSeqDialogOpen(false);
+    toast.success("Sequência criada com sucesso!");
   };
 
   const handleLeadWhatsApp = (lead: LeadEsfriando) => {
@@ -154,7 +200,7 @@ const Followup = () => {
                 />
               </div>
               
-              <button className="btn-premium flex items-center gap-2 text-white text-sm py-2" onClick={handleNewSequence}>
+              <button className="btn-premium flex items-center gap-2 text-white text-sm py-2" onClick={() => setIsNewSeqDialogOpen(true)}>
                 <Plus className="w-4 h-4" />
                 Nova Sequência
               </button>
@@ -279,6 +325,71 @@ const Followup = () => {
           </div>
         </main>
       </div>
+
+      {/* Nova Sequência Dialog */}
+      <Dialog open={isNewSeqDialogOpen} onOpenChange={setIsNewSeqDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              Nova Sequência de Follow-up
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="seq-name">Nome da Sequência *</Label>
+              <Input
+                id="seq-name"
+                placeholder="Ex: Pós-Consulta Premium"
+                value={newSeqName}
+                onChange={(e) => setNewSeqName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="seq-desc">Descrição</Label>
+              <Textarea
+                id="seq-desc"
+                placeholder="Descreva o objetivo desta sequência"
+                value={newSeqDesc}
+                onChange={(e) => setNewSeqDesc(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Tipo</Label>
+                <Select value={newSeqType} onValueChange={(v) => setNewSeqType(v as Sequencia['tipo'])}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pos-avaliacao">Pós-Avaliação</SelectItem>
+                    <SelectItem value="pos-orcamento">Pós-Orçamento</SelectItem>
+                    <SelectItem value="recompra">Recompra</SelectItem>
+                    <SelectItem value="reativacao">Reativação</SelectItem>
+                    <SelectItem value="aniversario">Aniversário</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="seq-etapas">Nº de Etapas</Label>
+                <Input
+                  id="seq-etapas"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={newSeqEtapas}
+                  onChange={(e) => setNewSeqEtapas(e.target.value)}
+                />
+              </div>
+            </div>
+            <Button className="w-full" onClick={handleCreateSequence}>
+              <Plus className="w-4 h-4 mr-2" />
+              Criar Sequência
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
