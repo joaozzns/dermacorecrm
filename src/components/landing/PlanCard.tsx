@@ -132,8 +132,8 @@ export const PlanCard = ({ plan, isPopular, currentPlanSlug }: PlanCardProps) =>
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className={`relative rounded-2xl border ${colors.border} ${colors.bg} p-8 flex flex-col h-full ${
-        isPopular ? "ring-2 ring-primary shadow-xl shadow-primary/20 scale-105" : ""
+      className={`relative rounded-2xl border ${colors.border} p-8 flex flex-col h-full backdrop-blur-xl bg-card/60 shadow-lg ${
+        isPopular ? "ring-2 ring-primary shadow-xl shadow-primary/20 scale-105 bg-primary/5 backdrop-blur-2xl" : ""
       } ${isCurrentPlan ? "ring-2 ring-green-500" : ""}`}
     >
       {isPopular && !isCurrentPlan && (
