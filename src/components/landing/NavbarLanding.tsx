@@ -98,12 +98,7 @@ export const NavbarLanding = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden py-4 border-t border-border"
-          >
+          <div className="md:hidden py-4 border-t border-border bg-background/95 backdrop-blur-xl">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 link.isRoute ? (
@@ -140,7 +135,7 @@ export const NavbarLanding = () => {
                 </Link>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </motion.nav>
