@@ -195,24 +195,30 @@ export const PricingSection = () => {
                   </ul>
 
                   {/* CTA Button */}
-                  <Button 
-                    className={`w-full py-6 text-lg ${
-                      plan.popular 
-                        ? 'btn-premium' 
-                        : 'bg-secondary hover:bg-secondary/80 text-secondary-foreground'
+                  <button
+                    className={`group relative inline-flex items-center justify-center w-full py-4 px-8 rounded-full font-medium text-base overflow-hidden transition-colors duration-400 border-2 z-[1] cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
+                      plan.popular
+                        ? 'bg-primary text-primary-foreground border-primary hover:text-primary'
+                        : 'bg-foreground text-background border-foreground hover:text-foreground'
                     }`}
                     onClick={() => handleSelectPlan(plan.slug)}
                     disabled={isLoading || isCurrentPlan}
                   >
+                    <span className="absolute top-0 left-0 w-0 h-full bg-background transition-all duration-400 ease-in-out z-[-1] group-hover:w-full" />
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Processando...
                       </>
                     ) : (
-                      getButtonText(plan)
+                      <>
+                        {getButtonText(plan)}
+                        {!isCurrentPlan && (
+                          <span className="ml-4 text-lg transition-transform duration-400 group-hover:translate-x-1">→</span>
+                        )}
+                      </>
                     )}
-                  </Button>
+                  </button>
                 </motion.div>
               </ScrollReveal>
             );
