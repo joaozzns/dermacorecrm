@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Sparkles, Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import logoDermacore from "@/assets/logo_dermacore.png";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -171,10 +172,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-teal-400 mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">DermaCore</h1>
+          <img src={logoDermacore} alt="DermaCore" className="h-14 w-auto mx-auto mb-4" />
           <p className="text-muted-foreground">Sistema de gestão para clínicas de estética</p>
         </div>
 
