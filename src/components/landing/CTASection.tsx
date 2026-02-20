@@ -23,11 +23,6 @@ export const CTASection = () => {
       <div className="max-w-4xl mx-auto relative z-10">
         <ScrollReveal>
           <div className="text-center p-12 rounded-3xl bg-gradient-to-b from-card to-card/50 border border-border shadow-2xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-accent">Comece Hoje</span>
-            </div>
 
             {/* Headline */}
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
