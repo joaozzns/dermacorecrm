@@ -125,7 +125,7 @@ export const HeroSection = () => {
             >
               <span className="text-foreground">Transforme sua</span>
               <br />
-              <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+              <span className="text-foreground">
                 Clínica Estética
               </span>
             </motion.h1>
