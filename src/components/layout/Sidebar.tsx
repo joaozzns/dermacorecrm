@@ -19,6 +19,9 @@ import logoDermacore from "@/assets/logo_dermacore.png";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { ProfileDialog } from "./ProfileDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -64,6 +67,7 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
   
   const navItems = [
     { id: "dashboard", path: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
@@ -135,17 +139,25 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
         />
         
         {/* User Profile */}
-        <div className="mt-4 p-3 rounded-lg bg-sidebar-accent">
+        <button
+          onClick={() => setProfileOpen(true)}
+          className="mt-4 p-3 rounded-lg bg-sidebar-accent w-full text-left hover:bg-sidebar-accent/80 transition-colors cursor-pointer"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sidebar-primary to-teal-400 flex items-center justify-center text-white font-semibold text-sm">
-              {profile?.full_name?.substring(0, 2).toUpperCase() || "US"}
-            </div>
+            <Avatar className="w-9 h-9">
+              <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name} />
+              <AvatarFallback className="bg-gradient-to-br from-sidebar-primary to-teal-400 text-white font-semibold text-sm">
+                {profile?.full_name?.substring(0, 2).toUpperCase() || "US"}
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{profile?.full_name || "Usuário"}</p>
               <p className="text-xs text-sidebar-foreground truncate capitalize">{profile?.role || "staff"}</p>
             </div>
           </div>
-        </div>
+        </button>
+
+        <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
       </div>
     </aside>
   );
