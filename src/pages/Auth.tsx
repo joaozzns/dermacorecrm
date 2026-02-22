@@ -98,7 +98,7 @@ export default function Auth() {
       } else if (error.message.includes("Email not confirmed")) {
         toast.error("Email não confirmado. Verifique sua caixa de entrada.");
       } else {
-        toast.error("Erro ao fazer login: " + error.message);
+        toast.error("Erro ao fazer login. Tente novamente.");
       }
     } else {
       toast.success("Login realizado com sucesso!");
@@ -122,7 +122,7 @@ export default function Auth() {
     });
     setIsLoading(false);
     if (error) {
-      toast.error("Erro ao enviar email: " + error.message);
+      toast.error("Erro ao enviar email. Tente novamente.");
     } else {
       toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
       setForgotPassword(false);
@@ -155,7 +155,7 @@ export default function Auth() {
       if (error.message.includes("User already registered")) {
         toast.error("Este email já está cadastrado");
       } else {
-        toast.error("Erro ao cadastrar: " + error.message);
+        toast.error("Erro ao cadastrar. Tente novamente.");
       }
     } else {
       toast.success("Conta criada com sucesso!");
