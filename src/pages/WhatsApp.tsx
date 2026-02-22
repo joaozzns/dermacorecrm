@@ -152,7 +152,7 @@ const WhatsApp = () => {
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection} contentClassName="flex">
       <>
         {/* Lista de Conversas */}
-        <div className="w-96 border-r border-border flex flex-col bg-card">
+        <div className="w-72 md:w-96 border-r border-border flex flex-col bg-card shrink-0">
           {/* Header */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between mb-4">

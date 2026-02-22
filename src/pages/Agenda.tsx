@@ -226,52 +226,52 @@ const Agenda = () => {
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
       <div className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-400 flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-4 md:px-8 py-4">
+            <div className="flex items-center gap-3 ml-12 md:ml-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-400 flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Agenda</h1>
-                <p className="text-sm text-muted-foreground">Gerencie os agendamentos da clínica</p>
+                <h1 className="text-lg md:text-2xl font-bold text-foreground">Agenda</h1>
+                <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Gerencie os agendamentos da clínica</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="relative">
+            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto">
+              <div className="relative shrink-0 hidden md:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Buscar paciente..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
               
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => setIsFilterOpen(true)}>
+              <Button variant="outline" size="sm" className="gap-2 shrink-0" onClick={() => setIsFilterOpen(true)}>
                 <Filter className="w-4 h-4" />
-                Filtros
+                <span className="hidden md:inline">Filtros</span>
                 {(selectedProfissional !== "todos" || selectedStatus !== "todos") && (
                   <span className="w-2 h-2 rounded-full bg-primary" />
                 )}
               </Button>
               
               <button 
-                className="btn-premium flex items-center gap-2 text-white text-sm py-2"
+                className="btn-premium flex items-center gap-2 text-white text-sm py-2 shrink-0"
                 onClick={() => setIsNewAppointmentOpen(true)}
               >
                 <Plus className="w-4 h-4" />
-                Novo Agendamento
+                <span className="hidden md:inline">Novo Agendamento</span>
               </button>
             </div>
           </div>
         </header>
 
-        <main className="p-8">
+        <main className="p-4 md:p-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Receita Confirmada</span>
