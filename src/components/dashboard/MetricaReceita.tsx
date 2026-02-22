@@ -65,26 +65,26 @@ export const MetricaReceita = ({
         <RevenueCard
           label="Confirmada"
           value={confirmada}
-          percentage={(confirmada / total) * 100}
+          percentage={total === 0 ? 0 : (confirmada / total) * 100}
           variant="confirmed"
         />
         <RevenueCard
           label="Em Risco"
           value={emRisco}
-          percentage={(emRisco / total) * 100}
+          percentage={total === 0 ? 0 : (emRisco / total) * 100}
           variant="at-risk"
           alert
         />
         <RevenueCard
           label="Parada em Leads"
           value={parada}
-          percentage={(parada / total) * 100}
+          percentage={total === 0 ? 0 : (parada / total) * 100}
           variant="paused"
         />
         <RevenueCard
           label="Recuperável"
           value={recuperavel}
-          percentage={(recuperavel / total) * 100}
+          percentage={total === 0 ? 0 : (recuperavel / total) * 100}
           variant="recoverable"
         />
       </div>
@@ -94,19 +94,19 @@ export const MetricaReceita = ({
         <div className="h-3 rounded-full overflow-hidden flex bg-muted">
           <div 
             className="bg-revenue-confirmed transition-all duration-500"
-            style={{ width: `${(confirmada / total) * 100}%` }}
+            style={{ width: `${total === 0 ? 0 : (confirmada / total) * 100}%` }}
           />
           <div 
             className="bg-revenue-at-risk transition-all duration-500"
-            style={{ width: `${(emRisco / total) * 100}%` }}
+            style={{ width: `${total === 0 ? 0 : (emRisco / total) * 100}%` }}
           />
           <div 
             className="bg-revenue-paused transition-all duration-500"
-            style={{ width: `${(parada / total) * 100}%` }}
+            style={{ width: `${total === 0 ? 0 : (parada / total) * 100}%` }}
           />
           <div 
             className="bg-revenue-recoverable transition-all duration-500"
-            style={{ width: `${(recuperavel / total) * 100}%` }}
+            style={{ width: `${total === 0 ? 0 : (recuperavel / total) * 100}%` }}
           />
         </div>
       </div>

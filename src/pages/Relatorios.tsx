@@ -127,7 +127,7 @@ export default function Relatorios() {
     const meses = ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'];
     return meses.map(mes => {
       // Simulado: dividir o faturamento por mês
-      const faturado = Math.round((metrics.totalFaturamento / 7) + (Math.random() * 5000));
+      const faturado = Math.round(metrics.totalFaturamento / 7);
       return {
         mes,
         faturado,
@@ -170,12 +170,12 @@ export default function Relatorios() {
       });
     });
     
-    const data = Array.from(procedures.entries()).map(([nome, valor]) => ({
+    const data = Array.from(procedures.entries()).map(([nome, valor], idx) => ({
       nome,
       valor,
-      quantidade: Math.round(Math.random() * 50) + 10,
-      ticketMedio: Math.round(Math.random() * 2000) + 500,
-      cor: `hsl(${Math.random() * 60 + 160}, 70%, 50%)`
+      quantidade: 0,
+      ticketMedio: valor > 0 ? valor : 0,
+      cor: `hsl(${(idx * 40 + 160) % 360}, 70%, 50%)`
     })).slice(0, 5);
     
     return data.length > 0 ? data : [];
