@@ -25,29 +25,20 @@ export const DashboardLayout = ({
       {/* Mobile overlay */}
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/50 z-[60]"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div
-        className={
-          isMobile
-            ? `fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ${
-                sidebarOpen ? "translate-x-0" : "-translate-x-full"
-              }`
-            : ""
-        }
-      >
-        <Sidebar
-          activeSection={activeSection}
-          onSectionChange={(section) => {
-            onSectionChange?.(section);
-            if (isMobile) setSidebarOpen(false);
-          }}
-        />
-      </div>
+      <Sidebar
+        activeSection={activeSection}
+        onSectionChange={(section) => {
+          onSectionChange?.(section);
+          if (isMobile) setSidebarOpen(false);
+        }}
+        mobileOpen={isMobile ? sidebarOpen : undefined}
+      />
 
       {/* Content */}
       <div className={`flex-1 ${isMobile ? "" : "ml-64"} ${contentClassName}`}>
@@ -55,7 +46,9 @@ export const DashboardLayout = ({
         {isMobile && (
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card border border-border shadow-md"
+            className={`fixed top-4 left-4 p-2 rounded-lg bg-card border border-border shadow-md transition-colors ${
+              sidebarOpen ? "z-[80]" : "z-50"
+            }`}
             aria-label="Menu"
           >
             {sidebarOpen ? (
