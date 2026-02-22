@@ -1,100 +1,104 @@
 
 
-# Analise Geral - O que Falta para Colocar no Ar
+# Analise Completa - Perspectiva de Dono de Clinica
 
-## Status Atual
+## BUGS ENCONTRADOS (Problemas Reais Quebrando o Sistema)
 
-O projeto DermaCore esta bem estruturado com landing page, autenticacao, dashboard, modulos operacionais e integracao Stripe. Porem, apos uma analise detalhada, identifiquei itens criticos e melhorias necessarias antes do lancamento.
+### 1. "NaN% do total" no Dashboard (VISIVEL AGORA)
+Quando nao ha orcamentos no sistema, o card de Receita Potencial mostra **"NaN% do total"** em todos os 4 indicadores (Confirmada, Em Risco, Parada, Recuperavel). Isso acontece porque o componente `MetricaReceita` calcula `(valor / total) * 100` onde `total = 0`, causando divisao por zero.
 
----
+- **Arquivo**: `src/components/dashboard/MetricaReceita.tsx`, linhas 69 e 74
+- **Correcao**: Adicionar verificacao `total === 0 ? 0 : (valor / total) * 100` em cada `RevenueCard`
 
-## 1. CRITICO - Corrigir Antes de Lançar
+### 2. Barra de progresso da receita tambem quebra com total = 0
+Na mesma logica, as barras de progresso (linhas 97-109) tambem calculam `(valor / total) * 100` resultando em `NaN%` nos `width` do CSS.
 
-### 1.1 Dados Mock em Telas Internas
-As telas internas (Dashboard, Financeiro, Relatorios, WhatsApp, Notificacoes) usam **dados ficticios hardcoded** em vez de dados reais do banco. Isso significa que:
-- O dashboard mostra receita fixa de R$185.000 que nunca muda
-- As notificacoes sao mock (nao persistem nem sao reais)
-- Financeiro, Relatorios e WhatsApp mostram dados inventados
+### 3. WhatsApp inutilizavel no mobile
+A pagina WhatsApp mostra a lista de conversas E o chat lado a lado em mobile (390px), com ambos visiveis mas cortados. O painel de contexto (w-80) fica completamente fora da tela. O resultado e que nenhuma funcionalidade e usavel em celular.
 
-**Acao**: Conectar todas as telas aos dados reais do banco via hooks existentes (useLeads, useAppointments, usePatients, etc.)
+- **Arquivo**: `src/pages/WhatsApp.tsx`
+- **Correcao**: No mobile, mostrar apenas a lista de conversas. Ao clicar, mostrar o chat em tela cheia com botao de voltar.
 
-### 1.2 Tabela `plans` sem `stripe_price_id`
-O campo `features` da tabela `plans` e um array de strings com nomes de features. O webhook do Stripe tenta encontrar planos via `features.stripe_price_id`, mas esse campo nao existe. Os Price IDs do Stripe estao hardcoded apenas na Edge Function `create-checkout`.
+### 4. Sidebar mostra badges hardcoded
+A sidebar mostra `12` em Leads e `5` em WhatsApp, mas esses numeros sao **hardcoded** (linhas 74-75 de `Sidebar.tsx`), nao refletem dados reais. Um dono de clinica veria "12 leads" mesmo com 0 leads no sistema.
 
-**Acao**: Adicionar coluna `stripe_price_id` na tabela `plans` ou salvar no campo `features` como JSON, para que o webhook consiga mapear corretamente.
-
-### 1.3 Seguranca - Dados de Pacientes Expostos
-O scan de seguranca identificou:
-- Tabela `patients` com dados medicos sensiveis (historico, CPF) acessiveis a **todos** os membros da clinica
-- Tabela `appointments` com notas clinicas visiveis a staff nao autorizado
-
-**Acao**: Implementar politicas RLS baseadas em role (admin vs staff) para restringir acesso a dados sensiveis.
-
-### 1.4 URLs Hardcoded nas Edge Functions
-As funcoes `create-checkout` e `customer-portal` tem URLs de fallback hardcoded apontando para o preview do Lovable. Em producao, isso quebraria os redirecionamentos.
-
-**Acao**: Usar o header `origin` da requisicao de forma consistente ou configurar uma variavel de ambiente com a URL de producao.
+- **Arquivo**: `src/components/layout/Sidebar.tsx`, linha 74-75
+- **Correcao**: Usar os hooks `useLeads` e contagem real, ou remover as badges
 
 ---
 
-## 2. IMPORTANTE - Necessario para uma Boa Experiencia
+## PROBLEMAS DE UX (Confusos para o Dono da Clinica)
 
-### 2.1 Sidebar sem Responsividade Mobile
-A sidebar e fixa com `w-64` e `ml-64` em todas as paginas. Em dispositivos moveis, o app fica inutilizavel.
+### 5. Financeiro calcula despesas como 41% fixo da receita
+O modulo Financeiro (linha 110) calcula `despesasTotal = receitaTotal * 0.41` - um percentual inventado. Nao existe tabela de despesas no banco. O dono da clinica veria despesas falsas.
 
-**Acao**: Implementar sidebar colapsavel com menu hamburger para mobile.
+### 6. Relatorios usa Math.random() para dados
+A pagina Relatorios (linhas 130, 176-177) usa `Math.random()` para gerar dados de faturamento por periodo e por procedimento. Cada vez que o usuario navega, os numeros mudam aleatoriamente.
 
-### 2.2 Recuperacao de Senha
-Nao existe fluxo de "Esqueci minha senha" na tela de login.
+### 7. Configuracoes - botoes que nao funcionam
+- **"Alterar Logo"** (linha 384): botao sem funcionalidade de upload
+- **"API Key"** (linha 172): mostra `sk_live_xxxxxxxxxxxxxxxxxxxxx` falso
+- **Cor Principal** (linhas 394-400): botoes de cor nao salvam nem aplicam nada
+- **Integracoes** (linhas 71-78): mostram status "conectado" para WhatsApp, Google Calendar e Stripe, mas nenhuma integracao real existe
 
-**Acao**: Adicionar link e fluxo de reset de senha via email.
+### 8. Automacoes e inteiramente mockada
+Toda a pagina de Automacoes usa dados ficticios hardcoded (fluxos, metricas, sequencias). O botao "Criar Automacao" nao faz nada.
 
-### 2.3 Leaked Password Protection Desabilitada
-O linter do banco identificou que a protecao contra senhas vazadas esta desativada.
+### 9. Links quebrados no Footer
+Os links para `/termos`, `/privacidade`, `blog.dermacore.com`, `docs.dermacore.com` e `status.dermacore.com` levam a paginas 404 ou dominios inexistentes.
 
-**Acao**: Ativar nas configuracoes de autenticacao.
-
-### 2.4 Dominio Customizado
-O app esta rodando apenas no subdominio do Lovable. Para uso comercial, e necessario conectar um dominio proprio (ex: app.dermacore.com.br).
-
----
-
-## 3. DESEJAVEL - Melhorias para Apos o Lancamento
-
-### 3.1 Paginas com Conteudo de Demonstracao
-Automacoes, WhatsApp e Pos-Procedimento funcionam como mockups visuais sem integracao real. Sao boas para demonstracao, mas precisarao de backend real para funcionar.
-
-### 3.2 Upload de Logo Real
-O botao "Alterar Logo" nas configuracoes nao tem funcionalidade real de upload de arquivo.
-
-### 3.3 Notificacoes Reais
-Substituir as notificacoes mock por um sistema real (possivelmente usando Realtime do banco).
-
-### 3.4 Termos de Servico e Politica de Privacidade
-A tela de login menciona "Termos de Servico e Politica de Privacidade" mas nao ha link nem paginas reais.
+### 10. WhatsApp nao envia mensagens reais
+A funcao `handleSendMessage` (linha 118-122) abre `wa.me/5511999990000` com a mensagem - um numero generico que nao pertence a ninguem. Nao e uma integracao real com WhatsApp Business API.
 
 ---
 
-## Resumo de Prioridades
+## O QUE FUNCIONA BEM
 
-| Prioridade | Item | Esforco |
-|---|---|---|
-| Critico | Mapear stripe_price_id nos planos | Baixo |
-| Critico | Corrigir URLs hardcoded | Baixo |
-| Critico | Seguranca de dados de pacientes (RLS) | Medio |
-| Critico | Conectar dashboard a dados reais | Alto |
-| Importante | Layout responsivo mobile | Medio |
-| Importante | Fluxo de recuperacao de senha | Baixo |
-| Importante | Dominio customizado | Configuracao |
-| Desejavel | Upload de logo | Medio |
-| Desejavel | Notificacoes reais | Alto |
-| Desejavel | Termos e politica de privacidade | Baixo |
+- Cadastro de leads, pacientes, procedimentos e orcamentos (CRUD real com banco de dados)
+- Pipeline de leads no dashboard (dados reais)
+- Alertas e insights baseados em dados reais
+- Metrica de receita potencial baseada em orcamentos reais
+- Fluxo de autenticacao (email, Google, Apple, recuperacao de senha)
+- Configuracoes da clinica (salva no banco)
+- Convites de equipe
+- Layout responsivo da maioria das paginas
+- Planos e checkout com Stripe (configurado corretamente)
 
 ---
 
-## Recomendacao
+## PLANO DE CORRECAO (Priorizado)
 
-Sugiro comecar pelos itens **criticos** na ordem: (1) corrigir o mapeamento de stripe_price_id, (2) corrigir URLs hardcoded, (3) ajustar RLS de seguranca, e depois (4) conectar o dashboard aos dados reais. Isso garante que o fluxo de pagamento funcione corretamente e que os dados dos pacientes estejam protegidos.
+### Fase 1 - Bugs Criticos (Corrigir Imediatamente)
 
-Quer que eu comece por algum desses itens?
+1. **Corrigir NaN% no MetricaReceita** - Adicionar guard `total === 0` na divisao
+2. **Remover badges hardcoded da Sidebar** - Usar dados reais ou remover
+3. **Corrigir WhatsApp mobile** - Layout condicional: lista OU chat, nao ambos
+
+### Fase 2 - Remover Dados Falsos
+
+4. **Financeiro** - Remover calculo ficticio de despesas (41%), mostrar apenas receita real de orcamentos aprovados
+5. **Relatorios** - Remover Math.random(), calcular dados reais a partir de orcamentos e leads
+6. **Automacoes** - Adicionar estado vazio ("em breve") em vez de dados inventados
+
+### Fase 3 - Funcionalidades Faltantes
+
+7. **Paginas de Termos e Privacidade** - Criar paginas basicas ou remover links
+8. **Upload de logo** - Implementar upload real usando storage
+9. **Remover integracoes falsas** - Mostrar status real ou "nao configurado"
+
+---
+
+## Detalhes Tecnicos
+
+| Bug | Arquivo | Linha(s) | Tipo |
+|---|---|---|---|
+| NaN% do total | MetricaReceita.tsx | 69, 74, 97-109 | Divisao por zero |
+| Badges hardcoded | Sidebar.tsx | 74-75 | Mock data |
+| WhatsApp mobile | WhatsApp.tsx | 155-310 | Layout |
+| Despesas 41% | Financeiro.tsx | 110 | Mock calc |
+| Math.random() | Relatorios.tsx | 130, 176-177 | Mock data |
+| Links 404 | FooterSection.tsx | 138, 152 | Missing routes |
+| Logo upload | Configuracoes.tsx | 384 | Not implemented |
+| Integracoes falsas | Configuracoes.tsx | 71-78 | Mock status |
+| Automacoes mock | Automacoes.tsx | 41+ | All mock data |
 
