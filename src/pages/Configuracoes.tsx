@@ -69,12 +69,12 @@ const templatesWhatsApp = [
 
 // Integrações disponíveis
 const integracoes = [
-  { id: "whatsapp", nome: "WhatsApp Business", icone: MessageCircle, status: "conectado", descricao: "Envio automático de mensagens", cor: "text-green-500" },
-  { id: "google", nome: "Google Calendar", icone: Calendar, status: "conectado", descricao: "Sincronização de agenda", cor: "text-blue-500" },
-  { id: "instagram", nome: "Instagram", icone: Instagram, status: "pendente", descricao: "Captura de leads do DM", cor: "text-pink-500" },
-  { id: "facebook", nome: "Facebook Leads", icone: Facebook, status: "desconectado", descricao: "Integração com formulários", cor: "text-blue-600" },
-  { id: "stripe", nome: "Stripe", icone: CreditCard, status: "conectado", descricao: "Processamento de pagamentos", cor: "text-purple-500" },
-  { id: "zapier", nome: "Zapier", icone: Zap, status: "desconectado", descricao: "Automações avançadas", cor: "text-orange-500" },
+  { id: "whatsapp", nome: "WhatsApp Business", icone: MessageCircle, status: "não configurado", descricao: "Envio automático de mensagens", cor: "text-green-500" },
+  { id: "google", nome: "Google Calendar", icone: Calendar, status: "não configurado", descricao: "Sincronização de agenda", cor: "text-blue-500" },
+  { id: "instagram", nome: "Instagram", icone: Instagram, status: "não configurado", descricao: "Captura de leads do DM", cor: "text-pink-500" },
+  { id: "facebook", nome: "Facebook Leads", icone: Facebook, status: "não configurado", descricao: "Integração com formulários", cor: "text-blue-600" },
+  { id: "stripe", nome: "Stripe", icone: CreditCard, status: "não configurado", descricao: "Processamento de pagamentos", cor: "text-purple-500" },
+  { id: "zapier", nome: "Zapier", icone: Zap, status: "não configurado", descricao: "Automações avançadas", cor: "text-orange-500" },
 ];
 
 export default function Configuracoes() {
@@ -170,8 +170,7 @@ export default function Configuracoes() {
   };
 
   const handleCopyApiKey = () => {
-    navigator.clipboard.writeText("sk_live_xxxxxxxxxxxxxxxxxxxxx");
-    toast.success("API Key copiada!");
+    toast.info("API Key não configurada. Configure suas integrações primeiro.");
   };
 
   if (isLoading) {
@@ -381,7 +380,7 @@ export default function Configuracoes() {
                     <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center">
                       <Building2 className="w-16 h-16 text-white" />
                     </div>
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2" onClick={() => toast.info("Upload de logo será disponibilizado em breve.")}>
                       <Upload className="w-4 h-4" />
                       Alterar Logo
                     </Button>
@@ -391,15 +390,7 @@ export default function Configuracoes() {
 
                   <div className="space-y-4">
                     <Label>Cor Principal</Label>
-                    <div className="flex gap-2">
-                      {["#0D9488", "#6366F1", "#EC4899", "#F59E0B", "#10B981"].map((cor) => (
-                        <button
-                          key={cor}
-                          className="w-10 h-10 rounded-full border-2 border-transparent hover:border-foreground/20 transition-colors"
-                          style={{ backgroundColor: cor }}
-                        />
-                      ))}
-                    </div>
+                    <p className="text-sm text-muted-foreground">Personalização de cores será disponibilizada em breve.</p>
                   </div>
 
                   <div className="space-y-4">

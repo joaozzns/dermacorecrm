@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   MessageCircle, 
@@ -104,6 +105,8 @@ const WhatsApp = () => {
   const [showTemplates, setShowTemplates] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showChat, setShowChat] = useState(false);
+  const isMobile = useIsMobile();
 
   const conversasFiltradas = conversas.filter(c => {
     const matchStatus = filtroStatus === "todos" || c.status === filtroStatus;
@@ -152,7 +155,7 @@ const WhatsApp = () => {
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection} contentClassName="flex">
       <>
         {/* Lista de Conversas */}
-        <div className="w-72 md:w-96 border-r border-border flex flex-col bg-card shrink-0">
+        <div className={cn("w-full md:w-96 border-r border-border flex flex-col bg-card shrink-0", isMobile && showChat && "hidden")}>
           {/* Header */}
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between mb-4">
@@ -206,17 +209,25 @@ const WhatsApp = () => {
                 key={conversa.id}
                 conversa={conversa}
                 selecionada={conversaSelecionada.id === conversa.id}
-                onClick={() => setConversaSelecionada(conversa)}
+                onClick={() => {
+                  setConversaSelecionada(conversa);
+                  if (isMobile) setShowChat(true);
+                }}
               />
             ))}
           </ScrollArea>
         </div>
 
         {/* Chat Principal */}
-        <div className="flex-1 flex flex-col">
+        <div className={cn("flex-1 flex flex-col", isMobile && !showChat && "hidden")}>
           {/* Header do Chat */}
           <div className="p-4 border-b border-border bg-card flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {isMobile && (
+                <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} className="mr-1">
+                  <ChevronRight className="w-5 h-5 rotate-180" />
+                </Button>
+              )}
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center text-white font-semibold">
                 {conversaSelecionada.avatar}
               </div>
@@ -310,7 +321,7 @@ const WhatsApp = () => {
         </div>
 
         {/* Painel de Contexto do Paciente */}
-        <div className="w-80 border-l border-border bg-card p-4 overflow-y-auto">
+        <div className={cn("w-80 border-l border-border bg-card p-4 overflow-y-auto", isMobile && "hidden")}>
           <div className="text-center mb-6">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-3">
               {conversaSelecionada.avatar}

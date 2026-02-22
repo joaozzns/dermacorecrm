@@ -74,14 +74,12 @@ export const FooterSection = () => {
                 </button>
               </li>
               <li>
-                <a 
-                  href="https://blog.dermacore.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={() => scrollToSection('features')} 
                   className="hover:text-primary transition-colors"
                 >
                   Blog
-                </a>
+                </button>
               </li>
               <li>
                 <a 
@@ -116,9 +114,7 @@ export const FooterSection = () => {
               </li>
               <li>
                 <a 
-                  href="https://docs.dermacore.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                  href="mailto:suporte@dermacore.com" 
                   className="hover:text-primary transition-colors"
                 >
                   Documentação
@@ -126,18 +122,19 @@ export const FooterSection = () => {
               </li>
               <li>
                 <a 
-                  href="https://status.dermacore.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                  href="mailto:suporte@dermacore.com" 
                   className="hover:text-primary transition-colors"
                 >
                   Status
                 </a>
               </li>
               <li>
-                <Link to="/termos" className="hover:text-primary transition-colors">
+                <a 
+                  href="mailto:suporte@dermacore.com" 
+                  className="hover:text-primary transition-colors"
+                >
                   Termos de Uso
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -149,12 +146,12 @@ export const FooterSection = () => {
             © {currentYear} DermaCore. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-sidebar-foreground/50">
-            <Link to="/privacidade" className="hover:text-primary transition-colors">
+            <a href="mailto:suporte@dermacore.com" className="hover:text-primary transition-colors">
               Privacidade
-            </Link>
-            <Link to="/termos" className="hover:text-primary transition-colors">
+            </a>
+            <a href="mailto:suporte@dermacore.com" className="hover:text-primary transition-colors">
               Termos
-            </Link>
+            </a>
             <button 
               onClick={() => {
                 // Simple cookie consent acknowledgment

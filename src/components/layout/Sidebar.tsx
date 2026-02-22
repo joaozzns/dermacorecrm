@@ -70,11 +70,11 @@ export const Sidebar = ({ activeSection, onSectionChange, mobileOpen }: SidebarP
   const { profile, signOut } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
   
-  const navItems = [
+  const navItems: { id: string; path: string; icon: React.ReactNode; label: string; badge?: string | number }[] = [
     { id: "dashboard", path: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Dashboard" },
-    { id: "leads", path: "/leads", icon: <Users className="w-5 h-5" />, label: "Leads", badge: 12 },
+    { id: "leads", path: "/leads", icon: <Users className="w-5 h-5" />, label: "Leads" },
     { id: "agenda", path: "/agenda", icon: <Calendar className="w-5 h-5" />, label: "Agenda" },
-    { id: "whatsapp", path: "/whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp", badge: 5 },
+    { id: "whatsapp", path: "/whatsapp", icon: <MessageCircle className="w-5 h-5" />, label: "WhatsApp" },
     { id: "followup", path: "/followup", icon: <RefreshCw className="w-5 h-5" />, label: "Follow-up" },
     { id: "pos-procedimento", path: "/pos-procedimento", icon: <Heart className="w-5 h-5" />, label: "Pós-Procedimento" },
     { id: "procedimentos", path: "/procedimentos", icon: <Stethoscope className="w-5 h-5" />, label: "Procedimentos" },

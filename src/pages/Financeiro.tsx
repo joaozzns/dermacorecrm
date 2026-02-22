@@ -107,8 +107,8 @@ export default function Financeiro() {
     const receitaConfirmada = approved.reduce((sum, q) => sum + q.total, 0);
     const receitaPrevista = sent.reduce((sum, q) => sum + q.total, 0);
     const receitaTotal = receitaConfirmada + receitaPrevista;
-    const despesasTotal = receitaTotal * 0.41;
-    const saldoAtual = receitaTotal - despesasTotal;
+    const despesasTotal = 0; // Sem módulo de despesas configurado
+    const saldoAtual = receitaConfirmada;
     
     return { 
       receitaTotal, 
@@ -138,8 +138,8 @@ export default function Financeiro() {
       });
       
       const entradas = dayQuotes.reduce((sum, q) => sum + q.total, 0);
-      const saidas = entradas > 0 ? entradas * 0.35 : 0;
-      cumulativeSaldo += entradas - saidas;
+      const saidas = 0;
+      cumulativeSaldo += entradas;
       
       data.push({ data: dateStr, entradas, saidas, saldo: cumulativeSaldo });
     }
@@ -235,16 +235,15 @@ export default function Financeiro() {
             icon={<TrendingUp className="w-5 h-5 text-primary" />}
           />
           <MetricCard
-            title="Despesas"
-            value={formatCurrency(metrics.despesasTotal)}
-            change={-5.2}
-            trend="down"
-            icon={<TrendingDown className="w-5 h-5 text-primary" />}
+            title="Receita Confirmada"
+            value={formatCurrency(metrics.receitaConfirmada)}
+            subtitle="Orçamentos aprovados"
+            icon={<CheckCircle2 className="w-5 h-5 text-primary" />}
           />
           <MetricCard
-            title="Saldo Atual"
-            value={formatCurrency(metrics.saldoAtual)}
-            subtitle="Caixa + Banco"
+            title="Receita Prevista"
+            value={formatCurrency(metrics.sent.reduce((s, q) => s + q.total, 0))}
+            subtitle="Orçamentos enviados"
             icon={<Wallet className="w-5 h-5 text-primary" />}
           />
           <MetricCard
