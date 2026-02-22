@@ -61,9 +61,10 @@ const NavItem = ({ icon, label, active, badge, onClick }: NavItemProps) => (
 interface SidebarProps {
   activeSection?: string;
   onSectionChange?: (section: string) => void;
+  mobileOpen?: boolean;
 }
 
-export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
+export const Sidebar = ({ activeSection, onSectionChange, mobileOpen }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile, signOut } = useAuth();
@@ -102,7 +103,10 @@ export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
+    <aside className={cn(
+      "fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col transition-transform duration-200",
+      mobileOpen === undefined ? "z-50" : mobileOpen ? "z-[70] translate-x-0" : "z-[70] -translate-x-full"
+    )}>
       {/* Logo */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center justify-center cursor-pointer" onClick={() => navigate("/dashboard")}>
