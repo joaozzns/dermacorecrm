@@ -242,12 +242,12 @@ export default function PosProcedimento() {
 
   return (
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
-      <main className="p-8">
+      <main className="p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 md:mb-8 ml-12 md:ml-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Pós-Procedimento</h1>
-            <p className="text-muted-foreground">Acompanhamento e satisfação de pacientes</p>
+            <h1 className="text-lg md:text-2xl font-bold text-foreground">Pós-Procedimento</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Acompanhamento e satisfação de pacientes</p>
           </div>
           <NovaOrientacaoDialog />
         </div>

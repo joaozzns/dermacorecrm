@@ -181,32 +181,32 @@ const Leads = () => {
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
       <div className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-4 md:px-8 py-4">
+            <div className="flex items-center gap-3 ml-12 md:ml-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Leads</h1>
-                <p className="text-sm text-muted-foreground">Gerencie e converta seus leads em clientes</p>
+                <h1 className="text-lg md:text-2xl font-bold text-foreground">Leads</h1>
+                <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Gerencie e converta seus leads em clientes</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="relative">
+            <div className="flex items-center gap-2 md:gap-4 overflow-x-auto">
+              <div className="relative shrink-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Buscar lead..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-40 md:w-64 pl-10 pr-4 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
               
               <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-28 md:w-40 shrink-0">
                   <SelectValue placeholder="Origem" />
                 </SelectTrigger>
                 <SelectContent>
@@ -222,9 +222,9 @@ const Leads = () => {
               
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <button className="btn-premium flex items-center gap-2 text-white text-sm py-2">
+                  <button className="btn-premium flex items-center gap-2 text-white text-sm py-2 shrink-0">
                     <Plus className="w-4 h-4" />
-                    Novo Lead
+                    <span className="hidden md:inline">Novo Lead</span>
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -308,9 +308,9 @@ const Leads = () => {
           </div>
         </header>
 
-        <main className="p-8">
+        <main className="p-4 md:p-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Total de Leads</span>

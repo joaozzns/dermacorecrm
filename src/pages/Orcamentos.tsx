@@ -100,10 +100,10 @@ const Orcamentos = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Orçamentos</h1>
-          <p className="text-muted-foreground">Gerencie os orçamentos dos seus clientes</p>
+      <div className="flex-1 p-4 md:p-8">
+        <div className="mb-6 md:mb-8 ml-12 md:ml-0">
+          <h1 className="text-xl md:text-3xl font-bold text-foreground mb-2">Orçamentos</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">Gerencie os orçamentos dos seus clientes</p>
         </div>
 
         {/* Stats */}

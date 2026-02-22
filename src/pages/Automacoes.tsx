@@ -239,16 +239,16 @@ export default function Automacoes() {
 
   return (
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
-      <main className="p-8">
+      <main className="p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 md:mb-8 ml-12 md:ml-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Automações</h1>
-            <p className="text-muted-foreground">Fluxos automáticos de comunicação</p>
+            <h1 className="text-lg md:text-2xl font-bold text-foreground">Automações</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Fluxos automáticos de comunicação</p>
           </div>
           <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => alert("Criação de nova automação em desenvolvimento!")}>
             <Plus className="w-4 h-4" />
-            Nova Automação
+            <span className="hidden md:inline">Nova Automação</span>
           </Button>
         </div>
 

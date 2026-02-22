@@ -189,12 +189,12 @@ export default function Configuracoes() {
 
   return (
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
-      <main className="p-8">
+      <main className="p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 md:mb-8 ml-12 md:ml-0">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-            <p className="text-muted-foreground">Personalize sua clínica e integrações</p>
+            <h1 className="text-lg md:text-2xl font-bold text-foreground">Configurações</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Personalize sua clínica e integrações</p>
           </div>
           <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-primary hover:bg-primary/90">
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
