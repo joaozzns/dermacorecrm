@@ -60,7 +60,7 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30 pt-24">
+    <section className="relative min-h-[85vh] max-h-[900px] flex flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-background via-background to-secondary/30 pt-24">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
