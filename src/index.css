@@ -7,109 +7,110 @@
 
 @layer base {
   :root {
-    /* Core Brand - Deep Teal (Medical Trust) */
-    --primary: 172 66% 28%;
-    --primary-foreground: 0 0% 100%;
+    /* Core Brand - Forest Teal #3E5F55 */
+    --primary: 162 21% 31%;
+    --primary-foreground: 60 14% 96%;
     
-    /* Background System */
-    --background: 200 20% 98%;
-    --foreground: 200 25% 10%;
+    /* Background System - Off White #F6F6F4 */
+    --background: 60 14% 96%;
+    --foreground: 0 0% 16%;
     
     /* Card Surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 200 25% 10%;
+    --card-foreground: 0 0% 16%;
     
-    /* Muted Elements */
-    --muted: 200 15% 94%;
-    --muted-foreground: 200 10% 45%;
+    /* Muted Elements - Warm Beige #E8DED2 */
+    --muted: 33 31% 87%;
+    --muted-foreground: 0 0% 40%;
     
-    /* Secondary Surfaces */
-    --secondary: 172 30% 95%;
-    --secondary-foreground: 172 66% 25%;
+    /* Secondary - Sage Green #8FAF9D */
+    --secondary: 146 16% 62%;
+    --secondary-foreground: 0 0% 100%;
     
-    /* Accent - Warm Gold (Financial Success) */
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Sage Green lighter */
+    --accent: 146 16% 92%;
+    --accent-foreground: 162 21% 31%;
     
     /* Revenue Status Colors */
-    --revenue-confirmed: 160 60% 40%;
-    --revenue-confirmed-bg: 160 60% 95%;
-    --revenue-at-risk: 35 90% 50%;
-    --revenue-at-risk-bg: 35 90% 95%;
-    --revenue-paused: 200 20% 55%;
-    --revenue-paused-bg: 200 20% 95%;
-    --revenue-recoverable: 172 66% 35%;
-    --revenue-recoverable-bg: 172 66% 95%;
-    --revenue-lost: 0 70% 55%;
-    --revenue-lost-bg: 0 70% 95%;
+    --revenue-confirmed: 146 30% 42%;
+    --revenue-confirmed-bg: 146 20% 94%;
+    --revenue-at-risk: 33 70% 50%;
+    --revenue-at-risk-bg: 33 50% 94%;
+    --revenue-paused: 146 10% 55%;
+    --revenue-paused-bg: 146 10% 94%;
+    --revenue-recoverable: 162 21% 38%;
+    --revenue-recoverable-bg: 162 15% 94%;
+    --revenue-lost: 0 55% 50%;
+    --revenue-lost-bg: 0 40% 95%;
     
     /* UI Elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 200 25% 10%;
-    --border: 200 20% 90%;
-    --input: 200 20% 90%;
-    --ring: 172 66% 28%;
+    --popover-foreground: 0 0% 16%;
+    --border: 33 20% 88%;
+    --input: 33 20% 88%;
+    --ring: 162 21% 31%;
     
     /* Destructive */
-    --destructive: 0 70% 55%;
+    --destructive: 0 55% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Sidebar - Premium Dark */
-    --sidebar-background: 200 30% 8%;
-    --sidebar-foreground: 200 10% 75%;
-    --sidebar-primary: 172 66% 45%;
+    /* Sidebar - Dark #2A2A2A */
+    --sidebar-background: 0 0% 16%;
+    --sidebar-foreground: 33 20% 80%;
+    --sidebar-primary: 146 16% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 30% 15%;
-    --sidebar-accent-foreground: 200 10% 90%;
-    --sidebar-border: 200 30% 15%;
-    --sidebar-ring: 172 66% 45%;
+    --sidebar-accent: 0 0% 22%;
+    --sidebar-accent-foreground: 60 14% 96%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 146 16% 62%;
     
     /* Radius */
     --radius: 0.75rem;
     
     /* Premium Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(172 66% 28%), hsl(172 66% 38%));
-    --gradient-gold: linear-gradient(135deg, hsl(38 92% 50%), hsl(42 95% 55%));
-    --gradient-success: linear-gradient(135deg, hsl(160 60% 40%), hsl(160 60% 50%));
-    --gradient-dark: linear-gradient(180deg, hsl(200 30% 8%), hsl(200 30% 5%));
+    --gradient-primary: linear-gradient(135deg, hsl(162 21% 31%), hsl(146 16% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(33 50% 55%), hsl(33 60% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(146 30% 42%), hsl(146 25% 52%));
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 16%), hsl(0 0% 12%));
     
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(200 30% 8% / 0.03);
-    --shadow-md: 0 4px 6px -1px hsl(200 30% 8% / 0.05), 0 2px 4px -2px hsl(200 30% 8% / 0.03);
-    --shadow-lg: 0 10px 15px -3px hsl(200 30% 8% / 0.08), 0 4px 6px -4px hsl(200 30% 8% / 0.03);
-    --shadow-xl: 0 20px 25px -5px hsl(200 30% 8% / 0.1), 0 8px 10px -6px hsl(200 30% 8% / 0.05);
-    --shadow-glow: 0 0 20px hsl(172 66% 45% / 0.15);
-    --shadow-gold: 0 0 20px hsl(38 92% 50% / 0.2);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 16% / 0.03);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 16% / 0.05), 0 2px 4px -2px hsl(0 0% 16% / 0.03);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 16% / 0.08), 0 4px 6px -4px hsl(0 0% 16% / 0.03);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 16% / 0.1), 0 8px 10px -6px hsl(0 0% 16% / 0.05);
+    --shadow-glow: 0 0 20px hsl(146 16% 62% / 0.2);
+    --shadow-gold: 0 0 20px hsl(33 50% 55% / 0.2);
   }
 
   .dark {
-    --background: 200 30% 5%;
-    --foreground: 200 10% 95%;
-    --card: 200 30% 8%;
-    --card-foreground: 200 10% 95%;
-    --muted: 200 30% 12%;
-    --muted-foreground: 200 10% 60%;
-    --secondary: 200 30% 12%;
-    --secondary-foreground: 200 10% 90%;
-    --popover: 200 30% 8%;
-    --popover-foreground: 200 10% 95%;
-    --border: 200 30% 15%;
-    --input: 200 30% 15%;
+    --background: 0 0% 12%;
+    --foreground: 60 14% 96%;
+    --card: 0 0% 16%;
+    --card-foreground: 60 14% 96%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 33 15% 65%;
+    --secondary: 146 12% 25%;
+    --secondary-foreground: 60 14% 96%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 60 14% 96%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
     
     /* Revenue Status Colors - Dark Mode */
-    --revenue-confirmed: 160 60% 50%;
-    --revenue-confirmed-bg: 160 40% 12%;
-    --revenue-at-risk: 35 90% 55%;
-    --revenue-at-risk-bg: 35 50% 12%;
-    --revenue-paused: 200 20% 60%;
-    --revenue-paused-bg: 200 25% 12%;
-    --revenue-recoverable: 172 66% 45%;
-    --revenue-recoverable-bg: 172 40% 12%;
-    --revenue-lost: 0 70% 55%;
-    --revenue-lost-bg: 0 40% 12%;
+    --revenue-confirmed: 146 30% 50%;
+    --revenue-confirmed-bg: 146 20% 14%;
+    --revenue-at-risk: 33 70% 55%;
+    --revenue-at-risk-bg: 33 40% 14%;
+    --revenue-paused: 146 10% 55%;
+    --revenue-paused-bg: 146 10% 14%;
+    --revenue-recoverable: 162 21% 45%;
+    --revenue-recoverable-bg: 162 15% 14%;
+    --revenue-lost: 0 55% 55%;
+    --revenue-lost-bg: 0 35% 14%;
     
     /* Accent adjustment */
-    --accent: 38 92% 55%;
+    --accent: 146 16% 30%;
+    --accent-foreground: 60 14% 96%;
   }
 }
 
