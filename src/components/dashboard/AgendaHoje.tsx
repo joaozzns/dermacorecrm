@@ -14,10 +14,28 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const AgendaHoje = () => {
-  const today = new Date();
-  const { appointments, isLoading } = useAppointments(today);
+// Demo appointments
+const today = new Date();
+const makeDemoTime = (h: number, m: number) => {
+  const d = new Date(today); d.setHours(h, m, 0, 0); return d.toISOString();
+};
+
+const DEMO_APPOINTMENTS: Appointment[] = [
+  { id: '1', title: 'Harmonização Facial', start_time: makeDemoTime(9, 0), end_time: makeDemoTime(10, 0), status: 'confirmado', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '1', full_name: 'Ana Silva', phone: '' }, profiles: { id: '1', full_name: 'Dra. Renata' } },
+  { id: '2', title: 'Botox', start_time: makeDemoTime(10, 30), end_time: makeDemoTime(11, 0), status: 'confirmado', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '2', full_name: 'Carlos Santos', phone: '' }, profiles: { id: '1', full_name: 'Dra. Renata' } },
+  { id: '3', title: 'Preenchimento Labial', start_time: makeDemoTime(11, 30), end_time: makeDemoTime(12, 30), status: 'agendado', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '3', full_name: 'Maria Oliveira', phone: '' }, profiles: { id: '1', full_name: 'Dra. Renata' } },
+  { id: '4', title: 'Limpeza de Pele', start_time: makeDemoTime(14, 0), end_time: makeDemoTime(15, 0), status: 'confirmado', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '4', full_name: 'Juliana Costa', phone: '' }, profiles: { id: '2', full_name: 'Dr. Marcos' } },
+  { id: '5', title: 'Avaliação', start_time: makeDemoTime(15, 30), end_time: makeDemoTime(16, 0), status: 'agendado', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '5', full_name: 'Patricia Mendes', phone: '' }, profiles: { id: '1', full_name: 'Dra. Renata' } },
+  { id: '6', title: 'Peeling', start_time: makeDemoTime(16, 30), end_time: makeDemoTime(17, 30), status: 'concluido', clinic_id: '', patient_id: '', professional_id: null, notes: null, created_at: '', updated_at: '', patients: { id: '6', full_name: 'Fernanda Lima', phone: '' }, profiles: { id: '2', full_name: 'Dr. Marcos' } },
+];
+
+export const AgendaHoje = ({ isDemo = false }: { isDemo?: boolean }) => {
+  const todayDate = new Date();
+  const { appointments: realAppointments, isLoading: realLoading } = useAppointments(todayDate);
   const navigate = useNavigate();
+
+  const appointments = isDemo ? DEMO_APPOINTMENTS : realAppointments;
+  const isLoading = !isDemo && realLoading;
 
   if (isLoading) {
     return (

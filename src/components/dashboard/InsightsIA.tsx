@@ -12,15 +12,26 @@ interface Insight {
   impacto: 'alto' | 'medio' | 'baixo';
 }
 
-export const InsightsIA = () => {
-  const { leads, isLoading: leadsLoading } = useLeads();
-  const { appointments, isLoading: aptsLoading } = useAppointments();
+// Demo insights
+const DEMO_INSIGHTS: Insight[] = [
+  { id: 'demo-1', tipo: 'perda', titulo: 'Você perdeu R$ 15.200 este mês', descricao: '8 leads perdidos por falta de follow-up. Automatize mensagens para reduzir perdas.', impacto: 'alto' },
+  { id: 'demo-2', tipo: 'oportunidade', titulo: 'Harmonização gera 3x mais receita', descricao: 'Clientes de harmonização têm ticket médio 3x maior. Invista em campanhas focadas.', impacto: 'alto' },
+  { id: 'demo-3', tipo: 'tendencia', titulo: 'Taxa de conversão: 42%', descricao: '15 de 36 leads convertidos. Acima da média do setor (28%).', impacto: 'medio' },
+  { id: 'demo-4', tipo: 'alerta', titulo: '6 no-shows esta semana', descricao: 'Confirmação automática por WhatsApp pode reduzir faltas em até 60%.', impacto: 'alto' },
+];
 
-  const isLoading = leadsLoading || aptsLoading;
+export const InsightsIA = ({ isDemo = false }: { isDemo?: boolean }) => {
+  const { leads: realLeads, isLoading: leadsLoading } = useLeads();
+  const { appointments: realAppointments, isLoading: aptsLoading } = useAppointments();
+
+  const isLoading = !isDemo && (leadsLoading || aptsLoading);
+  const leads = isDemo ? [] : realLeads;
+  const appointments = isDemo ? [] : realAppointments;
 
   // Compute insights from real data
-  const insights: Insight[] = [];
+  const insights: Insight[] = isDemo ? DEMO_INSIGHTS : [];
 
+  if (!isDemo) {
   // Lost leads insight
   const lostLeads = leads.filter(l => l.status === 'perdido');
   if (lostLeads.length > 0) {
@@ -85,6 +96,7 @@ export const InsightsIA = () => {
       descricao: 'Com mais dados, a IA gerará insights personalizados para sua clínica.',
       impacto: 'baixo',
     });
+  }
   }
 
   if (isLoading) {
