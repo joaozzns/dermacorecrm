@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ interface ProfileDialogProps {
 export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
   const { user, profile } = useAuth();
   const [uploading, setUploading] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +68,36 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     }
   };
 
+  const handleRemovePhoto = async () => {
+    if (!user) return;
+    setRemoving(true);
+    try {
+      // List files in user folder and remove them
+      const { data: files } = await supabase.storage
+        .from("avatars")
+        .list(user.id);
+
+      if (files && files.length > 0) {
+        const paths = files.map(f => `${user.id}/${f.name}`);
+        await supabase.storage.from("avatars").remove(paths);
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: null })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setAvatarUrl(null);
+      toast.success("Foto removida com sucesso!");
+    } catch (err: any) {
+      toast.error("Erro ao remover foto: " + err.message);
+    } finally {
+      setRemoving(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
@@ -104,15 +135,30 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
             <p className="text-sm text-muted-foreground capitalize">{profile?.role || "staff"}</p>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Camera className="w-4 h-4 mr-2" />}
-            Alterar foto
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading || removing}
+            >
+              {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Camera className="w-4 h-4 mr-2" />}
+              Alterar foto
+            </Button>
+
+            {avatarUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRemovePhoto}
+                disabled={removing || uploading}
+                className="text-destructive hover:text-destructive"
+              >
+                {removing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                Remover
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
