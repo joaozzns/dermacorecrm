@@ -118,10 +118,6 @@ export const ContactForm = () => {
     <div className="p-6">
       {/* Header */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-4">
-          <Sparkles className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-medium text-primary">Atendimento Especializado</span>
-        </div>
         <h2 className="text-xl font-bold text-foreground mb-2">Fale com um Especialista</h2>
         <p className="text-sm text-muted-foreground">
           Preencha o formulário e nossa equipe entrará em contato
