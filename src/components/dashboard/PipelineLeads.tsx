@@ -28,9 +28,24 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const PipelineLeads = () => {
-  const { leads, isLoading } = useLeads();
+// Demo leads data
+const DEMO_LEADS: Lead[] = [
+  { id: '1', name: 'Ana Silva', phone: '11999999999', status: 'novo', source: 'Instagram', interest: 'Harmonização Facial', clinic_id: '', created_at: new Date(Date.now() - 2*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '2', name: 'Carlos Santos', phone: '11999999998', status: 'novo', source: 'WhatsApp', interest: 'Botox', clinic_id: '', created_at: new Date(Date.now() - 5*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '3', name: 'Maria Oliveira', phone: '11999999997', status: 'contatado', source: 'Instagram', interest: 'Preenchimento Labial', clinic_id: '', created_at: new Date(Date.now() - 24*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '4', name: 'Sonya B.', phone: '11999999996', status: 'contatado', source: 'Indicação', interest: 'Limpeza de Pele', clinic_id: '', created_at: new Date(Date.now() - 48*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '5', name: 'Juliana Costa', phone: '11999999995', status: 'qualificado', source: 'Google', interest: 'Microagulhamento', clinic_id: '', created_at: new Date(Date.now() - 72*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '6', name: 'Patricia Mendes', phone: '11999999994', status: 'qualificado', source: 'Instagram', interest: 'Peeling Químico', clinic_id: '', created_at: new Date(Date.now() - 96*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '7', name: 'Fernanda Lima', phone: '11999999993', status: 'agendado', source: 'Indicação', interest: 'Harmonização Facial', clinic_id: '', created_at: new Date(Date.now() - 120*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+  { id: '8', name: 'Roberta N.', phone: '11999999992', status: 'agendado', source: 'WhatsApp', interest: 'Procedimento Estético', clinic_id: '', created_at: new Date(Date.now() - 140*3600000).toISOString(), updated_at: '', notes: null, email: null, assigned_to: null, last_contact_at: null },
+];
+
+export const PipelineLeads = ({ isDemo = false }: { isDemo?: boolean }) => {
+  const { leads: realLeads, isLoading: realLoading } = useLeads();
   const navigate = useNavigate();
+
+  const leads = isDemo ? DEMO_LEADS : realLeads;
+  const isLoading = !isDemo && realLoading;
 
   // Only show active pipeline stages (exclude convertido/perdido)
   const activeLeads = leads.filter(l => !['convertido', 'perdido'].includes(l.status));

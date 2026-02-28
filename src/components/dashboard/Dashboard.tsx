@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MetricaReceita } from "./MetricaReceita";
 import { AlertasAcao } from "./AlertasAcao";
 import { PipelineLeads } from "./PipelineLeads";
@@ -24,9 +24,21 @@ const mockNotifications = [
   { id: 1, title: "Bem-vindo ao DermaCore!", description: "Configure sua clínica para começar", time: "agora", read: false },
 ];
 
+// Demo data for screenshots
+const DEMO_REVENUE = {
+  total: 185000,
+  confirmada: 98500,
+  emRisco: 28000,
+  parada: 32500,
+  recuperavel: 26000,
+  variacao: 12.3,
+};
+
 export const Dashboard = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
   const { quotes, isLoading: quotesLoading } = useQuotes();
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState(mockNotifications);
@@ -42,17 +54,20 @@ export const Dashboard = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Compute revenue metrics from quotes
+  // Compute revenue metrics from quotes (or use demo data)
   const approvedQuotes = quotes.filter(q => q.status === 'approved');
   const sentQuotes = quotes.filter(q => q.status === 'sent');
   const draftQuotes = quotes.filter(q => q.status === 'draft');
   const rejectedQuotes = quotes.filter(q => q.status === 'rejected');
 
-  const confirmada = approvedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
-  const emRisco = sentQuotes.reduce((sum, q) => sum + Number(q.total), 0);
-  const parada = draftQuotes.reduce((sum, q) => sum + Number(q.total), 0);
-  const recuperavel = rejectedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
-  const total = confirmada + emRisco + parada + recuperavel;
+  const confirmada = isDemo ? DEMO_REVENUE.confirmada : approvedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const emRisco = isDemo ? DEMO_REVENUE.emRisco : sentQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const parada = isDemo ? DEMO_REVENUE.parada : draftQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const recuperavel = isDemo ? DEMO_REVENUE.recuperavel : rejectedQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+  const total = isDemo ? DEMO_REVENUE.total : confirmada + emRisco + parada + recuperavel;
+  const variacao = isDemo ? DEMO_REVENUE.variacao : 0;
+
+  const demoName = isDemo ? "Dra. Renata" : (profile?.full_name?.split(' ')[0] || 'Usuário');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +87,7 @@ export const Dashboard = () => {
         <div className="flex items-center justify-between px-4 md:px-8 py-4">
           <div className="ml-12 md:ml-0">
             <h1 className="text-lg md:text-2xl font-bold text-foreground">
-              {greeting}, {profile?.full_name?.split(' ')[0] || 'Usuário'} 👋
+              {greeting}, {demoName} 👋
             </h1>
             <p className="text-xs md:text-sm text-muted-foreground capitalize">{formattedDate}</p>
           </div>
@@ -141,10 +156,10 @@ export const Dashboard = () => {
 
       {/* Content */}
       <main className="p-4 md:p-8 space-y-6">
-        <TrialBanner />
+        {!isDemo && <TrialBanner />}
 
         {/* Métrica Central */}
-        {quotesLoading ? (
+        {quotesLoading && !isDemo ? (
           <Skeleton className="h-48 w-full rounded-xl" />
         ) : (
           <MetricaReceita
@@ -153,23 +168,23 @@ export const Dashboard = () => {
             emRisco={emRisco}
             parada={parada}
             recuperavel={recuperavel}
-            variacao={0}
+            variacao={variacao}
           />
         )}
 
         {/* Grid Principal */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="col-span-1 space-y-6">
-            <PlanUsageCard />
-            <AlertasAcao />
+            {!isDemo && <PlanUsageCard />}
+            <AlertasAcao isDemo={isDemo} />
           </div>
 
           <div className="col-span-1 lg:col-span-2 space-y-6">
-            <PipelineLeads />
+            <PipelineLeads isDemo={isDemo} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <AgendaHoje />
-              <InsightsIA />
+              <AgendaHoje isDemo={isDemo} />
+              <InsightsIA isDemo={isDemo} />
             </div>
           </div>
         </div>

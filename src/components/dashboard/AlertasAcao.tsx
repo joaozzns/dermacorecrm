@@ -14,17 +14,46 @@ interface Alerta {
   rota: string;
 }
 
-export const AlertasAcao = () => {
+// Demo alerts data
+const DEMO_ALERTAS: Alerta[] = [
+  {
+    id: 'demo-1',
+    tipo: 'critico',
+    titulo: '3 leads sem atendimento há 48h',
+    descricao: 'Potencial de R$ 12.500 parado. Ação imediata necessária.',
+    acao: 'Atender agora',
+    rota: '/leads',
+  },
+  {
+    id: 'demo-2',
+    tipo: 'critico',
+    titulo: 'R$ 8.200 em risco por no-show',
+    descricao: '5 pacientes com histórico de falta agendados hoje.',
+    acao: 'Confirmar agora',
+    rota: '/agenda',
+  },
+  {
+    id: 'demo-3',
+    tipo: 'aviso',
+    titulo: 'Follow-up pendente pós-avaliação',
+    descricao: '8 pacientes aguardando retorno após orçamento.',
+    acao: 'Enviar follow-up',
+    rota: '/leads',
+  },
+];
+
+export const AlertasAcao = ({ isDemo = false }: { isDemo?: boolean }) => {
   const { leads, isLoading: leadsLoading } = useLeads();
   const { appointments, isLoading: aptsLoading } = useAppointments();
   const navigate = useNavigate();
 
-  const isLoading = leadsLoading || aptsLoading;
+  const isLoading = !isDemo && (leadsLoading || aptsLoading);
 
   // Compute real alerts
-  const alertas: Alerta[] = [];
+  const alertas: Alerta[] = isDemo ? DEMO_ALERTAS : [];
 
   // Leads sem contato há mais de 48h
+  if (!isDemo) {
   const now = new Date();
   const staleLeads = leads.filter(l => {
     if (l.status !== 'novo') return false;
@@ -86,6 +115,8 @@ export const AlertasAcao = () => {
       acao: 'Qualificar leads',
       rota: '/leads',
     });
+  }
+
   }
 
   if (isLoading) {
