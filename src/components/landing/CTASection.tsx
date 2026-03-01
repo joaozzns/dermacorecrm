@@ -53,10 +53,10 @@ export const CTASection = () => {
               <Link to="/auth?plan=essencial">
                 <Button 
                   size="lg" 
-                  className="btn-gold text-xl px-12 py-8 group"
+                  className="btn-gold text-base sm:text-xl px-6 sm:px-12 py-6 sm:py-8 group w-full sm:w-auto"
                 >
                   Começar Minha Jornada
-                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-2 sm:ml-3 w-5 sm:w-6 h-5 sm:h-6 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </motion.div>
