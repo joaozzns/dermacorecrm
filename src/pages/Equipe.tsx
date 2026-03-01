@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { useTeamMembers, TeamMember } from "@/hooks/useTeamMembers";
 import { InviteManagement } from "@/components/clinic/InviteManagement";
+import { usePlanLimits } from "@/hooks/usePlanLimits";
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -129,6 +130,8 @@ export default function Equipe() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { teamMembers, isLoading } = useTeamMembers();
+  const { planLimits, usage, isAtLimit } = usePlanLimits();
+  const atProfessionalLimit = isAtLimit('professionals');
 
   const filteredMembers = teamMembers.filter((m) => {
     const name = m.profiles?.full_name || "";
@@ -149,10 +152,22 @@ export default function Equipe() {
             <h1 className="text-lg md:text-2xl font-bold text-foreground">Equipe</h1>
             <p className="text-xs md:text-sm text-muted-foreground">Gestão de profissionais e convites</p>
           </div>
-          <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => setShowInviteDialog(true)}>
-            <UserPlus className="w-4 h-4" />
-            <span className="hidden md:inline">Novo Profissional</span>
-          </Button>
+          <div className="flex items-center gap-3">
+            {planLimits && (
+              <Badge variant={atProfessionalLimit ? "destructive" : "outline"} className="text-xs whitespace-nowrap">
+                {usage?.currentProfessionals ?? 0}/{planLimits.maxProfessionals ?? '∞'} profissionais
+              </Badge>
+            )}
+            <Button
+              className="gap-2 bg-primary hover:bg-primary/90"
+              onClick={() => setShowInviteDialog(true)}
+              disabled={atProfessionalLimit}
+              title={atProfessionalLimit ? "Limite de profissionais atingido" : undefined}
+            >
+              <UserPlus className="w-4 h-4" />
+              <span className="hidden md:inline">Novo Profissional</span>
+            </Button>
+          </div>
         </div>
 
         {/* Métricas */}
