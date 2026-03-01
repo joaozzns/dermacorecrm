@@ -13,10 +13,15 @@ import {
 } from '@/components/ui/dialog';
 import { Link2, Plus, Copy, Trash2, Share2, Loader2, Users } from 'lucide-react';
 import { useClinicInvites } from '@/hooks/useClinicInvites';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 export function InviteManagement() {
   const { invites, isLoading, createInvite, deactivateInvite } = useClinicInvites();
+  const { isAtLimit } = usePlanLimits();
+  const atLimit = isAtLimit('professionals');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newRole, setNewRole] = useState<'admin' | 'staff'>('staff');
   const [newExpiry, setNewExpiry] = useState<string>('never');
@@ -62,13 +67,21 @@ export function InviteManagement() {
             </CardTitle>
             <CardDescription>Convide colaboradores para sua clínica</CardDescription>
           </div>
-          <Button className="gap-2" onClick={() => setShowCreateDialog(true)}>
+          <Button className="gap-2" onClick={() => setShowCreateDialog(true)} disabled={atLimit}>
             <Plus className="w-4 h-4" />
             Gerar Link
           </Button>
         </div>
       </CardHeader>
       <CardContent>
+        {atLimit && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Limite de profissionais do plano atingido. Faça upgrade para adicionar mais membros.
+            </AlertDescription>
+          </Alert>
+        )}
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
