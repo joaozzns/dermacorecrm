@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  useRealtimeNotifications();
 
   return (
     <div className="flex min-h-screen bg-background">
