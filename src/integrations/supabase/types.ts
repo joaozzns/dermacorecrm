@@ -233,6 +233,98 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_up_sequences: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          steps_count: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          steps_count?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          steps_count?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_sequences_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_interactions: {
+        Row: {
+          clinic_id: string
+          content: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          lead_id: string
+          type: string
+        }
+        Insert: {
+          clinic_id: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          lead_id: string
+          type: string
+        }
+        Update: {
+          clinic_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          lead_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_interactions_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           assigned_to: string | null

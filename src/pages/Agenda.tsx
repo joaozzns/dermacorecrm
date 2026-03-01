@@ -1,92 +1,27 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
-  Calendar, 
-  ChevronLeft, 
-  ChevronRight, 
-  Clock, 
-  User, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle,
-  Plus,
-  Filter,
-  MessageCircle,
-  Phone,
-  MoreHorizontal,
-  Bell,
-  Search,
-  X
+  Calendar, ChevronLeft, ChevronRight, Clock, User, AlertTriangle, 
+  CheckCircle, XCircle, Plus, Filter, MessageCircle, Phone, 
+  MoreHorizontal, Bell, Search, X, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-
-interface Profissional {
-  id: string;
-  nome: string;
-  especialidade: string;
-  cor: string;
-  avatar: string;
-}
-
-interface Agendamento {
-  id: string;
-  horario: string;
-  duracao: number; // em minutos
-  paciente: string;
-  telefone: string;
-  procedimento: string;
-  profissionalId: string;
-  valor: number;
-  status: 'confirmado' | 'pendente' | 'risco' | 'cancelado' | 'realizado';
-  historicoFaltas?: number;
-  observacao?: string;
-}
-
-const profissionais: Profissional[] = [
-  { id: "1", nome: "Dra. Renata Silva", especialidade: "Harmonização Facial", cor: "bg-teal-500", avatar: "RS" },
-  { id: "2", nome: "Dra. Amanda Costa", especialidade: "Dermatologia", cor: "bg-purple-500", avatar: "AC" },
-  { id: "3", nome: "Dr. Ricardo Mendes", especialidade: "Cirurgia Plástica", cor: "bg-blue-500", avatar: "RM" },
-];
-
-const initialAgendamentos: Agendamento[] = [
-  { id: "1", horario: "08:00", duracao: 60, paciente: "Maria Fernanda", telefone: "(11) 99999-1234", procedimento: "Botox Glabela", profissionalId: "1", valor: 1800, status: "confirmado" },
-  { id: "2", horario: "09:00", duracao: 90, paciente: "Carolina Alves", telefone: "(11) 98888-5678", procedimento: "Preenchimento Labial", profissionalId: "1", valor: 2500, status: "confirmado" },
-  { id: "3", horario: "08:30", duracao: 45, paciente: "Juliana Costa", telefone: "(11) 97777-9012", procedimento: "Limpeza de Pele", profissionalId: "2", valor: 450, status: "pendente" },
-  { id: "4", horario: "10:30", duracao: 30, paciente: "Avaliação Harmonização", telefone: "(11) 96666-3456", procedimento: "Avaliação", profissionalId: "1", valor: 0, status: "pendente" },
-  { id: "5", horario: "11:00", duracao: 120, paciente: "Patrícia Santos", telefone: "(11) 95555-7890", procedimento: "Lipo Enzimática", profissionalId: "2", valor: 4500, status: "risco", historicoFaltas: 2 },
-  { id: "6", horario: "09:00", duracao: 180, paciente: "Fernanda Lima", telefone: "(11) 94444-1234", procedimento: "Rinoplastia", profissionalId: "3", valor: 15000, status: "confirmado" },
-  { id: "7", horario: "14:00", duracao: 60, paciente: "Ana Beatriz", telefone: "(11) 93333-5678", procedimento: "Bioestimulador", profissionalId: "1", valor: 3200, status: "confirmado" },
-  { id: "8", horario: "14:30", duracao: 45, paciente: "Luciana Rocha", telefone: "(11) 92222-9012", procedimento: "Peeling Químico", profissionalId: "2", valor: 800, status: "risco", historicoFaltas: 1 },
-  { id: "9", horario: "15:00", duracao: 60, paciente: "Beatriz Mendes", telefone: "(11) 91111-3456", procedimento: "Skinbooster", profissionalId: "1", valor: 1500, status: "pendente" },
-  { id: "10", horario: "14:00", duracao: 240, paciente: "Claudia Ferreira", telefone: "(11) 90000-7890", procedimento: "Abdominoplastia", profissionalId: "3", valor: 25000, status: "confirmado" },
-];
+import { useAppointments, type AppointmentStatus } from "@/hooks/useAppointments";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { usePatients } from "@/hooks/usePatients";
 
 const horarios = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -96,131 +31,153 @@ const horarios = [
 
 const formatCurrency = (value: number) => {
   if (value === 0) return "Avaliação";
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 0,
-  }).format(value);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(value);
 };
 
-const getSlotIndex = (horario: string) => horarios.indexOf(horario);
-const getSlotSpan = (duracao: number) => Math.ceil(duracao / 30);
+const getSlotSpan = (minutes: number) => Math.ceil(minutes / 30);
+
+const statusMap: Record<string, { label: string; color: string }> = {
+  agendado: { label: "Pendente", color: "revenue-paused" },
+  confirmado: { label: "Confirmado", color: "revenue-confirmed" },
+  em_atendimento: { label: "Em Atendimento", color: "primary" },
+  concluido: { label: "Concluído", color: "muted-foreground" },
+  cancelado: { label: "Cancelado", color: "revenue-lost" },
+  faltou: { label: "Faltou", color: "revenue-at-risk" },
+};
+
+const profColors = [
+  "bg-teal-500", "bg-purple-500", "bg-blue-500", "bg-rose-500", 
+  "bg-amber-500", "bg-emerald-500", "bg-indigo-500", "bg-cyan-500"
+];
 
 const Agenda = () => {
-  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("agenda");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<'dia' | 'semana'>('dia');
-  const [agendamentos, setAgendamentos] = useState(initialAgendamentos);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false);
   const [selectedProfissional, setSelectedProfissional] = useState<string>("todos");
   const [selectedStatus, setSelectedStatus] = useState<string>("todos");
   const [searchQuery, setSearchQuery] = useState("");
   
-  // New appointment form state
-  const [newAppointment, setNewAppointment] = useState({
-    paciente: "",
-    telefone: "",
-    procedimento: "",
-    profissionalId: "1",
+  const [newAppt, setNewAppt] = useState({
+    patient_id: "",
+    professional_id: "",
+    title: "",
     horario: "09:00",
     duracao: "60",
-    valor: "",
   });
 
-  const filteredAgendamentos = agendamentos.filter(a => {
-    if (selectedProfissional !== "todos" && a.profissionalId !== selectedProfissional) return false;
+  const { appointments, isLoading, createAppointment, updateAppointment } = useAppointments(selectedDate);
+  const { teamMembers } = useTeamMembers();
+  const { patients } = usePatients();
+
+  const activeMembers = teamMembers.filter(m => m.is_active && m.profiles);
+
+  const filteredAppointments = appointments.filter(a => {
+    if (selectedProfissional !== "todos" && a.professional_id !== selectedProfissional) return false;
     if (selectedStatus !== "todos" && a.status !== selectedStatus) return false;
-    if (searchQuery && !a.paciente.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (searchQuery) {
+      const patientName = a.patients?.full_name || "";
+      if (!patientName.toLowerCase().includes(searchQuery.toLowerCase()) && 
+          !a.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    }
     return true;
   });
 
-  const valorConfirmado = filteredAgendamentos.filter(a => a.status === 'confirmado').reduce((acc, a) => acc + a.valor, 0);
-  const valorEmRisco = filteredAgendamentos.filter(a => a.status === 'risco').reduce((acc, a) => acc + a.valor, 0);
-  const valorPendente = filteredAgendamentos.filter(a => a.status === 'pendente').reduce((acc, a) => acc + a.valor, 0);
-  const totalAgendamentos = filteredAgendamentos.length;
-  const ocupacao = Math.round((totalAgendamentos / (horarios.length * profissionais.length)) * 100);
-
-  const getAgendamentosPorProfissional = (profissionalId: string) => {
-    return filteredAgendamentos.filter(a => a.profissionalId === profissionalId);
+  const getTimeStr = (isoStr: string) => {
+    const d = new Date(isoStr);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
-  const handlePrevDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 1);
-    setSelectedDate(newDate);
+  const getDurationMinutes = (start: string, end: string) => {
+    return (new Date(end).getTime() - new Date(start).getTime()) / 60000;
   };
 
-  const handleNextDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 1);
-    setSelectedDate(newDate);
+  const getApptForSlot = (profId: string, horario: string) => {
+    return filteredAppointments.find(a => a.professional_id === profId && getTimeStr(a.start_time) === horario);
   };
 
-  const handleToday = () => {
-    setSelectedDate(new Date());
-  };
-
-  const formatDisplayDate = (date: Date) => {
-    return date.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
+  const isSlotOccupied = (profId: string, rowIndex: number) => {
+    return filteredAppointments.some(a => {
+      if (a.professional_id !== profId) return false;
+      const startIdx = horarios.indexOf(getTimeStr(a.start_time));
+      const dur = getDurationMinutes(a.start_time, a.end_time);
+      const endIdx = startIdx + getSlotSpan(dur);
+      return rowIndex > startIdx && rowIndex < endIdx;
     });
   };
 
-  const handleCreateAppointment = () => {
-    if (!newAppointment.paciente || !newAppointment.telefone || !newAppointment.procedimento) {
-      toast.error("Preencha todos os campos obrigatórios");
+  const totalAppts = filteredAppointments.length;
+  const ocupacao = activeMembers.length > 0 
+    ? Math.round((totalAppts / (horarios.length * activeMembers.length)) * 100) 
+    : 0;
+
+  const handlePrevDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(d);
+  };
+  const handleNextDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + 1);
+    setSelectedDate(d);
+  };
+  const handleToday = () => setSelectedDate(new Date());
+
+  const formatDisplayDate = (date: Date) => {
+    return date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const handleCreateAppointment = async () => {
+    if (!newAppt.patient_id || !newAppt.title) {
+      toast.error("Preencha paciente e título");
       return;
     }
 
-    const newId = String(agendamentos.length + 1);
-    const appointment: Agendamento = {
-      id: newId,
-      paciente: newAppointment.paciente,
-      telefone: newAppointment.telefone,
-      procedimento: newAppointment.procedimento,
-      profissionalId: newAppointment.profissionalId,
-      horario: newAppointment.horario,
-      duracao: parseInt(newAppointment.duracao),
-      valor: parseFloat(newAppointment.valor) || 0,
-      status: "pendente",
-    };
+    const [h, m] = newAppt.horario.split(':').map(Number);
+    const start = new Date(selectedDate);
+    start.setHours(h, m, 0, 0);
+    const end = new Date(start.getTime() + parseInt(newAppt.duracao) * 60000);
 
-    setAgendamentos([...agendamentos, appointment]);
-    setIsNewAppointmentOpen(false);
-    setNewAppointment({
-      paciente: "",
-      telefone: "",
-      procedimento: "",
-      profissionalId: "1",
-      horario: "09:00",
-      duracao: "60",
-      valor: "",
-    });
-    toast.success("Agendamento criado com sucesso!");
+    try {
+      await createAppointment.mutateAsync({
+        patient_id: newAppt.patient_id,
+        professional_id: newAppt.professional_id || undefined,
+        title: newAppt.title,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+      });
+      setIsNewAppointmentOpen(false);
+      setNewAppt({ patient_id: "", professional_id: "", title: "", horario: "09:00", duracao: "60" });
+    } catch {}
   };
 
-  const handleWhatsApp = (telefone: string, paciente: string) => {
-    const phone = telefone.replace(/\D/g, '');
-    const message = encodeURIComponent(`Olá ${paciente}! Este é um contato da Clínica DermaCore.`);
-    window.open(`https://wa.me/55${phone}?text=${message}`, '_blank');
+  const handleConfirm = async (id: string) => {
+    try {
+      await updateAppointment.mutateAsync({ id, status: 'confirmado' });
+    } catch {}
   };
 
-  const handleCall = (telefone: string) => {
-    const phone = telefone.replace(/\D/g, '');
-    window.open(`tel:+55${phone}`, '_self');
+  const handleWhatsApp = (phone: string, name: string) => {
+    const p = phone.replace(/\D/g, '');
+    const msg = encodeURIComponent(`Olá ${name}! Este é um contato da clínica.`);
+    window.open(`https://wa.me/55${p}?text=${msg}`, '_blank');
   };
 
-  const handleConfirm = (agendamentoId: string) => {
-    setAgendamentos(agendamentos.map(a => 
-      a.id === agendamentoId ? { ...a, status: 'confirmado' as const } : a
-    ));
-    toast.success("Agendamento confirmado!");
+  const handleCall = (phone: string) => {
+    window.open(`tel:+55${phone.replace(/\D/g, '')}`, '_self');
   };
+
+  // Columns: if we have team members, show them. Otherwise show a single "Geral" column
+  const columns = activeMembers.length > 0
+    ? activeMembers.map((m, i) => ({
+        id: m.profile_id || m.id,
+        name: m.profiles?.full_name || 'Profissional',
+        specialty: m.specialty || '',
+        color: profColors[i % profColors.length],
+        initials: (m.profiles?.full_name || 'P').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
+      }))
+    : [{ id: '__geral__', name: 'Geral', specialty: '', color: 'bg-primary', initials: 'G' }];
 
   return (
     <DashboardLayout activeSection={activeSection} onSectionChange={setActiveSection}>
@@ -270,32 +227,35 @@ const Agenda = () => {
         </header>
 
         <main className="p-4 md:p-8">
-          {/* Stats Cards */}
+          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Receita Confirmada</span>
+                <span className="text-sm text-muted-foreground">Confirmados</span>
                 <CheckCircle className="w-5 h-5 text-revenue-confirmed" />
               </div>
-              <div className="text-2xl font-bold text-revenue-confirmed">{formatCurrency(valorConfirmado)}</div>
-            </div>
-            
-            <div className="card-premium p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Em Risco (No-show)</span>
-                <AlertTriangle className="w-5 h-5 text-revenue-at-risk" />
+              <div className="text-2xl font-bold text-revenue-confirmed">
+                {filteredAppointments.filter(a => a.status === 'confirmado').length}
               </div>
-              <div className="text-2xl font-bold text-revenue-at-risk">{formatCurrency(valorEmRisco)}</div>
             </div>
-            
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Aguardando Confirmação</span>
+                <span className="text-sm text-muted-foreground">Pendentes</span>
                 <Clock className="w-5 h-5 text-revenue-paused" />
               </div>
-              <div className="text-2xl font-bold text-revenue-paused">{formatCurrency(valorPendente)}</div>
+              <div className="text-2xl font-bold text-revenue-paused">
+                {filteredAppointments.filter(a => a.status === 'agendado').length}
+              </div>
             </div>
-            
+            <div className="card-premium p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Cancelados/Faltas</span>
+                <XCircle className="w-5 h-5 text-revenue-lost" />
+              </div>
+              <div className="text-2xl font-bold text-revenue-lost">
+                {filteredAppointments.filter(a => a.status === 'cancelado' || a.status === 'faltou').length}
+              </div>
+            </div>
             <div className="card-premium p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Taxa de Ocupação</span>
@@ -303,117 +263,137 @@ const Agenda = () => {
               </div>
               <div className="text-2xl font-bold text-primary">{ocupacao}%</div>
               <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all" style={{ width: `${ocupacao}%` }} />
+                <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(ocupacao, 100)}%` }} />
               </div>
             </div>
           </div>
 
           {/* Date Navigation */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" className="h-9 w-9" onClick={handlePrevDay}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <div className="px-4 py-2 bg-muted rounded-lg font-medium capitalize">
-                  {formatDisplayDate(selectedDate)}
-                </div>
-                <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleNextDay}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+            <div className="flex items-center gap-2 md:gap-4">
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={handlePrevDay}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <div className="px-4 py-2 bg-muted rounded-lg font-medium capitalize text-sm md:text-base">
+                {formatDisplayDate(selectedDate)}
               </div>
-              
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleNextDay}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
               <Button variant="outline" size="sm" onClick={handleToday}>Hoje</Button>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Select value={viewMode} onValueChange={(v: 'dia' | 'semana') => setViewMode(v)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dia">Dia</SelectItem>
-                  <SelectItem value="semana">Semana</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
-          {/* Calendar Grid */}
-          <div className="card-premium overflow-hidden">
-            <div className="grid" style={{ gridTemplateColumns: `80px repeat(${profissionais.length}, 1fr)` }}>
-              {/* Header Row */}
-              <div className="p-4 border-b border-r border-border bg-muted/30" />
-              {profissionais.map((prof) => (
-                <div key={prof.id} className="p-4 border-b border-r border-border bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm", prof.cor)}>
-                      {prof.avatar}
-                    </div>
-                    <div>
-                      <div className="font-medium text-foreground">{prof.nome}</div>
-                      <div className="text-xs text-muted-foreground">{prof.especialidade}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Time Slots */}
-              {horarios.map((horario, rowIndex) => (
-                <>
-                  <div key={`time-${horario}`} className="p-2 border-r border-b border-border text-sm text-muted-foreground text-center bg-muted/10">
-                    {horario}
-                  </div>
-                  {profissionais.map((prof) => {
-                    const agendamento = getAgendamentosPorProfissional(prof.id).find(a => a.horario === horario);
-                    
-                    if (agendamento) {
-                      return (
-                        <AgendamentoSlot 
-                          key={`slot-${prof.id}-${horario}`} 
-                          agendamento={agendamento} 
-                          profissional={prof}
-                          onWhatsApp={handleWhatsApp}
-                          onCall={handleCall}
-                          onConfirm={handleConfirm}
-                        />
-                      );
-                    }
-                    
-                    // Check if this slot is occupied by a previous appointment
-                    const isOccupied = getAgendamentosPorProfissional(prof.id).some(a => {
-                      const startIndex = getSlotIndex(a.horario);
-                      const endIndex = startIndex + getSlotSpan(a.duracao);
-                      return rowIndex > startIndex && rowIndex < endIndex;
-                    });
-                    
-                    if (isOccupied) {
-                      return null;
-                    }
-                    
-                    return (
-                      <div 
-                        key={`empty-${prof.id}-${horario}`} 
-                        className="p-2 border-r border-b border-border min-h-[60px] hover:bg-muted/30 transition-colors cursor-pointer group"
-                        onClick={() => {
-                          setNewAppointment({
-                            ...newAppointment,
-                            profissionalId: prof.id,
-                            horario: horario,
-                          });
-                          setIsNewAppointmentOpen(true);
-                        }}
-                      >
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center h-full">
-                          <Plus className="w-5 h-5 text-muted-foreground" />
-                        </div>
+          {/* Grid */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="card-premium overflow-hidden overflow-x-auto">
+              <div className="grid" style={{ gridTemplateColumns: `80px repeat(${columns.length}, minmax(200px, 1fr))` }}>
+                {/* Header */}
+                <div className="p-4 border-b border-r border-border bg-muted/30" />
+                {columns.map((col) => (
+                  <div key={col.id} className="p-4 border-b border-r border-border bg-muted/30">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm", col.color)}>
+                        {col.initials}
                       </div>
-                    );
-                  })}
-                </>
-              ))}
+                      <div>
+                        <div className="font-medium text-foreground">{col.name}</div>
+                        {col.specialty && <div className="text-xs text-muted-foreground">{col.specialty}</div>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Slots */}
+                {horarios.map((horario, rowIndex) => (
+                  <>
+                    <div key={`time-${horario}`} className="p-2 border-r border-b border-border text-sm text-muted-foreground text-center bg-muted/10">
+                      {horario}
+                    </div>
+                    {columns.map((col) => {
+                      const appt = getApptForSlot(col.id, horario);
+                      
+                      if (appt) {
+                        const dur = getDurationMinutes(appt.start_time, appt.end_time);
+                        const span = getSlotSpan(dur);
+                        const st = statusMap[appt.status] || statusMap.agendado;
+                        
+                        return (
+                          <div
+                            key={`slot-${col.id}-${horario}`}
+                            className={cn(
+                              "p-3 border-r border-b border-border cursor-pointer group transition-all hover:shadow-md border-l-4",
+                              `bg-${st.color}/10 border-l-${st.color}`
+                            )}
+                            style={{ gridRow: `span ${span}` }}
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {appt.status === 'confirmado' && <CheckCircle className="w-4 h-4 text-revenue-confirmed" />}
+                                {appt.status === 'agendado' && <Clock className="w-4 h-4 text-revenue-paused" />}
+                                {appt.status === 'cancelado' && <XCircle className="w-4 h-4 text-revenue-lost" />}
+                                {appt.status === 'faltou' && <AlertTriangle className="w-4 h-4 text-revenue-at-risk" />}
+                                {appt.status === 'concluido' && <CheckCircle className="w-4 h-4 text-muted-foreground" />}
+                                {appt.status === 'em_atendimento' && <Clock className="w-4 h-4 text-primary" />}
+                                <span className="font-medium text-foreground text-sm">
+                                  {appt.patients?.full_name || 'Paciente'}
+                                </span>
+                              </div>
+                              <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/50 rounded">
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                              </button>
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-2">{appt.title}</div>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {appt.patients?.phone && (
+                                <>
+                                  <button className="p-1.5 hover:bg-white/50 rounded-lg" title="WhatsApp"
+                                    onClick={(e) => { e.stopPropagation(); handleWhatsApp(appt.patients!.phone, appt.patients!.full_name); }}>
+                                    <MessageCircle className="w-4 h-4 text-green-600" />
+                                  </button>
+                                  <button className="p-1.5 hover:bg-white/50 rounded-lg" title="Ligar"
+                                    onClick={(e) => { e.stopPropagation(); handleCall(appt.patients!.phone); }}>
+                                    <Phone className="w-4 h-4 text-blue-600" />
+                                  </button>
+                                </>
+                              )}
+                              {appt.status === 'agendado' && (
+                                <button className="p-1.5 hover:bg-white/50 rounded-lg" title="Confirmar"
+                                  onClick={(e) => { e.stopPropagation(); handleConfirm(appt.id); }}>
+                                  <Bell className="w-4 h-4 text-amber-600" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (isSlotOccupied(col.id, rowIndex)) return null;
+
+                      return (
+                        <div
+                          key={`empty-${col.id}-${horario}`}
+                          className="p-2 border-r border-b border-border min-h-[60px] hover:bg-muted/30 transition-colors cursor-pointer group"
+                          onClick={() => {
+                            setNewAppt({ ...newAppt, professional_id: col.id === '__geral__' ? '' : col.id, horario });
+                            setIsNewAppointmentOpen(true);
+                          }}
+                        >
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center h-full">
+                            <Plus className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </main>
       </div>
 
@@ -422,56 +402,42 @@ const Agenda = () => {
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Filtros</SheetTitle>
-            <SheetDescription>
-              Filtre os agendamentos por profissional ou status
-            </SheetDescription>
+            <SheetDescription>Filtre os agendamentos por profissional ou status</SheetDescription>
           </SheetHeader>
           <div className="space-y-6 mt-6">
             <div className="space-y-2">
               <Label>Profissional</Label>
               <Select value={selectedProfissional} onValueChange={setSelectedProfissional}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  {profissionais.map(prof => (
-                    <SelectItem key={prof.id} value={prof.id}>{prof.nome}</SelectItem>
+                  {activeMembers.map(m => (
+                    <SelectItem key={m.profile_id || m.id} value={m.profile_id || m.id}>
+                      {m.profiles?.full_name || 'Profissional'}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="confirmado">Confirmado</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="risco">Em Risco</SelectItem>
+                  <SelectItem value="agendado">Pendente</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
+                  <SelectItem value="faltou">Faltou</SelectItem>
+                  <SelectItem value="concluido">Concluído</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => {
-                  setSelectedProfissional("todos");
-                  setSelectedStatus("todos");
-                }}
-              >
+              <Button variant="outline" className="flex-1" onClick={() => { setSelectedProfissional("todos"); setSelectedStatus("todos"); }}>
                 Limpar Filtros
               </Button>
-              <Button className="flex-1" onClick={() => setIsFilterOpen(false)}>
-                Aplicar
-              </Button>
+              <Button className="flex-1" onClick={() => setIsFilterOpen(false)}>Aplicar</Button>
             </div>
           </div>
         </SheetContent>
@@ -482,68 +448,47 @@ const Agenda = () => {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Novo Agendamento</DialogTitle>
-            <DialogDescription>
-              Preencha os dados para criar um novo agendamento
-            </DialogDescription>
+            <DialogDescription>Preencha os dados para criar um novo agendamento</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="paciente">Nome do Paciente *</Label>
-                <Input
-                  id="paciente"
-                  value={newAppointment.paciente}
-                  onChange={(e) => setNewAppointment({...newAppointment, paciente: e.target.value})}
-                  placeholder="Nome completo"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone *</Label>
-                <Input
-                  id="telefone"
-                  value={newAppointment.telefone}
-                  onChange={(e) => setNewAppointment({...newAppointment, telefone: e.target.value})}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-            </div>
-            
             <div className="space-y-2">
-              <Label htmlFor="procedimento">Procedimento *</Label>
+              <Label>Paciente *</Label>
+              <Select value={newAppt.patient_id} onValueChange={(v) => setNewAppt({ ...newAppt, patient_id: v })}>
+                <SelectTrigger><SelectValue placeholder="Selecione o paciente" /></SelectTrigger>
+                <SelectContent>
+                  {patients.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="title">Título / Procedimento *</Label>
               <Input
-                id="procedimento"
-                value={newAppointment.procedimento}
-                onChange={(e) => setNewAppointment({...newAppointment, procedimento: e.target.value})}
-                placeholder="Ex: Botox, Preenchimento..."
+                id="title"
+                value={newAppt.title}
+                onChange={(e) => setNewAppt({ ...newAppt, title: e.target.value })}
+                placeholder="Ex: Botox Glabela"
               />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Profissional</Label>
-                <Select 
-                  value={newAppointment.profissionalId} 
-                  onValueChange={(v) => setNewAppointment({...newAppointment, profissionalId: v})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={newAppt.professional_id} onValueChange={(v) => setNewAppt({ ...newAppt, professional_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Opcional" /></SelectTrigger>
                   <SelectContent>
-                    {profissionais.map(prof => (
-                      <SelectItem key={prof.id} value={prof.id}>{prof.nome}</SelectItem>
+                    {activeMembers.map(m => (
+                      <SelectItem key={m.profile_id || m.id} value={m.profile_id || m.id}>
+                        {m.profiles?.full_name || 'Profissional'}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Horário</Label>
-                <Select 
-                  value={newAppointment.horario} 
-                  onValueChange={(v) => setNewAppointment({...newAppointment, horario: v})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={newAppt.horario} onValueChange={(v) => setNewAppt({ ...newAppt, horario: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {horarios.map(h => (
                       <SelectItem key={h} value={h}>{h}</SelectItem>
@@ -552,161 +497,31 @@ const Agenda = () => {
                 </Select>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Duração (minutos)</Label>
-                <Select 
-                  value={newAppointment.duracao} 
-                  onValueChange={(v) => setNewAppointment({...newAppointment, duracao: v})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="30">30 min</SelectItem>
-                    <SelectItem value="45">45 min</SelectItem>
-                    <SelectItem value="60">1 hora</SelectItem>
-                    <SelectItem value="90">1h 30min</SelectItem>
-                    <SelectItem value="120">2 horas</SelectItem>
-                    <SelectItem value="180">3 horas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="valor">Valor (R$)</Label>
-                <Input
-                  id="valor"
-                  type="number"
-                  value={newAppointment.valor}
-                  onChange={(e) => setNewAppointment({...newAppointment, valor: e.target.value})}
-                  placeholder="0"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Duração</Label>
+              <Select value={newAppt.duracao} onValueChange={(v) => setNewAppt({ ...newAppt, duracao: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">30 min</SelectItem>
+                  <SelectItem value="45">45 min</SelectItem>
+                  <SelectItem value="60">1 hora</SelectItem>
+                  <SelectItem value="90">1h 30min</SelectItem>
+                  <SelectItem value="120">2 horas</SelectItem>
+                  <SelectItem value="180">3 horas</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsNewAppointmentOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCreateAppointment}>
+            <Button variant="outline" onClick={() => setIsNewAppointmentOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCreateAppointment} disabled={createAppointment.isPending}>
+              {createAppointment.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Criar Agendamento
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </DashboardLayout>
-  );
-};
-
-interface AgendamentoSlotProps {
-  agendamento: Agendamento;
-  profissional: Profissional;
-  onWhatsApp: (telefone: string, paciente: string) => void;
-  onCall: (telefone: string) => void;
-  onConfirm: (agendamentoId: string) => void;
-}
-
-const AgendamentoSlot = ({ agendamento, profissional, onWhatsApp, onCall, onConfirm }: AgendamentoSlotProps) => {
-  const slotSpan = getSlotSpan(agendamento.duracao);
-  
-  const statusConfig = {
-    confirmado: {
-      bg: "bg-revenue-confirmed-bg border-revenue-confirmed",
-      icon: <CheckCircle className="w-4 h-4 text-revenue-confirmed" />,
-      text: "text-revenue-confirmed"
-    },
-    pendente: {
-      bg: "bg-revenue-paused-bg border-revenue-paused",
-      icon: <Clock className="w-4 h-4 text-revenue-paused" />,
-      text: "text-revenue-paused"
-    },
-    risco: {
-      bg: "bg-revenue-at-risk-bg border-revenue-at-risk",
-      icon: <AlertTriangle className="w-4 h-4 text-revenue-at-risk" />,
-      text: "text-revenue-at-risk"
-    },
-    cancelado: {
-      bg: "bg-revenue-lost-bg border-revenue-lost",
-      icon: <XCircle className="w-4 h-4 text-revenue-lost" />,
-      text: "text-revenue-lost"
-    },
-    realizado: {
-      bg: "bg-muted border-muted-foreground",
-      icon: <CheckCircle className="w-4 h-4 text-muted-foreground" />,
-      text: "text-muted-foreground"
-    }
-  };
-
-  const config = statusConfig[agendamento.status];
-
-  return (
-    <div 
-      className={cn(
-        "p-3 border-r border-b border-border cursor-pointer group transition-all hover:shadow-md",
-        config.bg,
-        "border-l-4"
-      )}
-      style={{ gridRow: `span ${slotSpan}` }}
-    >
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {config.icon}
-          <span className="font-medium text-foreground text-sm">{agendamento.paciente}</span>
-        </div>
-        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/50 rounded">
-          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </div>
-      
-      <div className="text-xs text-muted-foreground mb-2">{agendamento.procedimento}</div>
-      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={cn("font-semibold text-sm", config.text)}>
-            {formatCurrency(agendamento.valor)}
-          </span>
-          {agendamento.historicoFaltas && agendamento.historicoFaltas > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-revenue-at-risk text-white">
-              {agendamento.historicoFaltas} falta{agendamento.historicoFaltas > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button 
-            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
-            title="WhatsApp"
-            onClick={(e) => {
-              e.stopPropagation();
-              onWhatsApp(agendamento.telefone, agendamento.paciente);
-            }}
-          >
-            <MessageCircle className="w-4 h-4 text-green-600" />
-          </button>
-          <button 
-            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
-            title="Ligar"
-            onClick={(e) => {
-              e.stopPropagation();
-              onCall(agendamento.telefone);
-            }}
-          >
-            <Phone className="w-4 h-4 text-blue-600" />
-          </button>
-          <button 
-            className="p-1.5 hover:bg-white/50 rounded-lg transition-colors" 
-            title="Confirmar"
-            onClick={(e) => {
-              e.stopPropagation();
-              onConfirm(agendamento.id);
-            }}
-          >
-            <Bell className="w-4 h-4 text-amber-600" />
-          </button>
-        </div>
-      </div>
-    </div>
   );
 };
 
