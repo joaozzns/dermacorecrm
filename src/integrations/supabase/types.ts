@@ -85,6 +85,56 @@ export type Database = {
           },
         ]
       }
+      automations: {
+        Row: {
+          channel: string
+          clinic_id: string
+          created_at: string
+          delay_hours: number
+          id: string
+          is_active: boolean
+          message_template: string
+          name: string
+          trigger_event: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          clinic_id: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          message_template?: string
+          name: string
+          trigger_event?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          clinic_id?: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          message_template?: string
+          name?: string
+          trigger_event?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_invites: {
         Row: {
           clinic_id: string

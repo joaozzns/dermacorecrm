@@ -25,6 +25,8 @@ import Planos from "./pages/Planos";
 import Procedimentos from "./pages/Procedimentos";
 import Orcamentos from "./pages/Orcamentos";
 import Convite from "./pages/Convite";
+import TermosDeUso from "./pages/TermosDeUso";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
               <Route path="/planos" element={<Planos />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/convite/:code" element={<Convite />} />
+              <Route path="/termos" element={<TermosDeUso />} />
+              <Route path="/privacidade" element={<PoliticaPrivacidade />} />
               
               {/* Protected routes */}
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
