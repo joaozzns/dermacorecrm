@@ -8,12 +8,12 @@ interface ProtectedRouteProps {
 }
 
 // Routes that don't require an active subscription
-const SUBSCRIPTION_EXEMPT_ROUTES = ["/configuracoes"];
+const SUBSCRIPTION_EXEMPT_ROUTES = ["/configuracoes", "/onboarding"];
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
-  const { subscribed, isTrial, isLoading: subLoading, status } = useSubscription();
+  const { subscribed, isLoading: subLoading } = useSubscription();
 
   if (loading) {
     return (
@@ -30,8 +30,13 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // If user has no clinic yet, let them through to set one up
-  if (!profile?.clinic_id) {
+  // Redirect to onboarding if no clinic (and not already on onboarding)
+  if (!profile?.clinic_id && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // If on onboarding page, let through without subscription check
+  if (location.pathname === "/onboarding") {
     return <>{children}</>;
   }
 

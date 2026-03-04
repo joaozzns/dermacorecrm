@@ -18,6 +18,7 @@ import Financeiro from "./pages/Financeiro";
 import PosProcedimento from "./pages/PosProcedimento";
 import Equipe from "./pages/Equipe";
 import Automacoes from "./pages/Automacoes";
+import Onboarding from "./pages/Onboarding";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 import Planos from "./pages/Planos";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/convite/:code" element={<Convite />} />
               
               {/* Protected routes */}
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
               <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
