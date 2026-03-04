@@ -129,12 +129,9 @@ export const FooterSection = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="mailto:suporte@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
+                <Link to="/termos" className="hover:text-primary transition-colors">
                   Termos de Uso
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -146,12 +143,12 @@ export const FooterSection = () => {
             © {currentYear} DermaCore. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-sidebar-foreground/50">
-            <a href="mailto:suporte@dermacore.com" className="hover:text-primary transition-colors">
+            <Link to="/privacidade" className="hover:text-primary transition-colors">
               Privacidade
-            </a>
-            <a href="mailto:suporte@dermacore.com" className="hover:text-primary transition-colors">
+            </Link>
+            <Link to="/termos" className="hover:text-primary transition-colors">
               Termos
-            </a>
+            </Link>
             <button 
               onClick={() => {
                 // Simple cookie consent acknowledgment

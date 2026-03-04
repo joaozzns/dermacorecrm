@@ -509,7 +509,9 @@ export default function Auth() {
         </Card>
         
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade.
+          Ao continuar, você concorda com nossos{" "}
+          <a href="/termos" className="text-primary hover:underline">Termos de Serviço</a>{" "}e{" "}
+          <a href="/privacidade" className="text-primary hover:underline">Política de Privacidade</a>.
         </p>
       </div>
     </div>
