@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useClinicSettings, NotificationPreferences, AgendaPreferences } from "@/hooks/useClinicSettings";
 import { InviteManagement } from "@/components/clinic/InviteManagement";
+import { ClinicLogoUpload } from "@/components/clinic/ClinicLogoUpload";
 import {
   Settings,
   Building2,
@@ -376,15 +377,10 @@ export default function Configuracoes() {
                   <CardDescription>Logo e identidade visual</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary to-teal-400 flex items-center justify-center">
-                      <Building2 className="w-16 h-16 text-white" />
-                    </div>
-                    <Button variant="outline" className="gap-2" onClick={() => toast.info("Upload de logo será disponibilizado em breve.")}>
-                      <Upload className="w-4 h-4" />
-                      Alterar Logo
-                    </Button>
-                  </div>
+                  <ClinicLogoUpload
+                    currentLogoUrl={clinica.logoUrl}
+                    onLogoChange={(url) => setClinica({ ...clinica, logoUrl: url })}
+                  />
 
                   <Separator />
 
