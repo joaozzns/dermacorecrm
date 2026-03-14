@@ -168,6 +168,17 @@ const Agenda = () => {
     window.open(`tel:+55${phone.replace(/\D/g, '')}`, '_self');
   };
 
+  const handleAddToGoogleCalendar = (appt: typeof appointments[0]) => {
+    const start = new Date(appt.start_time);
+    const end = new Date(appt.end_time);
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const patientName = appt.patients?.full_name || 'Paciente';
+    const details = encodeURIComponent(`Paciente: ${patientName}${appt.notes ? `\nNotas: ${appt.notes}` : ''}`);
+    const title = encodeURIComponent(`${appt.title} - ${patientName}`);
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(start)}/${fmt(end)}&details=${details}`;
+    window.open(url, '_blank');
+  };
+
   // Columns: if we have team members, show them. Otherwise show a single "Geral" column
   const columns = activeMembers.length > 0
     ? activeMembers.map((m, i) => ({
