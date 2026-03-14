@@ -378,6 +378,10 @@ const Agenda = () => {
                                   <Bell className="w-4 h-4 text-amber-600" />
                                 </button>
                               )}
+                              <button className="p-1.5 hover:bg-white/50 rounded-lg" title="Adicionar ao Google Calendar"
+                                onClick={(e) => { e.stopPropagation(); handleAddToGoogleCalendar(appt); }}>
+                                <CalendarPlus className="w-4 h-4 text-primary" />
+                              </button>
                             </div>
                           </div>
                         );
