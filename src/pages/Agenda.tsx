@@ -3,7 +3,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   Calendar, ChevronLeft, ChevronRight, Clock, User, AlertTriangle, 
   CheckCircle, XCircle, Plus, Filter, MessageCircle, Phone, 
-  MoreHorizontal, Bell, Search, X, Loader2
+  MoreHorizontal, Bell, Search, X, Loader2, CalendarPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
