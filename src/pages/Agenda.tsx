@@ -3,7 +3,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { 
   Calendar, ChevronLeft, ChevronRight, Clock, User, AlertTriangle, 
   CheckCircle, XCircle, Plus, Filter, MessageCircle, Phone, 
-  MoreHorizontal, Bell, Search, X, Loader2
+  MoreHorizontal, Bell, Search, X, Loader2, CalendarPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -166,6 +166,17 @@ const Agenda = () => {
 
   const handleCall = (phone: string) => {
     window.open(`tel:+55${phone.replace(/\D/g, '')}`, '_self');
+  };
+
+  const handleAddToGoogleCalendar = (appt: typeof appointments[0]) => {
+    const start = new Date(appt.start_time);
+    const end = new Date(appt.end_time);
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const patientName = appt.patients?.full_name || 'Paciente';
+    const details = encodeURIComponent(`Paciente: ${patientName}${appt.notes ? `\nNotas: ${appt.notes}` : ''}`);
+    const title = encodeURIComponent(`${appt.title} - ${patientName}`);
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(start)}/${fmt(end)}&details=${details}`;
+    window.open(url, '_blank');
   };
 
   // Columns: if we have team members, show them. Otherwise show a single "Geral" column
@@ -367,6 +378,10 @@ const Agenda = () => {
                                   <Bell className="w-4 h-4 text-amber-600" />
                                 </button>
                               )}
+                              <button className="p-1.5 hover:bg-white/50 rounded-lg" title="Adicionar ao Google Calendar"
+                                onClick={(e) => { e.stopPropagation(); handleAddToGoogleCalendar(appt); }}>
+                                <CalendarPlus className="w-4 h-4 text-primary" />
+                              </button>
                             </div>
                           </div>
                         );
