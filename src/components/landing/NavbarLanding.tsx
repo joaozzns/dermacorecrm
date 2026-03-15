@@ -69,11 +69,9 @@ export const NavbarLanding = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Link to="/auth">
-              <Button variant="ghost" className="font-medium">
-                Entrar
-              </Button>
-            </Link>
+            <Button variant="ghost" className="font-medium" asChild>
+              <Link to="/auth">Entrar</Link>
+            </Button>
             <Link to="/auth?plan=essencial">
               <button className="group relative inline-flex items-center justify-center py-2.5 px-6 rounded-full font-medium text-sm overflow-hidden transition-colors duration-700 border-2 z-[1] cursor-pointer bg-primary text-primary-foreground border-primary hover:text-primary">
                 <span className="absolute top-0 left-0 w-0 h-full transition-all duration-700 ease-in-out z-[-1] group-hover:w-full bg-background" />
@@ -122,11 +120,9 @@ export const NavbarLanding = () => {
                 )
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Link to="/auth">
-                  <Button variant="outline" className="w-full">
-                    Entrar
-                  </Button>
-                </Link>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/auth">Entrar</Link>
+                </Button>
                 <Link to="/auth?plan=essencial">
                   <Button className="btn-premium w-full">
                     <ArrowRight className="w-4 h-4 mr-2" />
