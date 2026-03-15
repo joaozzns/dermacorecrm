@@ -120,11 +120,9 @@ export const NavbarLanding = () => {
                 )
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Link to="/auth">
-                  <Button variant="outline" className="w-full">
-                    Entrar
-                  </Button>
-                </Link>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/auth">Entrar</Link>
+                </Button>
                 <Link to="/auth?plan=essencial">
                   <Button className="btn-premium w-full">
                     <ArrowRight className="w-4 h-4 mr-2" />
