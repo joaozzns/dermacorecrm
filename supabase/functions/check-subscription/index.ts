@@ -56,11 +56,45 @@ serve(async (req) => {
     const user = userData.user;
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // First check local subscriptions table (for manually created subscriptions)
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("clinic_id")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.clinic_id) {
+      const { data: localSub } = await supabaseClient
+        .from("subscriptions")
+        .select("*, plans(slug, name)")
+        .eq("clinic_id", profile.clinic_id)
+        .in("status", ["active", "trial"])
+        .single();
+
+      if (localSub && new Date(localSub.current_period_end) > new Date()) {
+        logStep("Found active local subscription", { 
+          status: localSub.status, 
+          planSlug: (localSub.plans as any)?.slug 
+        });
+        return new Response(JSON.stringify({
+          subscribed: true,
+          plan_slug: (localSub.plans as any)?.slug || null,
+          subscription_end: localSub.current_period_end,
+          is_trial: localSub.status === "trial",
+          status: localSub.status,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    // Then check Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No customer found");
+      logStep("No customer found in Stripe or local DB");
       return new Response(JSON.stringify({ 
         subscribed: false,
         plan_slug: null,
