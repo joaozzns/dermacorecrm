@@ -4,13 +4,6 @@ import logoDermacore from "@/assets/logo_dermacore.png";
 export const FooterSection = () => {
   const currentYear = new Date().getFullYear();
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <footer className="py-12 px-6 bg-sidebar-background text-sidebar-foreground">
       <div className="max-w-7xl mx-auto">
@@ -25,114 +18,37 @@ export const FooterSection = () => {
             </p>
           </div>
 
-          {/* Links - Produto */}
+          {/* Produto */}
           <div>
             <h4 className="font-semibold text-white mb-4">Produto</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li>
-                <button 
-                  onClick={() => scrollToSection('features')} 
-                  className="hover:text-primary transition-colors"
-                >
-                  Recursos
-                </button>
-              </li>
-              <li>
-                <Link to="/planos" className="hover:text-primary transition-colors">
-                  Planos
-                </Link>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollToSection('features')} 
-                  className="hover:text-primary transition-colors"
-                >
-                  Integrações
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollToSection('features')} 
-                  className="hover:text-primary transition-colors"
-                >
-                  Atualizações
-                </button>
-              </li>
+              <li><Link to="/recursos" className="hover:text-primary transition-colors">Recursos</Link></li>
+              <li><Link to="/planos" className="hover:text-primary transition-colors">Planos</Link></li>
+              <li><Link to="/integracoes" className="hover:text-primary transition-colors">Integrações</Link></li>
+              <li><Link to="/atualizacoes" className="hover:text-primary transition-colors">Atualizações</Link></li>
+              <li><Link to="/download" className="hover:text-primary transition-colors">Download</Link></li>
             </ul>
           </div>
 
-          {/* Links - Empresa */}
+          {/* Empresa */}
           <div>
             <h4 className="font-semibold text-white mb-4">Empresa</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li>
-                <button 
-                  onClick={() => scrollToSection('testimonials')} 
-                  className="hover:text-primary transition-colors"
-                >
-                  Sobre nós
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => scrollToSection('features')} 
-                  className="hover:text-primary transition-colors"
-                >
-                  Blog
-                </button>
-              </li>
-              <li>
-                <a 
-                  href="mailto:carreiras@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Carreiras
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="mailto:contato@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Contato
-                </a>
-              </li>
+              <li><Link to="/sobre" className="hover:text-primary transition-colors">Sobre nós</Link></li>
+              <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
+              <li><a href="mailto:carreiras@dermacore.com" className="hover:text-primary transition-colors">Carreiras</a></li>
+              <li><a href="mailto:contato@dermacore.com" className="hover:text-primary transition-colors">Contato</a></li>
             </ul>
           </div>
 
-          {/* Links - Suporte */}
+          {/* Suporte */}
           <div>
             <h4 className="font-semibold text-white mb-4">Suporte</h4>
             <ul className="space-y-2 text-sm text-sidebar-foreground/70">
-              <li>
-                <a 
-                  href="mailto:suporte@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Central de Ajuda
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="mailto:suporte@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Documentação
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="mailto:suporte@dermacore.com" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Status
-                </a>
-              </li>
-              <li>
-                <Link to="/termos" className="hover:text-primary transition-colors">
-                  Termos de Uso
-                </Link>
-              </li>
+              <li><Link to="/ajuda" className="hover:text-primary transition-colors">Central de Ajuda</Link></li>
+              <li><Link to="/documentacao" className="hover:text-primary transition-colors">Documentação</Link></li>
+              <li><Link to="/status" className="hover:text-primary transition-colors">Status</Link></li>
+              <li><Link to="/termos" className="hover:text-primary transition-colors">Termos de Uso</Link></li>
             </ul>
           </div>
         </div>
@@ -143,17 +59,10 @@ export const FooterSection = () => {
             © {currentYear} DermaCore. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-sm text-sidebar-foreground/50">
-            <Link to="/privacidade" className="hover:text-primary transition-colors">
-              Privacidade
-            </Link>
-            <Link to="/termos" className="hover:text-primary transition-colors">
-              Termos
-            </Link>
-            <button 
-              onClick={() => {
-                // Simple cookie consent acknowledgment
-                localStorage.setItem('cookieConsent', 'acknowledged');
-              }}
+            <Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
+            <Link to="/termos" className="hover:text-primary transition-colors">Termos</Link>
+            <button
+              onClick={() => localStorage.setItem('cookieConsent', 'acknowledged')}
               className="hover:text-primary transition-colors"
             >
               Cookies

@@ -27,6 +27,15 @@ import Orcamentos from "./pages/Orcamentos";
 import Convite from "./pages/Convite";
 import TermosDeUso from "./pages/TermosDeUso";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
+import CentralAjuda from "./pages/CentralAjuda";
+import Documentacao from "./pages/Documentacao";
+import StatusPage from "./pages/StatusPage";
+import SobreNos from "./pages/SobreNos";
+import Blog from "./pages/Blog";
+import Atualizacoes from "./pages/Atualizacoes";
+import Integracoes from "./pages/Integracoes";
+import Recursos from "./pages/Recursos";
+import Download from "./pages/Download";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +56,15 @@ const App = () => (
               <Route path="/convite/:code" element={<Convite />} />
               <Route path="/termos" element={<TermosDeUso />} />
               <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+              <Route path="/ajuda" element={<CentralAjuda />} />
+              <Route path="/documentacao" element={<Documentacao />} />
+              <Route path="/status" element={<StatusPage />} />
+              <Route path="/sobre" element={<SobreNos />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/atualizacoes" element={<Atualizacoes />} />
+              <Route path="/integracoes" element={<Integracoes />} />
+              <Route path="/recursos" element={<Recursos />} />
+              <Route path="/download" element={<Download />} />
               
               {/* Protected routes */}
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
