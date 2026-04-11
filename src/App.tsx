@@ -36,6 +36,7 @@ import Atualizacoes from "./pages/Atualizacoes";
 import Integracoes from "./pages/Integracoes";
 import Recursos from "./pages/Recursos";
 import Download from "./pages/Download";
+import CmsAdmin from "./pages/CmsAdmin";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/equipe" element={<ProtectedRoute><Equipe /></ProtectedRoute>} />
               <Route path="/automacoes" element={<ProtectedRoute><Automacoes /></ProtectedRoute>} />
               <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+              <Route path="/cms" element={<ProtectedRoute><CmsAdmin /></ProtectedRoute>} />
               
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
