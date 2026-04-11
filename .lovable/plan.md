@@ -1,24 +1,44 @@
 
 
-## Diagnosis: 404 on App Access
+## Plano: CMS Admin + Dados da Clínica e Procedimentos
 
-The code routing is correct — `"/"` is mapped to `<Landing />` in `App.tsx`. The 404 you're seeing is most likely caused by one of these two scenarios:
+### Parte 1 — Painel CMS Admin
 
-### Most Likely Cause: Published Version Out of Date
+Criar uma nova página `/cms` (rota protegida) com editor visual para gerenciar artigos da tabela `content_articles`. O painel permitirá criar, editar e excluir artigos de blog, central de ajuda e documentação.
 
-The published site at `dermacore.lovable.app` needs to be manually updated after code changes. If the last published version had different routes or a build error, it will show 404.
+**Componentes:**
+- `src/pages/CmsAdmin.tsx` — Página principal com listagem de artigos por categoria (blog, ajuda, documentacao, atualizacoes), filtros e busca
+- `src/components/cms/ArticleFormDialog.tsx` — Dialog com editor visual (título, slug auto-gerado, categoria, conteúdo rich-text com textarea formatada, excerpt, tags, imagem de capa, status de publicação)
+- Rota `/cms` adicionada em `App.tsx` como rota protegida
+- Link para CMS adicionado no `Sidebar.tsx`
 
-**Fix**: Click the **Publish** button (top right) and then **Update** to deploy the latest version.
+O editor usará a tabela `content_articles` já existente. Artigos publicados aparecerão automaticamente nas páginas de Blog, Ajuda e Documentação.
 
-### Secondary Possibility: Browser Cache
+### Parte 2 — Popular Dados da Clínica
 
-Old cached files can conflict with new routes.
+Usar a ferramenta de inserção para atualizar a clínica existente (`a5dbeed7-...`) com dados completos:
+- **Email**: contato@clinicateste.com.br
+- **CNPJ**: 12.345.678/0001-90
+- **Endereço**: Av. Paulista, 1000, São Paulo - SP, CEP 01310-100
+- **Telefone/WhatsApp**: (11) 99999-0000
+- **Horário**: Seg-Sex 08:00-18:00, Sáb 08:00-12:00
 
-**Fix**: Hard refresh with `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac), or clear browser cache for the site.
+### Parte 3 — Procedimentos Base
 
-### What I'll Do (if the above doesn't solve it)
+Inserir 5 categorias e 5 procedimentos com preços de mercado (editáveis via UI existente):
 
-No code changes are needed — the routing in `App.tsx` is correct. The `"/"` route renders `<Landing />` and `"*"` catches unmatched routes to show the 404 page. This is standard SPA routing and works correctly on Lovable hosting (which has built-in SPA fallback).
+| Procedimento | Duração | Preço Base | Custo Est. |
+|---|---|---|---|
+| Botox Facial | 30min | R$ 1.200 | R$ 300 |
+| Preenchimento Labial | 45min | R$ 1.800 | R$ 500 |
+| Peeling Químico | 60min | R$ 450 | R$ 80 |
+| Harmonização Facial | 90min | R$ 3.500 | R$ 900 |
+| Limpeza de Pele | 60min | R$ 250 | R$ 40 |
 
-**Action needed from you**: Try publishing/updating the site and doing a hard refresh. If the 404 persists after that, let me know and I'll investigate further.
+Os preços poderão ser alterados a qualquer momento pela página de Procedimentos já existente.
+
+### Arquivos a criar/modificar
+- **Criar**: `src/pages/CmsAdmin.tsx`, `src/components/cms/ArticleFormDialog.tsx`
+- **Modificar**: `src/App.tsx` (nova rota), `src/components/layout/Sidebar.tsx` (link CMS)
+- **Dados**: UPDATE na tabela `clinics`, INSERT em `procedure_categories` e `procedures`
 
