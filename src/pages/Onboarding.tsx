@@ -56,7 +56,7 @@ export default function Onboarding() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plans")
-        .select("*")
+        .select("id, name, slug, description, price_monthly, max_professionals, max_patients, max_leads_per_month, features, sort_order")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (error) throw error;
