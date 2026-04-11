@@ -42,7 +42,7 @@ const UsageItem = ({ icon, label, current, max, percentage, isAtLimit }: UsageIt
 
 const getStatusBadge = (status: string) => {
   const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-    trial: { label: 'Período de teste', variant: 'secondary' },
+    trial: { label: 'Trial', variant: 'secondary' },
     active: { label: 'Ativo', variant: 'default' },
     past_due: { label: 'Pagamento pendente', variant: 'destructive' },
     canceled: { label: 'Cancelado', variant: 'outline' },
@@ -92,9 +92,9 @@ export const PlanUsageCard = () => {
           {getPlanIcon(planLimits.planName)}
           <div>
             <h3 className="font-semibold text-foreground">Plano {planLimits.planName}</h3>
-            {planLimits.daysRemaining > 0 && planLimits.subscriptionStatus === 'trial' && (
+            {planLimits.daysRemaining > 0 && planLimits.subscriptionStatus !== 'active' && (
               <p className="text-xs text-muted-foreground">
-                {planLimits.daysRemaining} dias restantes no teste
+                {planLimits.daysRemaining} dias restantes
               </p>
             )}
           </div>
