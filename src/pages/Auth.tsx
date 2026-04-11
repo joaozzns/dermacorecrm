@@ -66,7 +66,7 @@ export default function Auth() {
         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
-      console.error("Checkout error:", err);
+      // Checkout error handled gracefully
       toast.error("Erro ao iniciar checkout. Redirecionando ao dashboard.");
       navigate("/dashboard", { replace: true });
     }
