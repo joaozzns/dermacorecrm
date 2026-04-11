@@ -13,7 +13,8 @@ import {
   ChevronRight,
   LogOut,
   Stethoscope,
-  FileText
+  FileText,
+  Newspaper
 } from "lucide-react";
 import logoDermacore from "@/assets/logo_dermacore.png";
 import { cn } from "@/lib/utils";
@@ -84,6 +85,7 @@ export const Sidebar = ({ activeSection, onSectionChange, mobileOpen }: SidebarP
     { id: "financeiro", path: "/financeiro", icon: <DollarSign className="w-5 h-5" />, label: "Financeiro" },
     { id: "equipe", path: "/equipe", icon: <UserCog className="w-5 h-5" />, label: "Equipe" },
     { id: "automacoes", path: "/automacoes", icon: <Zap className="w-5 h-5" />, label: "Automações" },
+    { id: "cms", path: "/cms", icon: <Newspaper className="w-5 h-5" />, label: "CMS" },
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
