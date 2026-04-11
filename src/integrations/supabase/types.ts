@@ -1008,6 +1008,13 @@ export type Database = {
             referencedRelation: "plans"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       team_members: {
@@ -1128,6 +1135,115 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string | null
+          is_active: boolean | null
+          max_leads_per_month: number | null
+          max_patients: number | null
+          max_professionals: number | null
+          name: string | null
+          price_monthly: number | null
+          slug: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string | null
+          is_active?: boolean | null
+          max_leads_per_month?: number | null
+          max_patients?: number | null
+          max_professionals?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string | null
+          is_active?: boolean | null
+          max_leads_per_month?: number | null
+          max_patients?: number | null
+          max_professionals?: number | null
+          name?: string | null
+          price_monthly?: number | null
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions_safe: {
+        Row: {
+          canceled_at: string | null
+          clinic_id: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string | null
+          plan_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"] | null
+          trial_ends_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          canceled_at?: string | null
+          clinic_id?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string | null
+          plan_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          canceled_at?: string | null
+          clinic_id?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string | null
+          plan_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          trial_ends_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: true
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans_public"
             referencedColumns: ["id"]
           },
         ]
