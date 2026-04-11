@@ -1,81 +1,24 @@
 
 
-## Plan: Functional Automations Page + Legal Pages
+## Diagnosis: 404 on App Access
 
-### 1. Database: Create `automations` table
+The code routing is correct — `"/"` is mapped to `<Landing />` in `App.tsx`. The 404 you're seeing is most likely caused by one of these two scenarios:
 
-New migration to create an `automations` table with RLS:
+### Most Likely Cause: Published Version Out of Date
 
-```sql
-CREATE TABLE public.automations (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  clinic_id uuid NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
-  name text NOT NULL,
-  type text NOT NULL DEFAULT 'boas-vindas', -- boas-vindas, lembrete, follow-up
-  trigger_event text NOT NULL DEFAULT 'novo_lead', -- novo_lead, agendamento_criado, lead_inativo
-  delay_hours integer NOT NULL DEFAULT 0,
-  message_template text NOT NULL DEFAULT '',
-  channel text NOT NULL DEFAULT 'whatsapp', -- whatsapp, email, notificacao
-  is_active boolean NOT NULL DEFAULT true,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
+The published site at `dermacore.lovable.app` needs to be manually updated after code changes. If the last published version had different routes or a build error, it will show 404.
 
-ALTER TABLE public.automations ENABLE ROW LEVEL SECURITY;
+**Fix**: Click the **Publish** button (top right) and then **Update** to deploy the latest version.
 
--- RLS policies (clinic-scoped)
-CREATE POLICY "Users can view automations" ON public.automations FOR SELECT USING (clinic_id = get_my_clinic());
-CREATE POLICY "Admins can create automations" ON public.automations FOR INSERT WITH CHECK (clinic_id = get_my_clinic() AND get_my_role() = 'admin');
-CREATE POLICY "Admins can update automations" ON public.automations FOR UPDATE USING (clinic_id = get_my_clinic() AND get_my_role() = 'admin');
-CREATE POLICY "Admins can delete automations" ON public.automations FOR DELETE USING (clinic_id = get_my_clinic() AND get_my_role() = 'admin');
-```
+### Secondary Possibility: Browser Cache
 
-### 2. Hook: `useAutomations`
+Old cached files can conflict with new routes.
 
-New file `src/hooks/useAutomations.tsx` -- CRUD hook for the `automations` table, following the same pattern as `useFollowUpSequences`. Provides `automations`, `isLoading`, `createAutomation`, `updateAutomation`, `toggleAutomation`, `deleteAutomation`.
+**Fix**: Hard refresh with `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac), or clear browser cache for the site.
 
-### 3. Automations Page (rewrite `src/pages/Automacoes.tsx`)
+### What I'll Do (if the above doesn't solve it)
 
-Replace the placeholder with a functional page:
-- Header with "Nova Automação" button (admin only)
-- List of automation cards showing: name, type badge, trigger, delay, channel, active/inactive toggle
-- Empty state when no automations exist
-- Dialog for creating/editing automations with fields:
-  - **Nome** (text input)
-  - **Tipo** (select: Boas-vindas, Lembrete, Follow-up)
-  - **Gatilho** (select: Novo lead, Agendamento criado, Lead inativo por X dias)
-  - **Atraso** (number input + unit: minutos/horas/dias)
-  - **Canal** (select: WhatsApp, Notificação interna)
-  - **Mensagem template** (textarea with placeholder variables like `{{nome}}`, `{{procedimento}}`)
-- Toggle switch to activate/deactivate each automation
-- Delete button with confirmation
+No code changes are needed — the routing in `App.tsx` is correct. The `"/"` route renders `<Landing />` and `"*"` catches unmatched routes to show the 404 page. This is standard SPA routing and works correctly on Lovable hosting (which has built-in SPA fallback).
 
-### 4. Legal Pages
-
-**New files:**
-- `src/pages/TermosDeUso.tsx` -- Terms of Use page with generic content for Brazilian aesthetic clinics (LGPD-compliant language, SaaS terms, data handling, subscription terms, cancellation policy)
-- `src/pages/PoliticaPrivacidade.tsx` -- Privacy Policy page (data collection, cookies, LGPD rights, data retention, contact info)
-
-Both pages will use a clean layout with the DermaCore logo, back navigation, and formatted legal text sections.
-
-### 5. Route Registration (`src/App.tsx`)
-
-Add two new public routes:
-- `/termos` -> `TermosDeUso`
-- `/privacidade` -> `PoliticaPrivacidade`
-
-### 6. Footer Links Update (`FooterSection.tsx`)
-
-Replace `mailto:` links for "Termos de Uso", "Privacidade", and "Termos" with proper `<Link>` components pointing to `/termos` and `/privacidade`.
-
-### 7. Auth Page Links (`Auth.tsx`)
-
-Update line 512 to include actual links to `/termos` and `/privacidade` instead of plain text.
-
-### Technical Details
-
-- The `automations` table uses `clinic_id` scoping with `get_my_clinic()` for RLS, consistent with all other tables.
-- Admin-only write access matches the pattern used in `procedures`, `team_members`, etc.
-- The hook casts queries through `as any` / `as unknown` since the types file is auto-generated and may not immediately reflect the new table.
-- Legal pages are public routes (no `ProtectedRoute` wrapper).
+**Action needed from you**: Try publishing/updating the site and doing a hard refresh. If the 404 persists after that, let me know and I'll investigate further.
 
