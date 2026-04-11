@@ -31,13 +31,13 @@ export const usePlanLimits = () => {
       if (error || !data || data.length === 0) {
         // Return default trial plan if no subscription
         return {
-          planName: 'Trial',
-          maxProfessionals: 2,
-          maxPatients: 50,
-          maxLeadsPerMonth: 10,
-          features: ['Funcionalidades básicas'],
-          subscriptionStatus: 'trial',
-          daysRemaining: 7,
+          planName: 'Sem plano',
+          maxProfessionals: 0,
+          maxPatients: 0,
+          maxLeadsPerMonth: 0,
+          features: [],
+          subscriptionStatus: 'expired' as const,
+          daysRemaining: 0,
         };
       }
 
