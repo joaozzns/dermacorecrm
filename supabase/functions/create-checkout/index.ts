@@ -86,7 +86,6 @@ serve(async (req) => {
       success_url: `${origin}/dashboard?checkout=success`,
       cancel_url: `${origin}/planos?checkout=cancelled`,
       subscription_data: {
-        trial_period_days: 7,
         metadata: {
           user_id: user.id,
           plan_slug: planSlug,
