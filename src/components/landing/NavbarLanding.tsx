@@ -76,7 +76,7 @@ export const NavbarLanding = () => {
               <button className="group relative inline-flex items-center justify-center py-2.5 px-6 rounded-full font-medium text-sm overflow-hidden transition-colors duration-700 border-2 z-[1] cursor-pointer bg-primary text-primary-foreground border-primary hover:text-primary">
                 <span className="absolute top-0 left-0 w-0 h-full transition-all duration-700 ease-in-out z-[-1] group-hover:w-full bg-background" />
                 <ArrowRight className="w-4 h-4 mr-2 transition-transform duration-400 group-hover:translate-x-1" />
-                Testar 7 dias Grátis
+                Começar Agora
               </button>
             </Link>
           </div>
@@ -126,7 +126,7 @@ export const NavbarLanding = () => {
                 <Link to="/auth?plan=essencial">
                   <Button className="btn-premium w-full">
                     <ArrowRight className="w-4 h-4 mr-2" />
-                    Testar 7 dias Grátis
+                    Começar Agora
                   </Button>
                 </Link>
               </div>

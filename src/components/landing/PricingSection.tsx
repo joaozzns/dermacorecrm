@@ -26,7 +26,6 @@ const plans = [
       "Suporte por email"
     ],
     cta: "Começar Agora",
-    gradient: "from-slate-500 to-slate-600"
   },
   {
     name: "Profissional",
@@ -47,7 +46,6 @@ const plans = [
       "Suporte prioritário"
     ],
     cta: "Escolher Profissional",
-    gradient: "from-primary to-primary"
   },
   {
     name: "Enterprise",
@@ -68,7 +66,6 @@ const plans = [
       "SLA garantido"
     ],
     cta: "Escolher Enterprise",
-    gradient: "from-amber-500 to-orange-500"
   }
 ];
 
@@ -104,25 +101,25 @@ export const PricingSection = () => {
   };
 
   return (
-    <section className="py-24 px-6 bg-background relative overflow-hidden">
+    <section className="py-20 px-6 bg-background relative overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
-        <ScrollReveal className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <ScrollReveal className="text-center mb-14">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-display">
             Escolha o plano ideal
             <br />
             <span className="text-gradient-gold">para sua clínica</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Sem taxas ocultas. Cancele quando quiser. 7 dias grátis para testar.
+            Sem taxas ocultas. Cancele quando quiser. Garantia de 30 dias.
           </p>
         </ScrollReveal>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 items-stretch">
+        <div className="grid md:grid-cols-3 gap-6 items-center">
           {plans.map((plan, index) => {
             const isCurrentPlan = planSlug === plan.slug;
             const isLoading = loadingPlan === plan.slug;
@@ -132,17 +129,20 @@ export const PricingSection = () => {
                 <motion.div 
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.3 }}
-                  className={`relative h-full rounded-2xl p-8 ${
+                  className={`relative h-full rounded-2xl p-8 transition-all duration-300 ${
                     plan.popular 
-                      ? 'bg-gradient-to-b from-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20' 
+                      ? 'bg-gradient-to-b from-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20 scale-[1.05] z-10' 
                       : 'bg-card border border-border hover:border-primary/30'
-                  } ${isCurrentPlan ? 'ring-2 ring-green-500' : ''} transition-all duration-300`}
+                  } ${isCurrentPlan ? 'ring-2 ring-revenue-confirmed' : ''}`}
                 >
-                  {/* Popular Badge */}
+                  {/* Popular Badge - more visible */}
                   {plan.popular && !isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-sm font-medium shadow-lg">
-                        Mais Popular
+                      <div className="px-6 py-2 rounded-full text-sm font-semibold shadow-lg" style={{ background: 'var(--gradient-gold)' }}>
+                        <span className="text-white flex items-center gap-1.5">
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          Mais Popular
+                        </span>
                       </div>
                     </div>
                   )}
@@ -150,7 +150,7 @@ export const PricingSection = () => {
                   {/* Current Plan Badge */}
                   {isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <div className="px-4 py-1.5 rounded-full bg-green-500 text-white text-sm font-medium shadow-lg">
+                      <div className="px-4 py-1.5 rounded-full bg-revenue-confirmed text-white text-sm font-medium shadow-lg">
                         Seu Plano
                       </div>
                     </div>
@@ -158,10 +158,16 @@ export const PricingSection = () => {
 
                   {/* Plan Header */}
                   <div className="mb-8">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-4`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-br from-primary to-secondary' 
+                        : plan.slug === 'enterprise'
+                          ? 'bg-gradient-to-br from-amber-500 to-orange-500'
+                          : 'bg-gradient-to-br from-primary/60 to-primary/40'
+                    }`}>
                       <plan.icon className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <h3 className="text-2xl font-bold mb-2 font-display">{plan.name}</h3>
                     <p className="text-muted-foreground">{plan.description}</p>
                   </div>
 
@@ -169,7 +175,7 @@ export const PricingSection = () => {
                   <div className="mb-8">
                     <div className="flex items-baseline gap-1">
                       <span className="text-lg text-muted-foreground">R$</span>
-                      <span className={`text-5xl font-bold ${plan.popular ? 'text-gradient-primary' : ''}`}>
+                      <span className={`text-5xl font-bold font-display ${plan.popular ? 'text-gradient-primary' : ''}`}>
                         {plan.price}
                       </span>
                       <span className="text-muted-foreground">{plan.period}</span>
@@ -190,17 +196,20 @@ export const PricingSection = () => {
                     ))}
                   </ul>
 
-                  {/* CTA Button */}
+                  {/* CTA Button - differentiated */}
                   <button
                     className={`group relative inline-flex items-center justify-center w-full py-4 px-8 rounded-full font-medium text-base overflow-hidden transition-colors duration-700 border-2 z-[1] cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
                       plan.popular
-                        ? 'bg-primary text-primary-foreground border-primary hover:text-primary'
+                        ? 'border-none text-white'
                         : 'bg-foreground text-background border-foreground hover:text-foreground'
                     }`}
+                    style={plan.popular ? { background: 'var(--gradient-gold)' } : undefined}
                     onClick={() => handleSelectPlan(plan.slug)}
                     disabled={isLoading || isCurrentPlan}
                   >
-                    <span className="absolute top-0 left-0 w-0 h-full bg-background transition-all duration-700 ease-in-out z-[-1] group-hover:w-full" />
+                    {!plan.popular && (
+                      <span className="absolute top-0 left-0 w-0 h-full bg-background transition-all duration-700 ease-in-out z-[-1] group-hover:w-full" />
+                    )}
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -225,10 +234,10 @@ export const PricingSection = () => {
         <ScrollReveal delay={0.5} className="mt-12">
           <div className="text-center p-6 rounded-2xl bg-secondary/30 border border-border max-w-2xl mx-auto">
             <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <Check className="w-5 h-5 text-green-500" />
+              <div className="w-10 h-10 rounded-full bg-revenue-confirmed/20 flex items-center justify-center">
+                <Check className="w-5 h-5 text-revenue-confirmed" />
               </div>
-              <span className="text-xl font-semibold">Garantia de 30 dias</span>
+              <span className="text-xl font-semibold font-display">Garantia de 30 dias</span>
             </div>
             <p className="text-muted-foreground">
               Se não estiver satisfeito, devolvemos 100% do seu investimento. Sem perguntas.

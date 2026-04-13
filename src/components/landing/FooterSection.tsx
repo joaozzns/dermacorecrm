@@ -1,12 +1,33 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import logoDermacore from "@/assets/logo_dermacore.png";
 
 export const FooterSection = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-12 px-6 bg-sidebar-background text-sidebar-foreground">
-      <div className="max-w-7xl mx-auto">
+    <footer className="relative bg-sidebar-background text-sidebar-foreground overflow-hidden">
+      {/* Gradient transition from content */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      
+      {/* Mini CTA */}
+      <div className="border-b border-sidebar-border">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sidebar-foreground/80 font-medium">
+            Pronto para crescer? Comece agora mesmo.
+          </p>
+          <Link
+            to="/auth?plan=essencial"
+            className="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+            style={{ background: 'var(--gradient-gold)' }}
+          >
+            <span className="text-white">Começar Agora</span>
+            <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
