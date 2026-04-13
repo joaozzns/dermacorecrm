@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 export const CTASection = () => {
   return (
-    <section className="py-24 px-6 bg-background relative overflow-hidden">
+    <section className="py-20 px-6 bg-background relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
@@ -25,7 +25,7 @@ export const CTASection = () => {
           <div className="text-center p-12 rounded-3xl bg-gradient-to-b from-card to-card/50 border border-border shadow-2xl">
 
             {/* Headline */}
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-display">
               Pronto para transformar
               <br />
               <span className="text-gradient-primary">sua clínica?</span>
@@ -34,8 +34,8 @@ export const CTASection = () => {
             {/* Benefits */}
             <div className="flex flex-wrap justify-center gap-6 mb-8 text-muted-foreground">
               {[
-                "7 dias grátis",
-                "Sem cartão de crédito",
+                "Garantia de 30 dias",
+                "Cancele quando quiser",
                 "Suporte completo"
               ].map((benefit) => (
                 <div key={benefit} className="flex items-center gap-2">
